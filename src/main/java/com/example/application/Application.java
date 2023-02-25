@@ -3,6 +3,7 @@ package com.example.application;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.theme.Theme;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -20,6 +21,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Application implements AppShellConfigurator {
 
     public static void main(String[] args) {
+        Dotenv dotenv = Dotenv.load();
+        String mongodbUri = dotenv.get("MONGODB_URI");
+        System.setProperty("spring.data.mongodb.uri", mongodbUri);
+
         SpringApplication.run(Application.class, args);
     }
 
