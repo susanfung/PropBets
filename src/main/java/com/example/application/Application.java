@@ -22,8 +22,12 @@ public class Application implements AppShellConfigurator {
 
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.load();
+
         String mongodbUri = dotenv.get("MONGODB_URI");
         System.setProperty("spring.data.mongodb.uri", mongodbUri);
+
+        String keycloakSecret = dotenv.get("KEYCLOAK_SECRET");
+        System.setProperty("keycloak.credentials.secret", keycloakSecret);
 
         SpringApplication.run(Application.class, args);
     }
