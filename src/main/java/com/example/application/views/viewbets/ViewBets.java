@@ -1,4 +1,4 @@
-package com.example.application.views.helloworld;
+package com.example.application.views.viewbets;
 
 import com.example.application.data.DataService;
 import com.example.application.views.MainLayout;
@@ -18,13 +18,13 @@ import java.util.List;
 @PageTitle("Hello World")
 @Route(value = "hello", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
-public class HelloWorldView extends HorizontalLayout {
+public class ViewBets extends HorizontalLayout {
 
     private TextField name;
     private Button sayHello;
     private final DataService dataService;
 
-    public HelloWorldView(DataService dataService) {
+    public ViewBets(DataService dataService) {
         this.dataService = dataService;
 
         name = new TextField("Your name");

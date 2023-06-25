@@ -1,4 +1,4 @@
-package com.example.application.views.about;
+package com.example.application.views.placebets;
 
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.html.H2;
@@ -11,9 +11,9 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 
 @PageTitle("About")
 @Route(value = "about", layout = MainLayout.class)
-public class AboutView extends VerticalLayout {
+public class PlaceBets extends VerticalLayout {
 
-    public AboutView() {
+    public PlaceBets() {
         setSpacing(false);
 
         Image img = new Image("images/empty-plant.png", "placeholder plant");

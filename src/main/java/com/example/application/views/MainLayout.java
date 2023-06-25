@@ -3,15 +3,17 @@ package com.example.application.views;
 
 import com.example.application.components.appnav.AppNav;
 import com.example.application.components.appnav.AppNavItem;
-import com.example.application.views.about.AboutView;
-import com.example.application.views.helloworld.HelloWorldView;
+import com.example.application.views.placebets.PlaceBets;
+import com.example.application.views.viewbets.ViewBets;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.html.Footer;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.Scroller;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
@@ -39,9 +41,11 @@ public class MainLayout extends AppLayout {
     }
 
     private void addDrawerContent() {
-        H1 appName = new H1("Prop Bets");
-        appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
-        Header header = new Header(appName);
+        Image propBetsLogo = new Image("images/prop-bets-logo.png", "Prop Bets");
+        propBetsLogo.setWidth("100%");
+        propBetsLogo.setHeight("100%");
+
+        Header header = new Header(propBetsLogo);
 
         Scroller scroller = new Scroller(createNavigation());
 
@@ -53,17 +57,37 @@ public class MainLayout extends AppLayout {
         // For documentation, visit https://github.com/vaadin/vcf-nav#readme
         AppNav nav = new AppNav();
 
-        nav.addItem(new AppNavItem("Hello World", HelloWorldView.class, "la la-globe"));
-        nav.addItem(new AppNavItem("About", AboutView.class, "la la-file"));
+        Image betsIcon = new Image("images/football-bet.png", "Bets");
+        betsIcon.setWidth("24px");
+        betsIcon.setHeight("24px");
+
+        Image placeBetsIcon = new Image("images/place-bet.png", "Place Bets");
+        placeBetsIcon.setWidth("24px");
+        placeBetsIcon.setHeight("24px");
+
+        nav.addItem(new AppNavItem("View Bets", ViewBets.class, betsIcon));
+        nav.addItem(new AppNavItem("Place Bets", PlaceBets.class, placeBetsIcon));
 
         return nav;
     }
 
-    private Footer createFooter() {
-        Footer layout = new Footer();
+    private VerticalLayout createFooter() {
+        VerticalLayout layout = new VerticalLayout();
+
+        Anchor anchorBetIcon = new Anchor("https://www.flaticon.com/free-icons/bet", "Bet icons created by Freepik - Flaticon");
+        Anchor anchorBettingIcon = new Anchor("https://www.flaticon.com/free-icons/betting", "Betting icons created by Vitaly Gorbachev - Flaticon");
+
+        anchorBetIcon.setTitle("Bet Icons");
+        anchorBetIcon.getElement().getStyle().set("font-size", "10px");
+
+        anchorBettingIcon.setTitle("Betting Icons");
+        anchorBettingIcon.getElement().getStyle().set("font-size", "10px");
+
+        layout.add(anchorBetIcon, anchorBettingIcon);
 
         return layout;
     }
+
 
     @Override
     protected void afterNavigation() {
