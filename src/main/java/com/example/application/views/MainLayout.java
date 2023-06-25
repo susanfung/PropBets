@@ -3,6 +3,7 @@ package com.example.application.views;
 
 import com.example.application.components.appnav.AppNav;
 import com.example.application.components.appnav.AppNavItem;
+import com.example.application.views.createnewbet.CreateNewBet;
 import com.example.application.views.placebets.PlaceBets;
 import com.example.application.views.viewbets.ViewBets;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -65,8 +66,13 @@ public class MainLayout extends AppLayout {
         placeBetsIcon.setWidth("24px");
         placeBetsIcon.setHeight("24px");
 
+        Image createNewBetIcon = new Image("images/create-new-bet.png", "Create New Bet");
+        createNewBetIcon.setWidth("24px");
+        createNewBetIcon.setHeight("24px");
+
         nav.addItem(new AppNavItem("View Bets", ViewBets.class, betsIcon));
         nav.addItem(new AppNavItem("Place Bets", PlaceBets.class, placeBetsIcon));
+        nav.addItem(new AppNavItem("Create New Bet", CreateNewBet.class, createNewBetIcon));
 
         return nav;
     }
