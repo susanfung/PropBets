@@ -1,6 +1,7 @@
 package com.example.application.views.viewbets;
 
 import com.example.application.data.DataService;
+import com.example.application.data.UserBet;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
@@ -37,10 +38,10 @@ public class ViewBets extends HorizontalLayout {
         setMargin(true);
         setVerticalComponentAlignment(Alignment.END, name, sayHello);
 
-        List<Document> documents = dataService.getDocuments();
+        List<UserBet> userBets = dataService.getUserBets();
 
-        Grid<Document> grid = new Grid<>(Document.class);
-        grid.setItems(documents);
+        Grid<UserBet> grid = new Grid<>(UserBet.class);
+        grid.setItems(userBets);
 
         add(name, sayHello, grid);
     }

@@ -21,18 +21,29 @@ public class DataService {
         this.mongoClient = mongoClient;
     }
 
-    public List<Document> getDocuments() {
-        MongoDatabase database = mongoClient.getDatabase("mydatabase");
-        MongoCollection<Document> collection = database.getCollection("mycollection");
+    public List<UserBet> getUserBets() {
+        MongoDatabase database = mongoClient.getDatabase("SuperBowl");
+        MongoCollection<Document> collection = database.getCollection("UserBets");
         MongoCursor<Document> cursor = collection.find().iterator();
-        List<Document> documents = new ArrayList<>();
+
+        List<UserBet> userBets = new ArrayList<>();
+
         try {
             while (cursor.hasNext()) {
-                documents.add(cursor.next());
+                Document document = cursor.next();
+
+                UserBet userBet = new UserBet(
+                        document.getString("username"),
+                        document.getString("betType"),
+                        document.getString("betValue")
+                );
+
+                userBets.add(userBet);
             }
         } finally {
             cursor.close();
         }
-        return documents;
+
+        return userBets;
     }
 }

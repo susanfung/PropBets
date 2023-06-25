@@ -11,15 +11,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MongoConfig {
 
-        @Value("${spring.data.mongodb.uri}")
+    @Value("${spring.data.mongodb.uri}")
     private String connectionString;
 
     @Bean
     public MongoClient mongoClient() {
         ConnectionString connString = new ConnectionString(connectionString);
         MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(connString)
-                .build();
+                                                          .applyConnectionString(connString)
+                                                          .build();
         return MongoClients.create(settings);
     }
 }
