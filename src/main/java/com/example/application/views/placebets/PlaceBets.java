@@ -9,7 +9,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 
-@PageTitle("About")
+@PageTitle("Place Bets")
 @Route(value = "about", layout = MainLayout.class)
 public class PlaceBets extends VerticalLayout {
 

@@ -12,11 +12,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import org.bson.Document;
 
 import java.util.List;
 
-@PageTitle("Hello World")
+@PageTitle("View Bets")
 @Route(value = "hello", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
 public class ViewBets extends HorizontalLayout {
@@ -30,9 +29,7 @@ public class ViewBets extends HorizontalLayout {
 
         name = new TextField("Your name");
         sayHello = new Button("Say hello");
-        sayHello.addClickListener(e -> {
-            Notification.show("Hello " + name.getValue());
-        });
+        sayHello.addClickListener(e -> Notification.show("Hello " + name.getValue()));
         sayHello.addClickShortcut(Key.ENTER);
 
         setMargin(true);
