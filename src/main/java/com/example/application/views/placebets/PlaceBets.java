@@ -24,25 +24,26 @@ public class PlaceBets extends VerticalLayout {
 
         name = new TextField("Your name");
 
-        RadioButtonGroup<String> radioGroup = new RadioButtonGroup<>();
-        radioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-        radioGroup.setLabel("Colour of Gatorade");
-        radioGroup.setItems("Blue / Purple", "Orange / Yellow", "Red", "Green", "Clear / Water");
+        RadioButtonGroup<String> betColourOfGatorade = new RadioButtonGroup<>();
+        betColourOfGatorade.setClassName("Gatorade Colour");
+        betColourOfGatorade.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+        betColourOfGatorade.setLabel("Colour of Gatorade");
+        betColourOfGatorade.setItems("Blue / Purple", "Orange / Yellow", "Red", "Green", "Clear / Water");
 
         submit = new Button("Submit");
         submit.addClickListener(e -> {
             String username = name.getValue();
-            String option = radioGroup.getValue();
+            String betValue = betColourOfGatorade.getValue();
 
             submit.setEnabled(false);
 
-            UserBet bet = new UserBet(username, "SCORE", option);
+            UserBet bet = new UserBet(username, betColourOfGatorade.getClassName(), betValue);
 
             Notification.show("Bet submitted!");
             this.dataService.addUserBet(bet);
         });
 
-        add(name, radioGroup, submit);
+        add(name, betColourOfGatorade, submit);
     }
 
 }
