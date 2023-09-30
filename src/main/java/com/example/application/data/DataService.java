@@ -15,16 +15,18 @@ import java.util.List;
 public class DataService {
 
     private final MongoClient mongoClient;
+    private final MongoDatabase database;
+    private final MongoCollection<Document> userBetsCollection;
 
     @Autowired
     public DataService(MongoClient mongoClient) {
         this.mongoClient = mongoClient;
+        database = mongoClient.getDatabase("SuperBowl");
+        userBetsCollection = database.getCollection("UserBets");
     }
 
     public List<UserBet> getUserBets() {
-        MongoDatabase database = mongoClient.getDatabase("SuperBowl");
-        MongoCollection<Document> collection = database.getCollection("UserBets");
-        MongoCursor<Document> cursor = collection.find().iterator();
+        MongoCursor<Document> cursor = userBetsCollection.find().iterator();
 
         List<UserBet> userBets = new ArrayList<>();
 
@@ -32,11 +34,9 @@ public class DataService {
             while (cursor.hasNext()) {
                 Document document = cursor.next();
 
-                UserBet userBet = new UserBet(
-                        document.getString("username"),
-                        document.getString("betType"),
-                        document.getString("betValue")
-                );
+                UserBet userBet = new UserBet(document.getString("username"),
+                                              document.getString("betType"),
+                                              document.getString("betValue"));
 
                 userBets.add(userBet);
             }
@@ -45,5 +45,13 @@ public class DataService {
         }
 
         return userBets;
+    }
+
+    public void addUserBet(UserBet userBet) {
+        Document document = new Document().append("username", userBet.getUsername())
+                                          .append("betType", userBet.getBetType())
+                                          .append("betValue", userBet.getBetValue());
+
+        userBetsCollection.insertOne(document);
     }
 }
