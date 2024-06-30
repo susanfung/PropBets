@@ -55,3 +55,9 @@ vaadin-scroller[slot="drawer"][overflow~="bottom"] {
 [slot="drawer"]:is(header, footer):is(:empty) {
   display: none;
 }
+
+.selected {
+    background-color: hsl(214, 90%, 52%);
+    color: white;
+}
+
