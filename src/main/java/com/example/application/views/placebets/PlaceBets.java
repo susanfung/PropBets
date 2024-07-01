@@ -14,8 +14,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 @PageTitle("Place Bets")
@@ -25,7 +25,7 @@ public class PlaceBets extends VerticalLayout {
     private Button submit;
     private final DataService dataService;
 
-    private Set<String> selectedCells = new HashSet<>();
+    private static Map<String, String> bets = new HashMap<>();
 
     public PlaceBets(DataService dataService) {
         this.dataService = dataService;
@@ -56,19 +56,12 @@ public class PlaceBets extends VerticalLayout {
                 return;
             }
 
-            for (String cell : selectedCells) {
-                UserBet bet = new UserBet(username, "Score", cell);
+            bets.forEach((betValue, betType) -> {
+                UserBet bet = new UserBet(username, betType, betValue);
                 this.dataService.addUserBet(bet);
-            }
-
-            String betValue = propBet.getValue();
-
-            submit.setEnabled(false);
-
-            UserBet bet = new UserBet(username, propBet.getClassName(), betValue);
+            });
 
             Notification.show("Bet submitted!");
-            this.dataService.addUserBet(bet);
         });
 
         add(propBetsTitle,
@@ -95,20 +88,20 @@ public class PlaceBets extends VerticalLayout {
 
         IntStream.rangeClosed(0, 9).forEach(col -> {
             Button cellButton = new Button(row + "," + col);
-            cellButton.addClickListener(e -> handleCellSelection(cellButton));
+            cellButton.addClickListener(e -> handleScoreBoardSelection(cellButton, "Score"));
             rowLayout.add(cellButton);
         });
         return rowLayout;
     }
 
-    private void handleCellSelection(Button cellButton) {
-        String cellId = cellButton.getText();
-        if (selectedCells.contains(cellId)) {
-            selectedCells.remove(cellId);
-            cellButton.removeClassName("selected");
+    private void handleScoreBoardSelection(Button button, String betType) {
+        String betValue = button.getText();
+        if (bets.containsKey(betValue)) {
+            bets.remove(betValue);
+            button.removeClassName("selected");
         } else {
-            selectedCells.add(cellId);
-            cellButton.addClassName("selected");
+            bets.put(betValue, betType);
+            button.addClassName("selected");
         }
     }
 
@@ -118,6 +111,11 @@ public class PlaceBets extends VerticalLayout {
         betColourOfGatorade.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
         betColourOfGatorade.setLabel("Colour of Gatorade");
         betColourOfGatorade.setItems("Blue / Purple", "Orange / Yellow", "Red", "Green", "Clear / Water");
+        betColourOfGatorade.addValueChangeListener(e -> handlePropBetSelection(betColourOfGatorade.getClassName(), e.getValue()));
         return betColourOfGatorade;
+    }
+
+    private static void handlePropBetSelection(String betType, String betValue) {
+        bets.put(betValue, betType);
     }
 }
