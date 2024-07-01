@@ -16,6 +16,7 @@ import com.vaadin.flow.router.Route;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 @PageTitle("Place Bets")
 @Route(value = "about", layout = MainLayout.class)
@@ -34,37 +35,17 @@ public class PlaceBets extends VerticalLayout {
         add(name);
 
         H2 scoreBoardTitle = new H2("Score Board");
-        add(scoreBoardTitle);
+        HorizontalLayout columnNamesForScoreBoard = createColumnNamesForScoreBoard();
+        add(scoreBoardTitle, columnNamesForScoreBoard);
 
-        HorizontalLayout headerLayout = new HorizontalLayout();
-        headerLayout.add(new Button());
-        for (int col = 0; col <= 9; col++) {
-            Button columnButton = new Button(String.valueOf(col));
-            columnButton.setEnabled(false);
-            headerLayout.add(columnButton);
-        }
-        add(headerLayout);
-
-        for (int row = 0; row <= 9; row++) {
-            HorizontalLayout rowLayout = new HorizontalLayout();
-            Button rowButton = new Button(String.valueOf(row));
-            rowButton.setEnabled(false);
-            rowLayout.add(rowButton);
-            for (int col = 0; col <= 9; col++) {
-                Button cellButton = new Button(row + "," + col);
-                cellButton.addClickListener(e -> handleCellSelection(cellButton));
-                rowLayout.add(cellButton);
-            }
-            add(rowLayout);
-        }
+        IntStream.rangeClosed(0, 9).forEach(row -> {
+            HorizontalLayout rowsForScoreBoard = createRowsForScoreBoard(row);
+            add(rowsForScoreBoard);
+        });
 
         H2 propBetsTitle = new H2("PropBets");
 
-        RadioButtonGroup<String> betColourOfGatorade = new RadioButtonGroup<>();
-        betColourOfGatorade.setClassName("Gatorade Colour");
-        betColourOfGatorade.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-        betColourOfGatorade.setLabel("Colour of Gatorade");
-        betColourOfGatorade.setItems("Blue / Purple", "Orange / Yellow", "Red", "Green", "Clear / Water");
+        RadioButtonGroup<String> propBet = createPropBet();
 
         submit = new Button("Submit");
         submit.addClickListener(e -> {
@@ -80,19 +61,44 @@ public class PlaceBets extends VerticalLayout {
                 this.dataService.addUserBet(bet);
             }
 
-            String betValue = betColourOfGatorade.getValue();
+            String betValue = propBet.getValue();
 
             submit.setEnabled(false);
 
-            UserBet bet = new UserBet(username, betColourOfGatorade.getClassName(), betValue);
+            UserBet bet = new UserBet(username, propBet.getClassName(), betValue);
 
             Notification.show("Bet submitted!");
             this.dataService.addUserBet(bet);
         });
 
         add(propBetsTitle,
-            betColourOfGatorade,
+            propBet,
             submit);
+    }
+
+    private static HorizontalLayout createColumnNamesForScoreBoard() {
+        HorizontalLayout headerLayout = new HorizontalLayout();
+        headerLayout.add(new Button());
+        for (int col = 0; col <= 9; col++) {
+            Button columnButton = new Button(String.valueOf(col));
+            columnButton.setEnabled(false);
+            headerLayout.add(columnButton);
+        }
+        return headerLayout;
+    }
+
+    private HorizontalLayout createRowsForScoreBoard(int row) {
+        HorizontalLayout rowLayout = new HorizontalLayout();
+        Button rowButton = new Button(String.valueOf(row));
+        rowButton.setEnabled(false);
+        rowLayout.add(rowButton);
+
+        IntStream.rangeClosed(0, 9).forEach(col -> {
+            Button cellButton = new Button(row + "," + col);
+            cellButton.addClickListener(e -> handleCellSelection(cellButton));
+            rowLayout.add(cellButton);
+        });
+        return rowLayout;
     }
 
     private void handleCellSelection(Button cellButton) {
@@ -104,5 +110,14 @@ public class PlaceBets extends VerticalLayout {
             selectedCells.add(cellId);
             cellButton.addClassName("selected");
         }
+    }
+
+    private static RadioButtonGroup<String> createPropBet() {
+        RadioButtonGroup<String> betColourOfGatorade = new RadioButtonGroup<>();
+        betColourOfGatorade.setClassName("Gatorade Colour");
+        betColourOfGatorade.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+        betColourOfGatorade.setLabel("Colour of Gatorade");
+        betColourOfGatorade.setItems("Blue / Purple", "Orange / Yellow", "Red", "Green", "Clear / Water");
+        return betColourOfGatorade;
     }
 }
