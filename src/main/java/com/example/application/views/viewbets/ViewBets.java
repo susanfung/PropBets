@@ -10,7 +10,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 
 @PageTitle("View Bets")
-@Route(value = "hello", layout = MainLayout.class)
+@Route(value = "viewBets", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
 public class ViewBets extends VerticalLayout {
     private Grid<UserBet> grid;

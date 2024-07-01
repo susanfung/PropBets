@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 @PageTitle("Place Bets")
-@Route(value = "about", layout = MainLayout.class)
+@Route(value = "placeBets", layout = MainLayout.class)
 public class PlaceBets extends VerticalLayout {
     private final DataService dataService;
 
