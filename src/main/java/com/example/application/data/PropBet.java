@@ -1,6 +1,7 @@
 package com.example.application.data;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public class PropBet {
     private final String name;
@@ -23,5 +24,13 @@ public class PropBet {
 
     public List<String> getChoices() {
         return choices;
+    }
+
+    public static PropBet createNewPropBet(String name, String question, String choices) {
+        return new PropBet(name,
+                           question,
+                           Stream.of(choices.split(","))
+                                 .map(String::trim)
+                                 .toList());
     }
 }

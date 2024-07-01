@@ -1,34 +1,53 @@
 package com.example.application.views.createnewbet;
 
+import com.example.application.data.DataService;
 import com.example.application.views.MainLayout;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextAreaVariant;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
+
+import static com.example.application.data.PropBet.createNewPropBet;
 
 @PageTitle("Create New Bet")
 @Route(value = "createNewBet", layout = MainLayout.class)
 public class CreateNewBet extends VerticalLayout {
+    private final DataService dataService;
 
-    public CreateNewBet() {
-        setSpacing(false);
+    public CreateNewBet(DataService dataService) {
+        this.dataService = dataService;
 
-        Image img = new Image("images/empty-plant.png", "placeholder plant");
-        img.setWidth("200px");
-        add(img);
+        TextField name = new TextField("Name of Bet");
+        name.setRequiredIndicatorVisible(true);
 
-        H2 header = new H2("This place intentionally left empty");
-        header.addClassNames(Margin.Top.XLARGE, Margin.Bottom.MEDIUM);
-        add(header);
-        add(new Paragraph("It’s a place where you can grow your own UI 🤗"));
+        TextField question = new TextField("Question");
+        question.setRequiredIndicatorVisible(true);
 
-        setSizeFull();
-        setJustifyContentMode(JustifyContentMode.CENTER);
-        setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-        getStyle().set("text-align", "center");
+        TextArea choices = new TextArea();
+        choices.addThemeVariants(TextAreaVariant.LUMO_HELPER_ABOVE_FIELD);
+        choices.setRequiredIndicatorVisible(true);
+        choices.setLabel("Choices");
+        choices.setHelperText("Enter choices separated by commas");
+        choices.setWidthFull();
+
+        Button submit = new Button("Submit");
+        submit.addClickListener(e -> {
+            if (name.isEmpty() || question.isEmpty() || choices.isEmpty()) {
+                Notification.show("Please complete all required fields.");
+                return;
+            }
+
+            this.dataService.addPropBet(createNewPropBet(name.getValue(),
+                                                         question.getValue(),
+                                                         choices.getValue()));
+
+            Notification.show("Bet created!");
+        });
+
+        add(name, question, choices, submit);
     }
-
 }

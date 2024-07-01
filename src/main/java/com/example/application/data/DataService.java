@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class DataService {
@@ -73,5 +75,32 @@ public class DataService {
                                           .append("betValue", userBet.getBetValue());
 
         userBetsCollection.insertOne(document);
+    }
+
+    public void addPropBet(PropBet propBet) {
+        String name = propBet.getName();
+        String question = propBet.getQuestion();
+        List<String> choices = new ArrayList<>();
+
+        propBet.getChoices().forEach(choice -> choices.add(toCamelCase(choice)));
+
+        Document document = new Document().append("name", toCamelCase(name))
+                                          .append("question", formatQuestion(question))
+                                          .append("choices", choices);
+
+        propBetsCollection.insertOne(document);
+    }
+
+    private String toCamelCase(String input) {
+        return Stream.of(input.split("\\s+"))
+                     .filter(s -> !s.isEmpty())
+                     .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase())
+                     .collect(Collectors.joining(" "))
+                     .trim();
+    }
+
+    private String formatQuestion(String input) {
+        String string = input.substring(0, 1).toUpperCase() + input.substring(1);
+        return string.endsWith("?") ? string : string + "?";
     }
 }
