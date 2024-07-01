@@ -35,8 +35,21 @@ public class PlaceBets extends VerticalLayout {
         add(name);
 
         H2 scoreBoardTitle = new H2("Score Board");
+
+        HorizontalLayout teams = new HorizontalLayout();
+
+        Button team1 = new Button("Team 1 Score");
+        team1.setEnabled(false);
+        team1.addClassName("team-1");
+
+        Button team2 = new Button("Team 2 Score");
+        team1.setEnabled(false);
+        team2.addClassName("team-2");
+
+        teams.add(team1, team2);
+
         HorizontalLayout columnNamesForScoreBoard = createColumnNamesForScoreBoard();
-        add(scoreBoardTitle, columnNamesForScoreBoard);
+        add(scoreBoardTitle, teams, columnNamesForScoreBoard);
 
         IntStream.rangeClosed(0, 9).forEach(row -> {
             HorizontalLayout rowsForScoreBoard = createRowsForScoreBoard(row);
@@ -78,6 +91,7 @@ public class PlaceBets extends VerticalLayout {
         for (int col = 0; col <= 9; col++) {
             Button columnButton = new Button(String.valueOf(col));
             columnButton.setEnabled(false);
+            columnButton.addClassName("team-2");
             columnNames.add(columnButton);
         }
         return columnNames;
@@ -87,6 +101,7 @@ public class PlaceBets extends VerticalLayout {
         HorizontalLayout rows = new HorizontalLayout();
         Button rowButton = new Button(String.valueOf(row));
         rowButton.setEnabled(false);
+        rowButton.addClassName("team-1");
         rows.add(rowButton);
 
         IntStream.rangeClosed(0, 9).forEach(col -> {

@@ -56,6 +56,16 @@ vaadin-scroller[slot="drawer"][overflow~="bottom"] {
   display: none;
 }
 
+.team-1 {
+    background-color: #002C5F;
+    color: #A2AAAD;
+}
+
+.team-2 {
+    background-color: #000000;
+    color: #A5ACAF;
+}
+
 .selected {
     background-color: hsl(214, 90%, 52%);
     color: white;
