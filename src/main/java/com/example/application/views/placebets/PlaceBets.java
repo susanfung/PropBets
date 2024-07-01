@@ -80,6 +80,7 @@ public class PlaceBets extends VerticalLayout {
             });
 
             Notification.show("Bet submitted!");
+            submit.getUI().ifPresent(ui -> ui.navigate(""));
         });
 
         add(submit);
