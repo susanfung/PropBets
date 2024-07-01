@@ -1,6 +1,7 @@
 package com.example.application.views.placebets;
 
 import com.example.application.data.DataService;
+import com.example.application.data.PropBet;
 import com.example.application.data.UserBet;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
@@ -15,6 +16,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
@@ -42,8 +44,13 @@ public class PlaceBets extends VerticalLayout {
         });
 
         H2 propBetsTitle = new H2("PropBets");
+        add(propBetsTitle);
 
-        RadioButtonGroup<String> propBet = createPropBet();
+        List<PropBet> propBets = this.dataService.getPropBets();
+        propBets.forEach(propBet -> {
+            RadioButtonGroup<String> bet = createPropBet(propBet.getName(), propBet.getQuestion(), propBet.getChoices());
+            add(bet);
+        });
 
         Button submit = new Button("Submit");
         submit.addClickListener(e -> {
@@ -62,9 +69,7 @@ public class PlaceBets extends VerticalLayout {
             Notification.show("Bet submitted!");
         });
 
-        add(propBetsTitle,
-            propBet,
-            submit);
+        add(submit);
     }
 
     private static HorizontalLayout createColumnNamesForScoreBoard() {
@@ -103,12 +108,12 @@ public class PlaceBets extends VerticalLayout {
         }
     }
 
-    private static RadioButtonGroup<String> createPropBet() {
+    private static RadioButtonGroup<String> createPropBet(String name, String question, List<String> choices) {
         RadioButtonGroup<String> propBet = new RadioButtonGroup<>();
-        propBet.setClassName("Gatorade Colour");
         propBet.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-        propBet.setLabel("Colour of Gatorade");
-        propBet.setItems("Blue / Purple", "Orange / Yellow", "Red", "Green", "Clear / Water");
+        propBet.setClassName(name);
+        propBet.setLabel(question);
+        propBet.setItems(choices);
         propBet.addValueChangeListener(e -> handlePropBetSelection(propBet.getClassName(), e.getValue()));
         return propBet;
     }

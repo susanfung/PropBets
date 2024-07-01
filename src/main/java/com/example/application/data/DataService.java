@@ -13,16 +13,14 @@ import java.util.List;
 
 @Service
 public class DataService {
-
-    private final MongoClient mongoClient;
-    private final MongoDatabase database;
     private final MongoCollection<Document> userBetsCollection;
+    private final MongoCollection<Document> propBetsCollection;
 
     @Autowired
     public DataService(MongoClient mongoClient) {
-        this.mongoClient = mongoClient;
-        database = mongoClient.getDatabase("SuperBowl");
+        MongoDatabase database = mongoClient.getDatabase("SuperBowl");
         userBetsCollection = database.getCollection("UserBets");
+        propBetsCollection = database.getCollection("PropBets");
     }
 
     public List<UserBet> getUserBets() {
@@ -45,6 +43,28 @@ public class DataService {
         }
 
         return userBets;
+    }
+
+    public List<PropBet> getPropBets() {
+        MongoCursor<Document> cursor = propBetsCollection.find().iterator();
+
+        List<PropBet> propBets = new ArrayList<>();
+
+        try {
+            while (cursor.hasNext()) {
+                Document document = cursor.next();
+
+                PropBet propBet = new PropBet(document.getString("name"),
+                                              document.getString("question"),
+                                              document.getList("choices", String.class));
+
+                propBets.add(propBet);
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return propBets;
     }
 
     public void addUserBet(UserBet userBet) {
