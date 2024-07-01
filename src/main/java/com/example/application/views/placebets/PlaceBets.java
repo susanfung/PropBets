@@ -21,16 +21,14 @@ import java.util.stream.IntStream;
 @PageTitle("Place Bets")
 @Route(value = "about", layout = MainLayout.class)
 public class PlaceBets extends VerticalLayout {
-    private TextField name;
-    private Button submit;
     private final DataService dataService;
 
-    private static Map<String, String> bets = new HashMap<>();
+    private static final Map<String, String> bets = new HashMap<>();
 
     public PlaceBets(DataService dataService) {
         this.dataService = dataService;
 
-        name = new TextField("Your name");
+        TextField name = new TextField("Your name");
         name.setRequiredIndicatorVisible(true);
         add(name);
 
@@ -47,7 +45,7 @@ public class PlaceBets extends VerticalLayout {
 
         RadioButtonGroup<String> propBet = createPropBet();
 
-        submit = new Button("Submit");
+        Button submit = new Button("Submit");
         submit.addClickListener(e -> {
             String username = name.getValue();
 
@@ -70,49 +68,49 @@ public class PlaceBets extends VerticalLayout {
     }
 
     private static HorizontalLayout createColumnNamesForScoreBoard() {
-        HorizontalLayout headerLayout = new HorizontalLayout();
-        headerLayout.add(new Button());
+        HorizontalLayout columnNames = new HorizontalLayout();
+        columnNames.add(new Button());
         for (int col = 0; col <= 9; col++) {
             Button columnButton = new Button(String.valueOf(col));
             columnButton.setEnabled(false);
-            headerLayout.add(columnButton);
+            columnNames.add(columnButton);
         }
-        return headerLayout;
+        return columnNames;
     }
 
     private HorizontalLayout createRowsForScoreBoard(int row) {
-        HorizontalLayout rowLayout = new HorizontalLayout();
+        HorizontalLayout rows = new HorizontalLayout();
         Button rowButton = new Button(String.valueOf(row));
         rowButton.setEnabled(false);
-        rowLayout.add(rowButton);
+        rows.add(rowButton);
 
         IntStream.rangeClosed(0, 9).forEach(col -> {
             Button cellButton = new Button(row + "," + col);
-            cellButton.addClickListener(e -> handleScoreBoardSelection(cellButton, "Score"));
-            rowLayout.add(cellButton);
+            cellButton.addClickListener(e -> handleScoreBoardSelection(cellButton));
+            rows.add(cellButton);
         });
-        return rowLayout;
+        return rows;
     }
 
-    private void handleScoreBoardSelection(Button button, String betType) {
+    private void handleScoreBoardSelection(Button button) {
         String betValue = button.getText();
         if (bets.containsKey(betValue)) {
             bets.remove(betValue);
             button.removeClassName("selected");
         } else {
-            bets.put(betValue, betType);
+            bets.put(betValue, "Score");
             button.addClassName("selected");
         }
     }
 
     private static RadioButtonGroup<String> createPropBet() {
-        RadioButtonGroup<String> betColourOfGatorade = new RadioButtonGroup<>();
-        betColourOfGatorade.setClassName("Gatorade Colour");
-        betColourOfGatorade.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-        betColourOfGatorade.setLabel("Colour of Gatorade");
-        betColourOfGatorade.setItems("Blue / Purple", "Orange / Yellow", "Red", "Green", "Clear / Water");
-        betColourOfGatorade.addValueChangeListener(e -> handlePropBetSelection(betColourOfGatorade.getClassName(), e.getValue()));
-        return betColourOfGatorade;
+        RadioButtonGroup<String> propBet = new RadioButtonGroup<>();
+        propBet.setClassName("Gatorade Colour");
+        propBet.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+        propBet.setLabel("Colour of Gatorade");
+        propBet.setItems("Blue / Purple", "Orange / Yellow", "Red", "Green", "Clear / Water");
+        propBet.addValueChangeListener(e -> handlePropBetSelection(propBet.getClassName(), e.getValue()));
+        return propBet;
     }
 
     private static void handlePropBetSelection(String betType, String betValue) {
