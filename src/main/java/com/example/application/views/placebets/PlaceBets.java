@@ -30,6 +30,7 @@ public class PlaceBets extends VerticalLayout {
         this.dataService = dataService;
 
         name = new TextField("Your name");
+        name.setRequiredIndicatorVisible(true);
         add(name);
 
         H2 scoreBoardTitle = new H2("Score Board");
@@ -68,6 +69,11 @@ public class PlaceBets extends VerticalLayout {
         submit = new Button("Submit");
         submit.addClickListener(e -> {
             String username = name.getValue();
+
+            if (username.isEmpty()) {
+                Notification.show("Please enter your name");
+                return;
+            }
 
             for (String cell : selectedCells) {
                 UserBet bet = new UserBet(username, "Score", cell);
