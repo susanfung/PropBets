@@ -4,6 +4,8 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,12 +17,14 @@ import java.util.stream.Stream;
 
 @Service
 public class DataService {
+    private final MongoCollection<Document> usersCollection;
     private final MongoCollection<Document> userBetsCollection;
     private final MongoCollection<Document> propBetsCollection;
 
     @Autowired
     public DataService(MongoClient mongoClient) {
         MongoDatabase database = mongoClient.getDatabase("SuperBowl");
+        usersCollection = database.getCollection("Users");
         userBetsCollection = database.getCollection("UserBets");
         propBetsCollection = database.getCollection("PropBets");
     }
@@ -102,5 +106,33 @@ public class DataService {
     private String formatQuestion(String input) {
         String string = input.substring(0, 1).toUpperCase() + input.substring(1);
         return string.endsWith("?") ? string : string + "?";
+    }
+
+    public void updateUser(String username, Integer numberOfBetsMade) {
+        Document foundUser = usersCollection.find(Filters.eq("username", username)).first();
+
+        if (foundUser != null) {
+            Integer updatedNumberOfBetsMade = foundUser.getInteger("numberOfBetsMade") + numberOfBetsMade;
+            Double updatedAmountOwing = foundUser.getDouble("amountOwing") + (numberOfBetsMade * 2);
+            Double amountWon = foundUser.getDouble("amountWon");
+
+            usersCollection.updateOne(Filters.eq("username", username),
+                                      Updates.combine(Updates.set("numberOfBetsMade", updatedNumberOfBetsMade),
+                                                      Updates.set("amountOwing", updatedAmountOwing),
+                                                      Updates.set("numberOfBetsWon", foundUser.getInteger("numberOfBetsWon")),
+                                                      Updates.set("amountWon", amountWon),
+                                                      Updates.set("netAmount", amountWon - updatedAmountOwing)));
+        } else {
+            Double amountOwing = Double.valueOf(numberOfBetsMade * 2);
+            Double amountWon = Double.valueOf(0);
+
+            Document newUser = new Document("username", username).append("numberOfBetsMade", numberOfBetsMade)
+                                                                 .append("amountOwing", amountOwing)
+                                                                 .append("numberOfBetsWon", 0)
+                                                                 .append("amountWon", amountWon)
+                                                                 .append("netAmount", amountWon - amountOwing);
+
+            usersCollection.insertOne(newUser);
+        }
     }
 }

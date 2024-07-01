@@ -79,7 +79,10 @@ public class PlaceBets extends VerticalLayout {
                 this.dataService.addUserBet(bet);
             });
 
+            this.dataService.updateUser(username, bets.size());
+
             Notification.show("Bet submitted!");
+            bets.clear();
             submit.getUI().ifPresent(ui -> ui.navigate(""));
         });
 
