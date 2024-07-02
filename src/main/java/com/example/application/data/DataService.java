@@ -41,6 +41,31 @@ public class DataService {
         propBetsCollection = database.getCollection("PropBets");
     }
 
+    public List<User> getUsers() {
+        MongoCursor<Document> cursor = usersCollection.find().iterator();
+
+        List<User> users = new ArrayList<>();
+
+        try {
+            while (cursor.hasNext()) {
+                Document document = cursor.next();
+
+                User user = new User(document.getString(USERNAME),
+                                     document.getInteger(NUMBER_OF_BETS_MADE),
+                                     document.getDouble(AMOUNT_OWING),
+                                     document.getInteger(NUMBER_OF_BETS_WON),
+                                     document.getDouble(AMOUNT_WON),
+                                     document.getDouble(NET_AMOUNT));
+
+                users.add(user);
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return users;
+    }
+
     public List<UserBet> getUserBets() {
         MongoCursor<Document> cursor = userBetsCollection.find().iterator();
 
