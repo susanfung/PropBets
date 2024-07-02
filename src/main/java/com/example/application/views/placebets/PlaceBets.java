@@ -25,7 +25,8 @@ import java.util.stream.IntStream;
 public class PlaceBets extends VerticalLayout {
     private final DataService dataService;
 
-    private static final Map<String, String> bets = new HashMap<>();
+    private final Map<String, String> scoreBoardBets = new HashMap<>();
+    private static final Map<String, String> propBets = new HashMap<>();
 
     public PlaceBets(DataService dataService) {
         this.dataService = dataService;
@@ -59,8 +60,8 @@ public class PlaceBets extends VerticalLayout {
         H2 propBetsTitle = new H2("PropBets");
         add(propBetsTitle);
 
-        List<PropBet> propBets = this.dataService.getPropBets();
-        propBets.forEach(propBet -> {
+        List<PropBet> propBetList = this.dataService.getPropBets();
+        propBetList.forEach(propBet -> {
             RadioButtonGroup<String> bet = createPropBet(propBet.getName(), propBet.getQuestion(), propBet.getChoices());
             add(bet);
         });
@@ -74,19 +75,27 @@ public class PlaceBets extends VerticalLayout {
                 return;
             }
 
-            bets.forEach((betValue, betType) -> {
-                UserBet bet = new UserBet(username, betType, betValue);
-                this.dataService.addUserBet(bet);
-            });
+            saveBets(username, scoreBoardBets);
+            saveBets(username, propBets);
 
-            this.dataService.updateUser(username, bets.size());
+            this.dataService.updateUser(username, scoreBoardBets.size() + propBets.size());
 
             Notification.show("Bet submitted!");
-            bets.clear();
+
+            scoreBoardBets.clear();
+            propBets.clear();
+
             submit.getUI().ifPresent(ui -> ui.navigate(""));
         });
 
         add(submit);
+    }
+
+    private void saveBets(String username, Map<String, String> bets) {
+        bets.forEach((betValue, betType) -> {
+            UserBet bet = new UserBet(username, betType, betValue);
+            this.dataService.addUserBet(bet);
+        });
     }
 
     private static HorizontalLayout createColumnNamesForScoreBoard() {
@@ -118,11 +127,11 @@ public class PlaceBets extends VerticalLayout {
 
     private void handleScoreBoardSelection(Button button) {
         String betValue = button.getText();
-        if (bets.containsKey(betValue)) {
-            bets.remove(betValue);
+        if (scoreBoardBets.containsKey(betValue)) {
+            scoreBoardBets.remove(betValue);
             button.removeClassName("selected");
         } else {
-            bets.put(betValue, "Score");
+            scoreBoardBets.put(betValue, "Score");
             button.addClassName("selected");
         }
     }
@@ -138,6 +147,6 @@ public class PlaceBets extends VerticalLayout {
     }
 
     private static void handlePropBetSelection(String betType, String betValue) {
-        bets.put(betValue, betType);
+        propBets.put(betType, betValue);
     }
 }
