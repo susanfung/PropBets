@@ -17,6 +17,18 @@ import java.util.stream.Stream;
 
 @Service
 public class DataService {
+    private static final String USERNAME = "username";
+    private static final String BET_TYPE = "betType";
+    private static final String BET_VALUE = "betValue";
+    private static final String NAME = "name";
+    private static final String QUESTION = "question";
+    private static final String CHOICES = "choices";
+    private static final String NUMBER_OF_BETS_MADE = "numberOfBetsMade";
+    private static final String AMOUNT_OWING = "amountOwing";
+    private static final String NUMBER_OF_BETS_WON = "numberOfBetsWon";
+    private static final String AMOUNT_WON = "amountWon";
+    private static final String NET_AMOUNT = "netAmount";
+
     private final MongoCollection<Document> usersCollection;
     private final MongoCollection<Document> userBetsCollection;
     private final MongoCollection<Document> propBetsCollection;
@@ -38,9 +50,9 @@ public class DataService {
             while (cursor.hasNext()) {
                 Document document = cursor.next();
 
-                UserBet userBet = new UserBet(document.getString("username"),
-                                              document.getString("betType"),
-                                              document.getString("betValue"));
+                UserBet userBet = new UserBet(document.getString(USERNAME),
+                                              document.getString(BET_TYPE),
+                                              document.getString(BET_VALUE));
 
                 userBets.add(userBet);
             }
@@ -60,9 +72,9 @@ public class DataService {
             while (cursor.hasNext()) {
                 Document document = cursor.next();
 
-                PropBet propBet = new PropBet(document.getString("name"),
-                                              document.getString("question"),
-                                              document.getList("choices", String.class));
+                PropBet propBet = new PropBet(document.getString(NAME),
+                                              document.getString(QUESTION),
+                                              document.getList(CHOICES, String.class));
 
                 propBets.add(propBet);
             }
@@ -74,9 +86,9 @@ public class DataService {
     }
 
     public void addUserBet(UserBet userBet) {
-        Document document = new Document().append("username", userBet.getUsername())
-                                          .append("betType", userBet.getBetType())
-                                          .append("betValue", userBet.getBetValue());
+        Document document = new Document().append(USERNAME, userBet.getUsername())
+                                          .append(BET_VALUE, userBet.getBetType())
+                                          .append(BET_VALUE, userBet.getBetValue());
 
         userBetsCollection.insertOne(document);
     }
@@ -88,9 +100,9 @@ public class DataService {
 
         propBet.getChoices().forEach(choice -> choices.add(toCamelCase(choice)));
 
-        Document document = new Document().append("name", toCamelCase(name))
-                                          .append("question", formatQuestion(question))
-                                          .append("choices", choices);
+        Document document = new Document().append(NAME, toCamelCase(name))
+                                          .append(QUESTION, formatQuestion(question))
+                                          .append(CHOICES, choices);
 
         propBetsCollection.insertOne(document);
     }
@@ -109,28 +121,28 @@ public class DataService {
     }
 
     public void updateUser(String username, Integer numberOfBetsMade) {
-        Document foundUser = usersCollection.find(Filters.eq("username", username)).first();
+        Document foundUser = usersCollection.find(Filters.eq(USERNAME, username)).first();
 
         if (foundUser != null) {
-            Integer updatedNumberOfBetsMade = foundUser.getInteger("numberOfBetsMade") + numberOfBetsMade;
-            Double updatedAmountOwing = foundUser.getDouble("amountOwing") + (numberOfBetsMade * 2);
-            Double amountWon = foundUser.getDouble("amountWon");
+            Integer updatedNumberOfBetsMade = foundUser.getInteger(NUMBER_OF_BETS_MADE) + numberOfBetsMade;
+            Double updatedAmountOwing = foundUser.getDouble(AMOUNT_OWING) + (numberOfBetsMade * 2);
+            Double amountWon = foundUser.getDouble(AMOUNT_WON);
 
-            usersCollection.updateOne(Filters.eq("username", username),
-                                      Updates.combine(Updates.set("numberOfBetsMade", updatedNumberOfBetsMade),
-                                                      Updates.set("amountOwing", updatedAmountOwing),
-                                                      Updates.set("numberOfBetsWon", foundUser.getInteger("numberOfBetsWon")),
-                                                      Updates.set("amountWon", amountWon),
-                                                      Updates.set("netAmount", amountWon - updatedAmountOwing)));
+            usersCollection.updateOne(Filters.eq(USERNAME, username),
+                                      Updates.combine(Updates.set(NUMBER_OF_BETS_MADE, updatedNumberOfBetsMade),
+                                                      Updates.set(AMOUNT_OWING, updatedAmountOwing),
+                                                      Updates.set(NUMBER_OF_BETS_WON, foundUser.getInteger(NUMBER_OF_BETS_WON)),
+                                                      Updates.set(AMOUNT_WON, amountWon),
+                                                      Updates.set(NET_AMOUNT, amountWon - updatedAmountOwing)));
         } else {
             Double amountOwing = Double.valueOf(numberOfBetsMade * 2);
             Double amountWon = Double.valueOf(0);
 
-            Document newUser = new Document("username", username).append("numberOfBetsMade", numberOfBetsMade)
-                                                                 .append("amountOwing", amountOwing)
-                                                                 .append("numberOfBetsWon", 0)
-                                                                 .append("amountWon", amountWon)
-                                                                 .append("netAmount", amountWon - amountOwing);
+            Document newUser = new Document(USERNAME, username).append(NUMBER_OF_BETS_MADE, numberOfBetsMade)
+                                                               .append(AMOUNT_OWING, amountOwing)
+                                                               .append(NUMBER_OF_BETS_WON, 0)
+                                                               .append(AMOUNT_WON, amountWon)
+                                                               .append(NET_AMOUNT, amountWon - amountOwing);
 
             usersCollection.insertOne(newUser);
         }
