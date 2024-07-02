@@ -85,6 +85,10 @@ public class DataService {
         return propBets;
     }
 
+    public boolean isPropBetNameTaken(String name) {
+        return propBetsCollection.find(Filters.eq(NAME, toCamelCase(name))).first() != null;
+    }
+
     public void addUserBet(UserBet userBet) {
         Document document = new Document().append(USERNAME, userBet.getUsername())
                                           .append(BET_VALUE, userBet.getBetType())

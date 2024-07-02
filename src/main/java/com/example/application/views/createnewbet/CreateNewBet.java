@@ -41,6 +41,11 @@ public class CreateNewBet extends VerticalLayout {
                 return;
             }
 
+            if (this.dataService.isPropBetNameTaken(name.getValue())) {
+                Notification.show("Name already taken. Please choose another.");
+                return;
+            }
+
             this.dataService.addPropBet(createNewPropBet(name.getValue(),
                                                          question.getValue(),
                                                          choices.getValue()));
