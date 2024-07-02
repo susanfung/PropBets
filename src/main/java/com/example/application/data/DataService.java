@@ -122,16 +122,15 @@ public class DataService {
         userBetsCollection.insertOne(document);
     }
 
-    public void addPropBet(PropBet propBet) {
-        String name = propBet.getName();
-        String question = propBet.getQuestion();
-        List<String> choices = new ArrayList<>();
-
-        propBet.getChoices().forEach(choice -> choices.add(toCamelCase(choice)));
+    public void addPropBet(String name, String question, String choices) {
+        List<String> choicesList = Stream.of(choices.split(","))
+                                         .map(String::trim)
+                                         .map(s -> toCamelCase(s))
+                                         .toList();
 
         Document document = new Document().append(NAME, toCamelCase(name))
                                           .append(QUESTION, formatQuestion(question))
-                                          .append(CHOICES, choices);
+                                          .append(CHOICES, choicesList);
 
         propBetsCollection.insertOne(document);
     }

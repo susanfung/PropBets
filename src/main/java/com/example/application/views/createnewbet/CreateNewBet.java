@@ -11,8 +11,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import static com.example.application.data.PropBet.createNewPropBet;
-
 @PageTitle("Create New Bet")
 @Route(value = "createNewBet", layout = MainLayout.class)
 public class CreateNewBet extends VerticalLayout {
@@ -46,9 +44,7 @@ public class CreateNewBet extends VerticalLayout {
                 return;
             }
 
-            this.dataService.addPropBet(createNewPropBet(name.getValue(),
-                                                         question.getValue(),
-                                                         choices.getValue()));
+            this.dataService.addPropBet(name.getValue(), question.getValue(), choices.getValue());
 
             Notification.show("Bet created!");
         });
