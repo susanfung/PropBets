@@ -44,7 +44,7 @@ public class CreateNewBet extends VerticalLayout {
                 return;
             }
 
-            this.dataService.addPropBet(name.getValue(), question.getValue(), choices.getValue());
+            this.dataService.createNewPropBet(name.getValue(), question.getValue(), choices.getValue());
 
             Notification.show("Bet created!");
         });

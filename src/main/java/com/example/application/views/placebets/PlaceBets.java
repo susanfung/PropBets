@@ -2,7 +2,6 @@ package com.example.application.views.placebets;
 
 import com.example.application.data.DataService;
 import com.example.application.data.PropBet;
-import com.example.application.data.UserBet;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
@@ -75,8 +74,8 @@ public class PlaceBets extends VerticalLayout {
                 return;
             }
 
-            saveBets(username, scoreBoardBets);
-            saveBets(username, propBets);
+            this.dataService.saveBets(username, scoreBoardBets);
+            this.dataService.saveBets(username, propBets);
 
             this.dataService.updateUser(username, scoreBoardBets.size() + propBets.size());
 
@@ -89,13 +88,6 @@ public class PlaceBets extends VerticalLayout {
         });
 
         add(submit);
-    }
-
-    private void saveBets(String username, Map<String, String> bets) {
-        bets.forEach((betValue, betType) -> {
-            UserBet bet = new UserBet(username, betType, betValue);
-            this.dataService.addUserBet(bet);
-        });
     }
 
     private static HorizontalLayout createColumnNamesForScoreBoard() {

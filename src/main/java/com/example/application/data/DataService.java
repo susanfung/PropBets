@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -122,7 +123,7 @@ public class DataService {
         userBetsCollection.insertOne(document);
     }
 
-    public void addPropBet(String name, String question, String choices) {
+    public void createNewPropBet(String name, String question, String choices) {
         List<String> choicesList = Stream.of(choices.split(","))
                                          .map(String::trim)
                                          .map(s -> toCamelCase(s))
@@ -174,5 +175,12 @@ public class DataService {
 
             usersCollection.insertOne(newUser);
         }
+    }
+
+    public void saveBets(String username, Map<String, String> bets) {
+        bets.forEach((betValue, betType) -> {
+            UserBet bet = new UserBet(username, betType, betValue);
+            addUserBet(bet);
+        });
     }
 }
