@@ -22,4 +22,8 @@ public class UserBet {
     public String getBetValue() {
         return betValue;
     }
+
+    public String toString() {
+        return getClass().getName() + "[username=" + username + ",betType=" + betType + ",betValue=" + betValue + "]";
+    }
 }

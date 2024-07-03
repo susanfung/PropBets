@@ -1,0 +1,1 @@
+Document{{username=john_doe, numberOfBetsMade=5, amountOwing=10.0, numberOfBetsWon=0, amountWon=0.0, netAmount=-10.0}}

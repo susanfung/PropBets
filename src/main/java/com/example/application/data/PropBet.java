@@ -24,4 +24,8 @@ public class PropBet {
     public List<String> getChoices() {
         return choices;
     }
+
+    public String toString() {
+        return getClass().getName() + "[name=" + name + ",question=" + question + ",choices=" + choices + "]";
+    }
 }

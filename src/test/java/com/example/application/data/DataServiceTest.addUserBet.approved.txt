@@ -1,0 +1,1 @@
+Document{{username=john_doe, betType=Team 1 Score, betValue=100}}

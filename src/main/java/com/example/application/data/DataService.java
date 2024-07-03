@@ -4,7 +4,6 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.mongodb.client.model.Filters.eq;
 
 @Service
 public class DataService {
@@ -112,12 +113,19 @@ public class DataService {
     }
 
     public boolean isPropBetNameTaken(String name) {
-        return propBetsCollection.find(Filters.eq(NAME, toCamelCase(name))).first() != null;
+        return propBetsCollection.find(eq(NAME, toCamelCase(name))).first() != null;
+    }
+
+    public void saveBets(String username, Map<String, String> bets) {
+        bets.forEach((betValue, betType) -> {
+            UserBet bet = new UserBet(username, betType, betValue);
+            addUserBet(bet);
+        });
     }
 
     public void addUserBet(UserBet userBet) {
         Document document = new Document().append(USERNAME, userBet.getUsername())
-                                          .append(BET_VALUE, userBet.getBetType())
+                                          .append(BET_TYPE, userBet.getBetType())
                                           .append(BET_VALUE, userBet.getBetValue());
 
         userBetsCollection.insertOne(document);
@@ -150,14 +158,14 @@ public class DataService {
     }
 
     public void updateUser(String username, Integer numberOfBetsMade) {
-        Document foundUser = usersCollection.find(Filters.eq(USERNAME, username)).first();
+        Document foundUser = usersCollection.find(eq(USERNAME, username)).first();
 
         if (foundUser != null) {
             Integer updatedNumberOfBetsMade = foundUser.getInteger(NUMBER_OF_BETS_MADE) + numberOfBetsMade;
             Double updatedAmountOwing = foundUser.getDouble(AMOUNT_OWING) + (numberOfBetsMade * 2);
             Double amountWon = foundUser.getDouble(AMOUNT_WON);
 
-            usersCollection.updateOne(Filters.eq(USERNAME, username),
+            usersCollection.updateOne(eq(USERNAME, username),
                                       Updates.combine(Updates.set(NUMBER_OF_BETS_MADE, updatedNumberOfBetsMade),
                                                       Updates.set(AMOUNT_OWING, updatedAmountOwing),
                                                       Updates.set(NUMBER_OF_BETS_WON, foundUser.getInteger(NUMBER_OF_BETS_WON)),
@@ -175,12 +183,5 @@ public class DataService {
 
             usersCollection.insertOne(newUser);
         }
-    }
-
-    public void saveBets(String username, Map<String, String> bets) {
-        bets.forEach((betValue, betType) -> {
-            UserBet bet = new UserBet(username, betType, betValue);
-            addUserBet(bet);
-        });
     }
 }

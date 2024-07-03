@@ -45,4 +45,8 @@ public class User {
     public Double getNetAmount() {
         return netAmount;
     }
+
+    public String toString() {
+        return getClass().getName() + "[username=" + username + ",numberOfBetsMade=" + numberOfBetsMade + ",amountOwing=" + amountOwing + ",numberOfBetsWon=" + numberOfBetsWon + ",amountWon=" + amountWon + ",netAmount=" + netAmount + "]";
+    }
 }
