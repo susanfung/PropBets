@@ -74,8 +74,8 @@ public class PlaceBets extends VerticalLayout {
                 return;
             }
 
-            this.dataService.saveBets(username, scoreBoardBets);
-            this.dataService.saveBets(username, propBets);
+            this.dataService.saveScoreBoardBets(username, scoreBoardBets);
+            this.dataService.saveScoreBoardBets(username, propBets);
 
             this.dataService.updateUser(username, scoreBoardBets.size() + propBets.size());
 

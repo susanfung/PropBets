@@ -116,7 +116,7 @@ public class DataService {
         return propBetsCollection.find(eq(NAME, toCamelCase(name))).first() != null;
     }
 
-    public void saveBets(String username, Map<String, String> bets) {
+    public void saveScoreBoardBets(String username, Map<String, String> bets) {
         bets.forEach((betValue, betType) -> {
             UserBet bet = new UserBet(username, betType, betValue);
             addUserBet(bet);

@@ -148,7 +148,7 @@ class DataServiceTest {
     }
 
     @Test
-    void saveBets() {
+    void saveScoreBoardBets() {
         String username = "john_doe";
         String betType1 = "Team 1 Score";
         String betType2 = "Team 2 Score";
@@ -167,7 +167,7 @@ class DataServiceTest {
                  .append("betType", betType2)
                  .append("betValue", betValue2);
 
-        dataService.saveBets(username, Map.of(betValue1, betType1, betValue2, betType2));
+        dataService.saveScoreBoardBets(username, Map.of(betValue1, betType1, betValue2, betType2));
 
         Mockito.verify(mockUserBetsCollection, times(2)).insertOne(documentCaptor.capture());
         assertThat(documentCaptor.getAllValues(), containsInAnyOrder(document1, document2));
