@@ -174,6 +174,32 @@ class DataServiceTest {
     }
 
     @Test
+    void savePropBets() {
+        String username = "john_doe";
+        String betType1 = "Team 1 Score";
+        String betType2 = "Team 2 Score";
+        String betValue1 = "100";
+        String betValue2 = "200";
+
+        ArgumentCaptor<Document> documentCaptor = ArgumentCaptor.forClass(Document.class);
+
+        Document document1 = new Document();
+        document1.append("username", username)
+                 .append("betType", betType1)
+                 .append("betValue", betValue1);
+
+        Document document2 = new Document();
+        document2.append("username", username)
+                 .append("betType", betType2)
+                 .append("betValue", betValue2);
+
+        dataService.savePropBets(username, Map.of(betType1, betValue1, betType2, betValue2));
+
+        Mockito.verify(mockUserBetsCollection, times(2)).insertOne(documentCaptor.capture());
+        assertThat(documentCaptor.getAllValues(), containsInAnyOrder(document1, document2));
+    }
+
+    @Test
     void addUserBet() {
         UserBet userBet = new UserBet("john_doe", "Team 1 Score", "100");
 

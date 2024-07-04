@@ -123,6 +123,13 @@ public class DataService {
         });
     }
 
+    public void savePropBets(String username, Map<String, String> bets) {
+        bets.forEach((betType, betValue) -> {
+            UserBet bet = new UserBet(username, betType, betValue);
+            addUserBet(bet);
+        });
+    }
+
     public void addUserBet(UserBet userBet) {
         Document document = new Document().append(USERNAME, userBet.getUsername())
                                           .append(BET_TYPE, userBet.getBetType())
@@ -134,7 +141,7 @@ public class DataService {
     public void createNewPropBet(String name, String question, String choices) {
         List<String> choicesList = Stream.of(choices.split(","))
                                          .map(String::trim)
-                                         .map(s -> toCamelCase(s))
+                                         .map(this::toCamelCase)
                                          .toList();
 
         Document document = new Document().append(NAME, toCamelCase(name))
