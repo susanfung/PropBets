@@ -25,6 +25,8 @@ import java.util.Map;
 
 import static com.mongodb.client.model.Filters.eq;
 import static org.approvaltests.Approvals.verify;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -147,12 +149,28 @@ class DataServiceTest {
 
     @Test
     void saveBets() {
+        String username = "john_doe";
+        String betType1 = "Team 1 Score";
+        String betType2 = "Team 2 Score";
+        String betValue1 = "100";
+        String betValue2 = "200";
+
         ArgumentCaptor<Document> documentCaptor = ArgumentCaptor.forClass(Document.class);
 
-        dataService.saveBets("john_doe", Map.of("100", "Team 1 Score", "200", "Team 2 Score"));
+        Document document1 = new Document();
+        document1.append("username", username)
+                 .append("betType", betType1)
+                 .append("betValue", betValue1);
+
+        Document document2 = new Document();
+        document2.append("username", username)
+                 .append("betType", betType2)
+                 .append("betValue", betValue2);
+
+        dataService.saveBets(username, Map.of(betValue1, betType1, betValue2, betType2));
 
         Mockito.verify(mockUserBetsCollection, times(2)).insertOne(documentCaptor.capture());
-        verify(documentCaptor.getAllValues().stream().map(Document::toString).reduce("", (s1, s2) -> s1 + s2 + "\n"));
+        assertThat(documentCaptor.getAllValues(), containsInAnyOrder(document1, document2));
     }
 
     @Test
