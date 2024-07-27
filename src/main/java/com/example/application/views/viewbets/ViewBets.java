@@ -5,8 +5,11 @@ import com.example.application.data.User;
 import com.example.application.data.UserBet;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.ElementFactory;
@@ -27,10 +30,12 @@ public class ViewBets extends VerticalLayout {
         this.dataService = dataService;
 
         Div scrollableDiv = new Div();
-        scrollableDiv.getStyle().set("overflow-x", "auto");
+        scrollableDiv.getStyle().set("overflow-x", "hidden");
         scrollableDiv.setWidthFull();
+        scrollableDiv.setId("scrollableDiv");
 
         HorizontalLayout usersLayout = new HorizontalLayout();
+        usersLayout.setSpacing(false);
         usersLayout.setWidthFull();
 
         List<User> users = this.dataService.getUsers();
@@ -40,7 +45,18 @@ public class ViewBets extends VerticalLayout {
         });
 
         scrollableDiv.add(usersLayout);
-        add(scrollableDiv);
+
+        Button leftButton = new Button(new Icon(VaadinIcon.ARROW_LEFT), event -> scrollLeft());
+        leftButton.setHeight("200px");
+
+        Button rightButton = new Button(new Icon(VaadinIcon.ARROW_RIGHT), event -> scrollRight());
+        rightButton.setHeight("200px");
+
+        HorizontalLayout navigationLayout = new HorizontalLayout(leftButton, scrollableDiv, rightButton);
+        navigationLayout.setWidthFull();
+        navigationLayout.setAlignItems(Alignment.CENTER);
+
+        add(navigationLayout);
 
         grid = new Grid<>(UserBet.class, false);
         grid.addColumn(UserBet::getUsername).setHeader("Name").setAutoWidth(true);
@@ -80,5 +96,13 @@ public class ViewBets extends VerticalLayout {
 
         userLayout.add(userInformation);
         return userLayout;
+    }
+
+    private void scrollLeft() {
+        getElement().executeJs("document.getElementById('scrollableDiv').scrollBy({ left: -250, behavior: 'smooth' });");
+    }
+
+    private void scrollRight() {
+        getElement().executeJs("document.getElementById('scrollableDiv').scrollBy({ left: 250, behavior: 'smooth' });");
     }
 }
