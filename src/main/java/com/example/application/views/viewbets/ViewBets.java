@@ -5,10 +5,8 @@ import com.example.application.data.User;
 import com.example.application.data.UserBet;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.ElementFactory;
@@ -28,8 +26,11 @@ public class ViewBets extends VerticalLayout {
     public ViewBets(DataService dataService) {
         this.dataService = dataService;
 
-        FlexLayout usersLayout = new FlexLayout();
-        usersLayout.setFlexWrap(FlexLayout.FlexWrap.WRAP);
+        Div scrollableDiv = new Div();
+        scrollableDiv.getStyle().set("overflow-x", "auto");
+        scrollableDiv.setWidthFull();
+
+        HorizontalLayout usersLayout = new HorizontalLayout();
         usersLayout.setWidthFull();
 
         List<User> users = this.dataService.getUsers();
@@ -38,7 +39,8 @@ public class ViewBets extends VerticalLayout {
             usersLayout.add(userLayout);
         });
 
-        add(usersLayout);
+        scrollableDiv.add(usersLayout);
+        add(scrollableDiv);
 
         grid = new Grid<>(UserBet.class, false);
         grid.addColumn(UserBet::getUsername).setHeader("Name").setAutoWidth(true);
@@ -52,13 +54,10 @@ public class ViewBets extends VerticalLayout {
     private static HorizontalLayout createUserLayout(User user) {
         HorizontalLayout userLayout = new HorizontalLayout();
 
-        Avatar avatar = new Avatar(user.getUsername());
-        avatar.setHeight("64px");
-        avatar.setWidth("64px");
-
         VerticalLayout userInformation = new VerticalLayout();
         userInformation.setSpacing(false);
         userInformation.setPadding(false);
+        userInformation.setWidth("250px");
         userInformation.getElement().appendChild(ElementFactory.createStrong(user.getUsername()));
 
         VerticalLayout userStats = new VerticalLayout();
@@ -79,7 +78,7 @@ public class ViewBets extends VerticalLayout {
 
         userInformation.add(userStats);
 
-        userLayout.add(avatar, userInformation);
+        userLayout.add(userInformation);
         return userLayout;
     }
 }
