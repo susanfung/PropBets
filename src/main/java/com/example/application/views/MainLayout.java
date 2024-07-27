@@ -1,8 +1,6 @@
 package com.example.application.views;
 
 
-import com.example.application.components.appnav.AppNav;
-import com.example.application.components.appnav.AppNavItem;
 import com.example.application.views.createnewbet.CreateNewBet;
 import com.example.application.views.placebets.PlaceBets;
 import com.example.application.views.viewbets.ViewBets;
@@ -14,6 +12,8 @@ import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.sidenav.SideNav;
+import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
@@ -52,8 +52,8 @@ public class MainLayout extends AppLayout {
         addToDrawer(header, scroller, createFooter());
     }
 
-    private AppNav createNavigation() {
-        AppNav nav = new AppNav();
+    private SideNav createNavigation() {
+        SideNav nav = new SideNav();
 
         Image betsIcon = new Image("images/football-bet.png", "Bets");
         betsIcon.setWidth("24px");
@@ -67,9 +67,9 @@ public class MainLayout extends AppLayout {
         createNewBetIcon.setWidth("24px");
         createNewBetIcon.setHeight("24px");
 
-        nav.addItem(new AppNavItem("View Bets", ViewBets.class, betsIcon));
-        nav.addItem(new AppNavItem("Place Bets", PlaceBets.class, placeBetsIcon));
-        nav.addItem(new AppNavItem("Create New Bet", CreateNewBet.class, createNewBetIcon));
+        nav.addItem(new SideNavItem("View Bets", ViewBets.class, betsIcon));
+        nav.addItem(new SideNavItem("Place Bets", PlaceBets.class, placeBetsIcon));
+        nav.addItem(new SideNavItem("Create New Bet", CreateNewBet.class, createNewBetIcon));
 
         return nav;
     }
