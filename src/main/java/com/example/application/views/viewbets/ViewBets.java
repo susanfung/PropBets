@@ -5,6 +5,7 @@ import com.example.application.data.User;
 import com.example.application.data.UserBet;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -70,6 +71,10 @@ public class ViewBets extends VerticalLayout {
     private static HorizontalLayout createUserLayout(User user) {
         HorizontalLayout userLayout = new HorizontalLayout();
 
+        Avatar avatar = new Avatar(user.getUsername());
+        avatar.setHeight("64px");
+        avatar.setWidth("64px");
+
         VerticalLayout userInformation = new VerticalLayout();
         userInformation.setSpacing(false);
         userInformation.setPadding(false);
@@ -94,15 +99,15 @@ public class ViewBets extends VerticalLayout {
 
         userInformation.add(userStats);
 
-        userLayout.add(userInformation);
+        userLayout.add(avatar, userInformation);
         return userLayout;
     }
 
     private void scrollLeft() {
-        getElement().executeJs("document.getElementById('scrollableDiv').scrollBy({ left: -250, behavior: 'smooth' });");
+        getElement().executeJs("document.getElementById('scrollableDiv').scrollBy({ left: -330, behavior: 'smooth' });");
     }
 
     private void scrollRight() {
-        getElement().executeJs("document.getElementById('scrollableDiv').scrollBy({ left: 250, behavior: 'smooth' });");
+        getElement().executeJs("document.getElementById('scrollableDiv').scrollBy({ left: 330, behavior: 'smooth' });");
     }
 }
