@@ -16,16 +16,20 @@ import com.vaadin.flow.router.Route;
 public class CreateNewBet extends VerticalLayout {
     private final DataService dataService;
 
+    private final TextField name;
+    private final TextField question;
+    private final TextArea choices;
+
     public CreateNewBet(DataService dataService) {
         this.dataService = dataService;
 
-        TextField name = new TextField("Name of Bet");
+        name = new TextField("Name of Bet");
         name.setRequiredIndicatorVisible(true);
 
-        TextField question = new TextField("Question");
+        question = new TextField("Question");
         question.setRequiredIndicatorVisible(true);
 
-        TextArea choices = new TextArea();
+        choices = new TextArea();
         choices.addThemeVariants(TextAreaVariant.LUMO_HELPER_ABOVE_FIELD);
         choices.setRequiredIndicatorVisible(true);
         choices.setLabel("Choices");
@@ -47,8 +51,15 @@ public class CreateNewBet extends VerticalLayout {
             this.dataService.createNewPropBet(name.getValue(), question.getValue(), choices.getValue());
 
             Notification.show("Bet created!");
+            clearForm();
         });
 
         add(name, question, choices, submit);
+    }
+
+    private void clearForm() {
+        name.clear();
+        question.clear();
+        choices.clear();
     }
 }
