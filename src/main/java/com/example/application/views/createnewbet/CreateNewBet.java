@@ -36,6 +36,12 @@ public class CreateNewBet extends VerticalLayout {
         choices.setHelperText("Enter choices separated by commas");
         choices.setWidthFull();
 
+        Button submit = getSubmitButton();
+
+        add(name, question, choices, submit);
+    }
+
+    private Button getSubmitButton() {
         Button submit = new Button("Submit");
         submit.addClickListener(e -> {
             if (name.isEmpty() || question.isEmpty() || choices.isEmpty()) {
@@ -53,8 +59,7 @@ public class CreateNewBet extends VerticalLayout {
             Notification.show("Bet created!");
             clearForm();
         });
-
-        add(name, question, choices, submit);
+        return submit;
     }
 
     private void clearForm() {
