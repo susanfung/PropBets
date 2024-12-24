@@ -4,7 +4,9 @@ import com.example.application.data.DataService;
 import com.example.application.data.PropBet;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -26,6 +28,8 @@ public class PlaceBets extends VerticalLayout {
 
     private final Map<String, String> scoreBoardBets = new HashMap<>();
     private static final Map<String, String> propBets = new HashMap<>();
+
+    private int betCount = 0;
 
     public PlaceBets(DataService dataService) {
         this.dataService = dataService;
@@ -64,6 +68,16 @@ public class PlaceBets extends VerticalLayout {
             RadioButtonGroup<String> bet = createPropBet(propBet.getName(), propBet.getQuestion(), propBet.getChoices());
             add(bet);
         });
+
+        Hr separator = new Hr();
+
+        TextField betCounter = new TextField();
+        betCounter.setValue(String.valueOf(betCount));
+        betCounter.setReadOnly(true);
+
+        FormLayout formLayout = new FormLayout();
+        formLayout.addFormItem(betCounter, "Total Bets:");
+        add(separator, formLayout);
 
         Button submit = new Button("Submit");
         submit.addClickListener(e -> {
@@ -140,5 +154,10 @@ public class PlaceBets extends VerticalLayout {
 
     private static void handlePropBetSelection(String betType, String betValue) {
         propBets.put(betType, betValue);
+        updateBetCounter();
+    }
+
+    private static void updateBetCounter() {
+//        betCounterLabel.setText("Total Bets: " + betCount);
     }
 }
