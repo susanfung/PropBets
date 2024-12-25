@@ -6,6 +6,7 @@ import com.example.application.views.placebets.PlaceBets;
 import com.example.application.views.viewbets.ViewBets;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
@@ -77,6 +78,8 @@ public class MainLayout extends AppLayout {
     private VerticalLayout createFooter() {
         VerticalLayout layout = new VerticalLayout();
 
+        Button logoutButton = new Button("Logout", event -> logout());
+
         Anchor anchorBetIcon = new Anchor("https://www.flaticon.com/free-icons/bet", "Bet icons created by Freepik - Flaticon");
         Anchor anchorBettingIcon = new Anchor("https://www.flaticon.com/free-icons/betting", "Betting icons created by Vitaly Gorbachev - Flaticon");
 
@@ -86,7 +89,7 @@ public class MainLayout extends AppLayout {
         anchorBettingIcon.setTitle("Betting Icons");
         anchorBettingIcon.getElement().getStyle().set("font-size", "10px");
 
-        layout.add(anchorBetIcon, anchorBettingIcon);
+        layout.add(logoutButton, anchorBetIcon, anchorBettingIcon);
 
         return layout;
     }
@@ -101,5 +104,12 @@ public class MainLayout extends AppLayout {
     private String getCurrentPageTitle() {
         PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
         return title == null ? "" : title.value();
+    }
+
+    private void logout() {
+        getUI().ifPresent(ui -> {
+            ui.getSession().close();
+            ui.getPage().setLocation("login");
+        });
     }
 }
