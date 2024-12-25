@@ -1,5 +1,6 @@
 package com.example.application.views.login;
 
+import com.example.application.security.UserService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.notification.Notification;
@@ -9,9 +10,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
+import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Route("login")
 public class Login extends VerticalLayout implements BeforeEnterObserver {
+    @Autowired
+    private UserService userService;
 
     private TextField usernameField;
     private Button loginButton;
@@ -36,6 +41,11 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
         if (username.isEmpty()) {
             Notification.show("Please enter a username");
         } else {
+            Document user = userService.findUserByUsername(username);
+            if (user == null) {
+                userService.saveUser(username);
+            }
+
             getUI().ifPresent(ui -> {
                 ui.getSession().setAttribute("username", username);
                 ui.navigate("viewBets");
@@ -46,7 +56,7 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (getUI().isPresent() && getUI().get().getSession().getAttribute("username") != null) {
-            event.forwardTo("main");
+            event.forwardTo("viewBets");
         }
     }
 }
