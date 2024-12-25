@@ -1,6 +1,6 @@
 package com.example.application.security;
 
-import com.example.application.views.loginView.LoginView;
+import com.example.application.views.login.Login;
 import com.vaadin.flow.router.BeforeEnterListener;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
@@ -12,9 +12,9 @@ public class SecurityFilter implements VaadinServiceInitListener {
     public void serviceInit(ServiceInitEvent event) {
         event.getSource().addUIInitListener(uiEvent -> {
             uiEvent.getUI().addBeforeEnterListener((BeforeEnterListener) e -> {
-                if (!LoginView.class.equals(e.getNavigationTarget()) &&
+                if (!Login.class.equals(e.getNavigationTarget()) &&
                         VaadinSession.getCurrent().getAttribute("username") == null) {
-                    e.rerouteTo(LoginView.class);
+                    e.rerouteTo(Login.class);
                 }
             });
         });

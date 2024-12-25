@@ -1,4 +1,4 @@
-package com.example.application.views.loginView;
+package com.example.application.views.login;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
@@ -11,12 +11,12 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
 @Route("login")
-public class LoginView extends VerticalLayout implements BeforeEnterObserver {
+public class Login extends VerticalLayout implements BeforeEnterObserver {
 
     private TextField usernameField;
     private Button loginButton;
 
-    public LoginView() {
+    public Login() {
         setAlignItems(FlexComponent.Alignment.CENTER);
         setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         setSizeFull();
