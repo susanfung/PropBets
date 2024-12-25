@@ -30,6 +30,7 @@ public class PlaceBets extends VerticalLayout {
     private static final Map<String, String> propBets = new HashMap<>();
 
     private int betCount = 0;
+    private TextField betCounter;
 
     public PlaceBets(DataService dataService) {
         this.dataService = dataService;
@@ -71,7 +72,7 @@ public class PlaceBets extends VerticalLayout {
 
         Hr separator = new Hr();
 
-        TextField betCounter = new TextField();
+        betCounter = new TextField();
         betCounter.setValue(String.valueOf(betCount));
         betCounter.setReadOnly(true);
 
@@ -136,13 +137,17 @@ public class PlaceBets extends VerticalLayout {
         if (scoreBoardBets.containsKey(betValue)) {
             scoreBoardBets.remove(betValue);
             button.removeClassName("selected");
+            betCount--;
+            betCounter.setValue(String.valueOf(betCount));
         } else {
             scoreBoardBets.put(betValue, "Score");
             button.addClassName("selected");
+            betCount++;
+            betCounter.setValue(String.valueOf(betCount));
         }
     }
 
-    private static RadioButtonGroup<String> createPropBet(String name, String question, List<String> choices) {
+    private RadioButtonGroup<String> createPropBet(String name, String question, List<String> choices) {
         RadioButtonGroup<String> propBet = new RadioButtonGroup<>();
         propBet.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
         propBet.setClassName(name);
@@ -152,12 +157,9 @@ public class PlaceBets extends VerticalLayout {
         return propBet;
     }
 
-    private static void handlePropBetSelection(String betType, String betValue) {
+    private void handlePropBetSelection(String betType, String betValue) {
         propBets.put(betType, betValue);
-        updateBetCounter();
-    }
-
-    private static void updateBetCounter() {
-//        betCounterLabel.setText("Total Bets: " + betCount);
+        betCount++;
+        betCounter.setValue(String.valueOf(betCount));
     }
 }
