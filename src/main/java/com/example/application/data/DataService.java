@@ -31,41 +31,41 @@ public class DataService {
     private static final String AMOUNT_WON = "amountWon";
     private static final String NET_AMOUNT = "netAmount";
 
-    private final MongoCollection<Document> usersCollection;
+    private final MongoCollection<Document> userBetsSummaryCollection;
     private final MongoCollection<Document> userBetsCollection;
     private final MongoCollection<Document> propBetsCollection;
 
     @Autowired
     public DataService(MongoClient mongoClient) {
         MongoDatabase database = mongoClient.getDatabase("SuperBowl");
-        usersCollection = database.getCollection("Users");
+        userBetsSummaryCollection = database.getCollection("UserBetsSummary");
         userBetsCollection = database.getCollection("UserBets");
         propBetsCollection = database.getCollection("PropBets");
     }
 
-    public List<User> getUsers() {
-        MongoCursor<Document> cursor = usersCollection.find().iterator();
+    public List<UserBetsSummary> getUserBetsSummary() {
+        MongoCursor<Document> cursor = userBetsSummaryCollection.find().iterator();
 
-        List<User> users = new ArrayList<>();
+        List<UserBetsSummary> userBetsSummaries = new ArrayList<>();
 
         try {
             while (cursor.hasNext()) {
                 Document document = cursor.next();
 
-                User user = new User(document.getString(USERNAME),
-                                     document.getInteger(NUMBER_OF_BETS_MADE),
-                                     document.getDouble(AMOUNT_OWING),
-                                     document.getInteger(NUMBER_OF_BETS_WON),
-                                     document.getDouble(AMOUNT_WON),
-                                     document.getDouble(NET_AMOUNT));
+                UserBetsSummary userBetsSummary = new UserBetsSummary(document.getString(USERNAME),
+                                                                      document.getInteger(NUMBER_OF_BETS_MADE),
+                                                                      document.getDouble(AMOUNT_OWING),
+                                                                      document.getInteger(NUMBER_OF_BETS_WON),
+                                                                      document.getDouble(AMOUNT_WON),
+                                                                      document.getDouble(NET_AMOUNT));
 
-                users.add(user);
+                userBetsSummaries.add(userBetsSummary);
             }
         } finally {
             cursor.close();
         }
 
-        return users;
+        return userBetsSummaries;
     }
 
     public List<UserBet> getUserBets() {
@@ -165,15 +165,15 @@ public class DataService {
     }
 
     public void updateUser(String username, Integer numberOfBetsMade) {
-        Document foundUser = usersCollection.find(eq(USERNAME, username)).first();
+        Document foundUser = userBetsSummaryCollection.find(eq(USERNAME, username)).first();
 
         if (foundUser != null) {
             Integer updatedNumberOfBetsMade = foundUser.getInteger(NUMBER_OF_BETS_MADE) + numberOfBetsMade;
             Double updatedAmountOwing = foundUser.getDouble(AMOUNT_OWING) + (numberOfBetsMade * 2);
             Double amountWon = foundUser.getDouble(AMOUNT_WON);
 
-            usersCollection.updateOne(eq(USERNAME, username),
-                                      Updates.combine(Updates.set(NUMBER_OF_BETS_MADE, updatedNumberOfBetsMade),
+            userBetsSummaryCollection.updateOne(eq(USERNAME, username),
+                                                Updates.combine(Updates.set(NUMBER_OF_BETS_MADE, updatedNumberOfBetsMade),
                                                       Updates.set(AMOUNT_OWING, updatedAmountOwing),
                                                       Updates.set(NUMBER_OF_BETS_WON, foundUser.getInteger(NUMBER_OF_BETS_WON)),
                                                       Updates.set(AMOUNT_WON, amountWon),
@@ -188,7 +188,7 @@ public class DataService {
                                                                .append(AMOUNT_WON, amountWon)
                                                                .append(NET_AMOUNT, amountWon - amountOwing);
 
-            usersCollection.insertOne(newUser);
+            userBetsSummaryCollection.insertOne(newUser);
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.example.application.views.viewbets;
 
 import com.example.application.data.DataService;
-import com.example.application.data.User;
+import com.example.application.data.UserBetsSummary;
 import com.example.application.data.UserBet;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Text;
@@ -39,9 +39,9 @@ public class ViewBets extends VerticalLayout {
         usersLayout.setSpacing(false);
         usersLayout.setWidthFull();
 
-        List<User> users = this.dataService.getUsers();
-        users.forEach(user -> {
-            HorizontalLayout userLayout = createUserLayout(user);
+        List<UserBetsSummary> userBetsSummaries = this.dataService.getUserBetsSummary();
+        userBetsSummaries.forEach(userBetsSummary -> {
+            HorizontalLayout userLayout = createUserLayout(userBetsSummary);
             usersLayout.add(userLayout);
         });
 
@@ -68,10 +68,10 @@ public class ViewBets extends VerticalLayout {
         add(grid);
     }
 
-    private static HorizontalLayout createUserLayout(User user) {
+    private static HorizontalLayout createUserLayout(UserBetsSummary userBetsSummary) {
         HorizontalLayout userLayout = new HorizontalLayout();
 
-        Avatar avatar = new Avatar(user.getUsername());
+        Avatar avatar = new Avatar(userBetsSummary.getUsername());
         avatar.setHeight("64px");
         avatar.setWidth("64px");
 
@@ -79,16 +79,16 @@ public class ViewBets extends VerticalLayout {
         userInformation.setSpacing(false);
         userInformation.setPadding(false);
         userInformation.setWidth("250px");
-        userInformation.getElement().appendChild(ElementFactory.createStrong(user.getUsername()));
+        userInformation.getElement().appendChild(ElementFactory.createStrong(userBetsSummary.getUsername()));
 
         VerticalLayout userStats = new VerticalLayout();
         userStats.setSpacing(false);
-        userStats.add(new Div(new Text("Number of Bets Made: " + user.getNumberOfBetsMade().toString())));
-        userStats.add(new Div(new Text("Number of Bets Won: "+ user.getNumberOfBetsWon().toString())));
-        userStats.add(new Div(new Text("Amount Owing: $" + user.getAmountOwing().toString())));
-        userStats.add(new Div(new Text("Amount Won: $" + user.getAmountWon().toString())));
+        userStats.add(new Div(new Text("Number of Bets Made: " + userBetsSummary.getNumberOfBetsMade().toString())));
+        userStats.add(new Div(new Text("Number of Bets Won: "+ userBetsSummary.getNumberOfBetsWon().toString())));
+        userStats.add(new Div(new Text("Amount Owing: $" + userBetsSummary.getAmountOwing().toString())));
+        userStats.add(new Div(new Text("Amount Won: $" + userBetsSummary.getAmountWon().toString())));
 
-        String netAmount = user.getNetAmount().toString();
+        String netAmount = userBetsSummary.getNetAmount().toString();
         if (netAmount.contains("-")) {
             Div div = new Div(new Text("Net Amount: -$" + netAmount.substring(1)));
             div.getStyle().set("color", "red");

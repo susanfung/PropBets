@@ -1,6 +1,6 @@
 package com.example.application.data;
 
-public class User {
+public class UserBetsSummary {
     private final String username;
     private final Integer numberOfBetsMade;
     private final Double amountOwing;
@@ -8,12 +8,12 @@ public class User {
     private final Double amountWon;
     private final Double netAmount;
 
-    public User(String username,
-                Integer numberOfBetsMade,
-                Double amountOwing,
-                Integer numberOfBetsWon,
-                Double amountWon,
-                Double netAmount) {
+    public UserBetsSummary(String username,
+                           Integer numberOfBetsMade,
+                           Double amountOwing,
+                           Integer numberOfBetsWon,
+                           Double amountWon,
+                           Double netAmount) {
         this.username = username;
         this.numberOfBetsMade = numberOfBetsMade;
         this.amountOwing = amountOwing;

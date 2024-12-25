@@ -7,7 +7,6 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +41,7 @@ class DataServiceTest {
     private MongoDatabase mockDatabase;
 
     @Mock
-    private MongoCollection<Document> mockUsersCollection;
+    private MongoCollection<Document> mockUserBetsSummaryCollection;
 
     @Mock
     private MongoCollection<Document> mockUserBetsCollection;
@@ -63,34 +62,31 @@ class DataServiceTest {
         MockitoAnnotations.openMocks(this);
 
         when(mockMongoClient.getDatabase("SuperBowl")).thenReturn(mockDatabase);
-        when(mockDatabase.getCollection("Users")).thenReturn(mockUsersCollection);
+        when(mockDatabase.getCollection("UserBetsSummary")).thenReturn(mockUserBetsSummaryCollection);
         when(mockDatabase.getCollection("UserBets")).thenReturn(mockUserBetsCollection);
         when(mockDatabase.getCollection("PropBets")).thenReturn(mockPropBetsCollection);
 
         dataService = new DataService(mockMongoClient);
     }
 
-    @AfterEach
-    void tearDown() {
-    }
-
     @Test
-    void getUsers() {
-        when(mockUsersCollection.find()).thenReturn(mockFindIterable);
+    void getUserBetsSummary() {
+        when(mockUserBetsSummaryCollection.find()).thenReturn(mockFindIterable);
         when(mockFindIterable.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, false);
-        Document mockUserDocument = new Document();
-        mockUserDocument.append("username", "john_doe")
-                        .append("numberOfBetsMade", 5)
-                        .append("amountOwing", 100.0)
-                        .append("numberOfBetsWon", 3)
-                        .append("amountWon", 150.0)
-                        .append("netAmount", 50.0);
-        when(mockCursor.next()).thenReturn(mockUserDocument);
 
-        verify(dataService.getUsers()
+        Document mockUserBetsSummaryDocument = new Document();
+        mockUserBetsSummaryDocument.append("username", "john_doe")
+                                   .append("numberOfBetsMade", 5)
+                                   .append("amountOwing", 100.0)
+                                   .append("numberOfBetsWon", 3)
+                                   .append("amountWon", 150.0)
+                                   .append("netAmount", 50.0);
+        when(mockCursor.next()).thenReturn(mockUserBetsSummaryDocument);
+
+        verify(dataService.getUserBetsSummary()
                           .stream()
-                          .map(User::toString)
+                          .map(UserBetsSummary::toString)
                           .reduce("", (s1, s2) -> s1 + s2 + "\n"));
         Mockito.verify(mockCursor, times(1)).close();
     }
@@ -100,6 +96,7 @@ class DataServiceTest {
         when(mockUserBetsCollection.find()).thenReturn(mockFindIterable);
         when(mockFindIterable.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, false);
+
         Document mockUserBetDocument = new Document();
         mockUserBetDocument.append("username", "john_doe")
                           .append("betType", "Team 1 Score")
@@ -118,6 +115,7 @@ class DataServiceTest {
         when(mockPropBetsCollection.find()).thenReturn(mockFindIterable);
         when(mockFindIterable.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, false);
+
         Document mockPropBetDocument = new Document();
         mockPropBetDocument.append("name", "Super Bowl MVP")
                           .append("question", "Who will be the Super Bowl MVP?")
@@ -155,8 +153,6 @@ class DataServiceTest {
         String betValue1 = "100";
         String betValue2 = "200";
 
-        ArgumentCaptor<Document> documentCaptor = ArgumentCaptor.forClass(Document.class);
-
         Document document1 = new Document();
         document1.append("username", username)
                  .append("betType", betType1)
@@ -168,6 +164,8 @@ class DataServiceTest {
                  .append("betValue", betValue2);
 
         dataService.saveScoreBoardBets(username, Map.of(betValue1, betType1, betValue2, betType2));
+
+        ArgumentCaptor<Document> documentCaptor = ArgumentCaptor.forClass(Document.class);
 
         Mockito.verify(mockUserBetsCollection, times(2)).insertOne(documentCaptor.capture());
         assertThat(documentCaptor.getAllValues(), containsInAnyOrder(document1, document2));
@@ -181,8 +179,6 @@ class DataServiceTest {
         String betValue1 = "100";
         String betValue2 = "200";
 
-        ArgumentCaptor<Document> documentCaptor = ArgumentCaptor.forClass(Document.class);
-
         Document document1 = new Document();
         document1.append("username", username)
                  .append("betType", betType1)
@@ -195,17 +191,19 @@ class DataServiceTest {
 
         dataService.savePropBets(username, Map.of(betType1, betValue1, betType2, betValue2));
 
-        Mockito.verify(mockUserBetsCollection, times(2)).insertOne(documentCaptor.capture());
-        assertThat(documentCaptor.getAllValues(), containsInAnyOrder(document1, document2));
+        ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
+
+        Mockito.verify(mockUserBetsCollection, times(2)).insertOne(captor.capture());
+        assertThat(captor.getAllValues(), containsInAnyOrder(document1, document2));
     }
 
     @Test
     void addUserBet() {
         UserBet userBet = new UserBet("john_doe", "Team 1 Score", "100");
 
-        ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
-
         dataService.addUserBet(userBet);
+
+        ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
 
         Mockito.verify(mockUserBetsCollection, times(1)).insertOne(any());
         Mockito.verify(mockUserBetsCollection).insertOne(captor.capture());
@@ -225,16 +223,16 @@ class DataServiceTest {
 
     @Test
     void updateUser_whenUserDoesNotExist_addsNewUser() {
-        when(mockUsersCollection.find(eq(any()))).thenReturn(mockFindIterable);
+        when(mockUserBetsSummaryCollection.find(eq(any()))).thenReturn(mockFindIterable);
         when(mockFindIterable.first()).thenReturn(null);
 
         dataService.updateUser("john_doe", 5);
 
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
 
-        Mockito.verify(mockUsersCollection, never()).updateOne(any(), Collections.singletonList(any()));
-        Mockito.verify(mockUsersCollection, times(1)).insertOne(any());
-        Mockito.verify(mockUsersCollection).insertOne(captor.capture());
+        Mockito.verify(mockUserBetsSummaryCollection, never()).updateOne(any(), Collections.singletonList(any()));
+        Mockito.verify(mockUserBetsSummaryCollection, times(1)).insertOne(any());
+        Mockito.verify(mockUserBetsSummaryCollection).insertOne(captor.capture());
         verify(captor.getValue().toString());
     }
 
@@ -251,7 +249,7 @@ class DataServiceTest {
                         .append("amountWon", 150.0)
                         .append("netAmount", 50.0);
 
-        when(mockUsersCollection.find(eq(any()))).thenReturn(mockFindIterable);
+        when(mockUserBetsSummaryCollection.find(eq(any()))).thenReturn(mockFindIterable);
         when(mockFindIterable.first()).thenReturn(mockUserDocument);
 
         dataService.updateUser(username, numberOfBetsMade);
@@ -259,8 +257,8 @@ class DataServiceTest {
         ArgumentCaptor<Bson> filterCaptor = ArgumentCaptor.forClass(Bson.class);
         ArgumentCaptor<Bson> updateCaptor = ArgumentCaptor.forClass(Bson.class);
 
-        Mockito.verify(mockUsersCollection, never()).insertOne(any());
-        Mockito.verify(mockUsersCollection).updateOne(filterCaptor.capture(), updateCaptor.capture());
+        Mockito.verify(mockUserBetsSummaryCollection, never()).insertOne(any());
+        Mockito.verify(mockUserBetsSummaryCollection).updateOne(filterCaptor.capture(), updateCaptor.capture());
         verify(updateCaptor.getValue().toString());
     }
 }
