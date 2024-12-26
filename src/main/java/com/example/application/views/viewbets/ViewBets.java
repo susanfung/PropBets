@@ -1,8 +1,9 @@
 package com.example.application.views.viewbets;
 
 import com.example.application.data.DataService;
-import com.example.application.data.UserBetsSummary;
 import com.example.application.data.UserBet;
+import com.example.application.data.UserBetsSummary;
+import com.example.application.security.UserService;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -17,7 +18,11 @@ import com.vaadin.flow.dom.ElementFactory;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.flow.server.StreamResource;
+import org.bson.Document;
+import org.bson.types.Binary;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 @PageTitle("View Bets")
@@ -26,9 +31,11 @@ import java.util.List;
 public class ViewBets extends VerticalLayout {
     private Grid<UserBet> grid;
     private final DataService dataService;
+    private final UserService userService;
 
-    public ViewBets(DataService dataService) {
+    public ViewBets(DataService dataService, UserService userService) {
         this.dataService = dataService;
+        this.userService = userService;
 
         Div scrollableDiv = new Div();
         scrollableDiv.getStyle().set("overflow-x", "hidden");
@@ -41,7 +48,8 @@ public class ViewBets extends VerticalLayout {
 
         List<UserBetsSummary> userBetsSummaries = this.dataService.getUserBetsSummary();
         userBetsSummaries.forEach(userBetsSummary -> {
-            HorizontalLayout userLayout = createUserLayout(userBetsSummary);
+            Document user = userService.findUserByUsername(userBetsSummary.getUsername());
+            HorizontalLayout userLayout = createUserLayout(user, userBetsSummary);
             usersLayout.add(userLayout);
         });
 
@@ -68,18 +76,33 @@ public class ViewBets extends VerticalLayout {
         add(grid);
     }
 
-    private static HorizontalLayout createUserLayout(UserBetsSummary userBetsSummary) {
+    private static HorizontalLayout createUserLayout(Document user, UserBetsSummary userBetsSummary) {
+        String name = userBetsSummary.getUsername();
+        StreamResource profileImage = null;
+
+        if (user != null) {
+            String profileName = user.getString("name");
+
+            if (profileName != null) {
+                name = profileName;
+            }
+
+            profileImage = new StreamResource("profile-image",
+                                              () -> new ByteArrayInputStream(user.get("profileImage", Binary.class).getData()));
+        }
+
         HorizontalLayout userLayout = new HorizontalLayout();
 
-        Avatar avatar = new Avatar(userBetsSummary.getUsername());
+        Avatar avatar = new Avatar();
         avatar.setHeight("64px");
         avatar.setWidth("64px");
+        avatar.setImageResource(profileImage);
 
         VerticalLayout userInformation = new VerticalLayout();
         userInformation.setSpacing(false);
         userInformation.setPadding(false);
         userInformation.setWidth("250px");
-        userInformation.getElement().appendChild(ElementFactory.createStrong(userBetsSummary.getUsername()));
+        userInformation.getElement().appendChild(ElementFactory.createStrong(name));
 
         VerticalLayout userStats = new VerticalLayout();
         userStats.setSpacing(false);
