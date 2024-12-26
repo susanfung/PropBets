@@ -19,7 +19,7 @@ public class UserService {
     }
 
     public void saveUser(String username) {
-        Document user = new Document("username", username);
+        Document user = new Document("username", username).append("role", "user");
         usersCollection.insertOne(user);
     }
 
