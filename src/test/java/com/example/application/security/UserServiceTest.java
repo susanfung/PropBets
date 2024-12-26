@@ -16,6 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.mongodb.client.model.Filters.eq;
 import static org.approvaltests.Approvals.verify;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,6 +58,25 @@ class UserServiceTest {
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
         Mockito.verify(mockUsersCollection).insertOne(captor.capture());
         verify(captor.getValue().toString());
+    }
+
+    @Test
+    void updateUser() {
+        String username = "john_doe";
+        String name = "John Doe";
+        byte[] profileImage = new byte[]{1, 2, 3};
+
+        userService.updateUser(username, name, profileImage);
+
+        ArgumentCaptor<Document> queryCaptor = ArgumentCaptor.forClass(Document.class);
+        ArgumentCaptor<Document> updateCaptor = ArgumentCaptor.forClass(Document.class);
+        Mockito.verify(mockUsersCollection).updateOne(queryCaptor.capture(), updateCaptor.capture());
+
+        List<String> results = new ArrayList<>();
+        results.add(queryCaptor.getValue().toString());
+        results.add(((Document) updateCaptor.getValue().get("$set")).getString("name"));
+
+        verify(String.join("\n", results));
     }
 
     @Test
