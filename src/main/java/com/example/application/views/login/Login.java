@@ -1,6 +1,7 @@
 package com.example.application.views.login;
 
 import com.example.application.security.UserService;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -34,6 +35,7 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
         propBetsLogo.getStyle().set("height", "auto");
 
         usernameField = new TextField("Username");
+        usernameField.addKeyPressListener(Key.ENTER, event -> login());
 
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         loginButton = new Button("Login", event -> login());
