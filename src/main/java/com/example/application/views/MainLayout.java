@@ -16,6 +16,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 /**
@@ -70,7 +71,11 @@ public class MainLayout extends AppLayout {
 
         nav.addItem(new SideNavItem("View Bets", ViewBets.class, betsIcon));
         nav.addItem(new SideNavItem("Place Bets", PlaceBets.class, placeBetsIcon));
-        nav.addItem(new SideNavItem("Create New Bet", CreateNewBet.class, createNewBetIcon));
+
+        String role = (String) VaadinSession.getCurrent().getAttribute("role");
+        if ("admin".equals(role)) {
+            nav.addItem(new SideNavItem("Create New Bet", CreateNewBet.class, createNewBetIcon));
+        }
 
         return nav;
     }

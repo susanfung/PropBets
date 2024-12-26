@@ -8,12 +8,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextAreaVariant;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 
 @PageTitle("Create New Bet")
 @Route(value = "createNewBet", layout = MainLayout.class)
-public class CreateNewBet extends VerticalLayout {
+public class CreateNewBet extends VerticalLayout implements BeforeEnterObserver {
     private final DataService dataService;
 
     private final TextField name;
@@ -66,5 +69,13 @@ public class CreateNewBet extends VerticalLayout {
         name.clear();
         question.clear();
         choices.clear();
+    }
+
+    public void beforeEnter(BeforeEnterEvent event) {
+        String role = (String) VaadinSession.getCurrent().getAttribute("role");
+        if (role == null || !role.equals("admin")) {
+            event.forwardTo("viewBets");
+            Notification.show("Access denied. Admins only.");
+        }
     }
 }
