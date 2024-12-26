@@ -58,19 +58,19 @@ public class MainLayout extends AppLayout {
     private SideNav createNavigation() {
         SideNav nav = new SideNav();
 
-        Image betsIcon = new Image("images/football-bet.png", "Bets");
+        Image betsIcon = new Image("icons/football-bet.png", "Bets");
         betsIcon.setWidth("24px");
         betsIcon.setHeight("24px");
 
-        Image placeBetsIcon = new Image("images/place-bet.png", "Place Bets");
+        Image placeBetsIcon = new Image("icons/place-bet.png", "Place Bets");
         placeBetsIcon.setWidth("24px");
         placeBetsIcon.setHeight("24px");
 
-        Image createNewBetIcon = new Image("images/create-new-bet.png", "Create New Bet");
+        Image createNewBetIcon = new Image("icons/create-new-bet.png", "Create New Bet");
         createNewBetIcon.setWidth("24px");
         createNewBetIcon.setHeight("24px");
 
-        Image userIcon = new Image("images/user.png", "Profile");
+        Image userIcon = new Image("icons/user.png", "Profile");
         userIcon.setWidth("24px");
         userIcon.setHeight("24px");
 
