@@ -38,8 +38,8 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
         usernameField.addKeyPressListener(Key.ENTER, event -> login());
 
         HorizontalLayout buttonsLayout = new HorizontalLayout();
-        loginButton = new Button("Login", event -> login());
-        createUserButton = new Button("Sign Up", event -> saveUser());
+        loginButton = new Button("Log in", event -> login());
+        createUserButton = new Button("Sign up", event -> saveUser());
 
         buttonsLayout.add(loginButton, createUserButton);
         add(propBetsLogo, usernameField, buttonsLayout);
