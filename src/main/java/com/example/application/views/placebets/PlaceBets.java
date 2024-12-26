@@ -4,9 +4,9 @@ import com.example.application.data.DataService;
 import com.example.application.data.PropBet;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -30,7 +30,8 @@ public class PlaceBets extends VerticalLayout {
     private static final Map<String, String> propBets = new HashMap<>();
 
     private int betCount = 0;
-    private TextField betCounter;
+    private Paragraph totalBets;
+    private Paragraph totalAmount;
 
     public PlaceBets(DataService dataService) {
         this.dataService = dataService;
@@ -72,13 +73,12 @@ public class PlaceBets extends VerticalLayout {
 
         Hr separator = new Hr();
 
-        betCounter = new TextField();
-        betCounter.setValue(String.valueOf(betCount));
-        betCounter.setReadOnly(true);
+        totalBets = new Paragraph(totalBetsText());
+        totalBets.getStyle().set("margin", "0px");
+        totalAmount = new Paragraph(totalAmountText());
+        totalAmount.getStyle().set("margin", "0px");
 
-        FormLayout formLayout = new FormLayout();
-        formLayout.addFormItem(betCounter, "Total Bets:");
-        add(separator, formLayout);
+        add(separator, totalBets, totalAmount);
 
         Button submit = new Button("Submit");
         submit.addClickListener(e -> {
@@ -137,13 +137,11 @@ public class PlaceBets extends VerticalLayout {
         if (scoreBoardBets.containsKey(betValue)) {
             scoreBoardBets.remove(betValue);
             button.removeClassName("selected");
-            betCount--;
-            betCounter.setValue(String.valueOf(betCount));
+            decreaseBetCounter();
         } else {
             scoreBoardBets.put(betValue, "Score");
             button.addClassName("selected");
-            betCount++;
-            betCounter.setValue(String.valueOf(betCount));
+            increaseBetCounter();
         }
     }
 
@@ -159,7 +157,29 @@ public class PlaceBets extends VerticalLayout {
 
     private void handlePropBetSelection(String betType, String betValue) {
         propBets.put(betType, betValue);
+        increaseBetCounter();
+    }
+
+    private void increaseBetCounter() {
         betCount++;
-        betCounter.setValue(String.valueOf(betCount));
+        setParagraphTexts();
+    }
+
+    private void decreaseBetCounter() {
+        betCount--;
+        setParagraphTexts();
+    }
+
+    private String totalBetsText() {
+        return String.format("Total Bets: %d", betCount);
+    }
+
+    private void setParagraphTexts() {
+        totalBets.setText(totalBetsText());
+        totalAmount.setText(totalAmountText());
+    }
+
+    private String totalAmountText() {
+        return String.format("Total Amount: $%d", betCount * 2);
     }
 }
