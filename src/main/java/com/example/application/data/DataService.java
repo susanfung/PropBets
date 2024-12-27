@@ -101,6 +101,31 @@ public class DataService {
         return propBetsSummaries;
     }
 
+    public Map<String, String> getScoreBoardBetsSummary() {
+        MongoCursor<Document> cursor = propBetsSummaryCollection.find().iterator();
+
+        Map<String, String> scoreBoardBetsSummaries = new HashMap<>();
+
+        try {
+            while (cursor.hasNext()) {
+                Document document = cursor.next();
+
+                String betType = document.getString(BET_TYPE);
+
+                if (betType.equals("Score")) {
+                    String betValue = document.getString(BET_VALUE);
+                    String betters = String.join(", ", document.getList(BETTERS, String.class));
+
+                    scoreBoardBetsSummaries.put(betValue, betters);
+                }
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return scoreBoardBetsSummaries;
+    }
+
     public List<UserBet> getUserBets() {
         MongoCursor<Document> cursor = userBetsCollection.find().iterator();
 
