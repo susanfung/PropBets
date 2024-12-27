@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -73,20 +74,25 @@ public class DataService {
         return userBetsSummaries;
     }
 
-    public List<PropBetsSummary> getPropBetsSummary() {
+    public Map<String, List<String>> getPropBetsSummary() {
         MongoCursor<Document> cursor = propBetsSummaryCollection.find().iterator();
 
-        List<PropBetsSummary> propBetsSummaries = new ArrayList<>();
+        Map<String, List<String>> propBetsSummaries = new HashMap<>();
 
         try {
             while (cursor.hasNext()) {
                 Document document = cursor.next();
 
-                PropBetsSummary userBetsSummary = new PropBetsSummary(document.getString(BET_TYPE),
-                                                                      document.getString(BET_VALUE),
-                                                                      document.getList(BETTERS, String.class));
+                String betType = document.getString(BET_TYPE);
 
-                propBetsSummaries.add(userBetsSummary);
+                if (!betType.equals("Score")) {
+                    StringBuilder betSummary = new StringBuilder();
+                    betSummary.append(document.getString(BET_VALUE))
+                              .append(" - ")
+                              .append(String.join(", ", document.getList(BETTERS, String.class))).append("\n");
+
+                    propBetsSummaries.computeIfAbsent(betType, k -> new ArrayList<>()).add(betSummary.toString());
+                }
             }
         } finally {
             cursor.close();

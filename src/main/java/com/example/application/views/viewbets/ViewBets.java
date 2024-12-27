@@ -24,6 +24,7 @@ import org.bson.types.Binary;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.Map;
 
 @PageTitle("View Bets")
 @Route(value = "viewBets", layout = MainLayout.class)
@@ -66,6 +67,21 @@ public class ViewBets extends VerticalLayout {
         navigationLayout.setAlignItems(Alignment.CENTER);
 
         add(navigationLayout);
+
+        Map<String, List<String>> propBetsSummaries = this.dataService.getPropBetsSummary();
+        propBetsSummaries.forEach((betType, betValues) -> {
+            VerticalLayout betSummary = new VerticalLayout();
+            betSummary.setSpacing(false);
+
+            betSummary.add(new Div(new Text(betType)));
+
+            betValues.forEach(betValue -> {
+                Div betValueDiv = new Div(new Text(betValue));
+                betSummary.add(betValueDiv);
+            });
+
+            add(betSummary);
+        });
 
         grid = new Grid<>(UserBet.class, false);
         grid.addColumn(UserBet::getUsername).setHeader("Name").setAutoWidth(true);

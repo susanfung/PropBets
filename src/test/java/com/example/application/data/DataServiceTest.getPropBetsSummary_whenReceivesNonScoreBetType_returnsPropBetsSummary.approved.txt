@@ -1,0 +1,5 @@
+Proposal:
+Yes - jane_doe, john_doe
+
+No - jack_doe, jill_doe
+

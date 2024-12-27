@@ -76,10 +76,6 @@ class DataServiceTest {
 
     @Test
     void getUserBetsSummary() {
-        when(mockUserBetsSummaryCollection.find()).thenReturn(mockFindIterable);
-        when(mockFindIterable.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, false);
-
         Document mockUserBetsSummaryDocument = new Document();
         mockUserBetsSummaryDocument.append("username", "john_doe")
                                    .append("numberOfBetsMade", 5)
@@ -87,6 +83,10 @@ class DataServiceTest {
                                    .append("numberOfBetsWon", 3)
                                    .append("amountWon", 150.0)
                                    .append("netAmount", 50.0);
+
+        when(mockUserBetsSummaryCollection.find()).thenReturn(mockFindIterable);
+        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, false);
         when(mockCursor.next()).thenReturn(mockUserBetsSummaryDocument);
 
         verify(dataService.getUserBetsSummary()
@@ -97,36 +97,67 @@ class DataServiceTest {
     }
 
     @Test
-    void getPropBetsSummary() {
+    void getPropBetsSummary_whenReceivesNonScoreBetType_returnsPropBetsSummary() {
+        String betType = "Proposal";
+
+        Document mockPropBetsSummaryDocument1 = new Document();
+        mockPropBetsSummaryDocument1.append("betType", betType)
+                                    .append("betValue", "Yes")
+                                    .append("betters", List.of("jane_doe", "john_doe"));
+
+        Document mockPropBetsSummaryDocument2 = new Document();
+        mockPropBetsSummaryDocument2.append("betType", betType)
+                                    .append("betValue", "No")
+                                    .append("betters", List.of("jack_doe", "jill_doe"));
+
         when(mockPropBetsSummaryCollection.find()).thenReturn(mockFindIterable);
         when(mockFindIterable.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, false);
+        when(mockCursor.hasNext()).thenReturn(true, true, false);
+        when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
 
-        Document mockPropBetsSummaryDocument = new Document();
-        mockPropBetsSummaryDocument.append("betType", "Proposal")
-                                   .append("betValue", "Yes")
-                                   .append("betters", List.of("jane_doe", "john_doe"));
+        Map<String, List<String>> result = dataService.getPropBetsSummary();
+        verify(result.entrySet()
+                     .stream()
+                     .map(entry -> entry.getKey() + ":\n" + String.join("\n", entry.getValue()))
+                     .reduce("", (s1, s2) -> s1 + s2 + "\n"));
+        Mockito.verify(mockCursor, times(1)).close();
+    }
 
-        when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument);
+    @Test
+    void getPropBetsSummary_whenReceivesScoreBetType_returnsPropBetsSummary() {
+        Document mockPropBetsSummaryDocument1 = new Document();
+        mockPropBetsSummaryDocument1.append("betType", "Proposal")
+                                    .append("betValue", "Yes")
+                                    .append("betters", List.of("jane_doe", "john_doe"));
 
-        String result = dataService.getPropBetsSummary()
-                                   .stream()
-                                   .map(PropBetsSummary::toString)
-                                   .reduce("", (s1, s2) -> s1 + s2 + "\n");
-        verify(result);
+        Document mockPropBetsSummaryDocument2 = new Document();
+        mockPropBetsSummaryDocument2.append("betType", "Score")
+                                    .append("betValue", "0,0")
+                                    .append("betters", List.of("jack_doe", "jill_doe"));
+
+        when(mockPropBetsSummaryCollection.find()).thenReturn(mockFindIterable);
+        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, true, false);
+        when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
+
+        Map<String, List<String>> result = dataService.getPropBetsSummary();
+        verify(result.entrySet()
+                     .stream()
+                     .map(entry -> entry.getKey() + ":\n" + String.join("\n", entry.getValue()))
+                     .reduce("", (s1, s2) -> s1 + s2 + "\n"));
         Mockito.verify(mockCursor, times(1)).close();
     }
 
     @Test
     void getUserBets() {
-        when(mockUserBetsCollection.find()).thenReturn(mockFindIterable);
-        when(mockFindIterable.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, false);
-
         Document mockUserBetDocument = new Document();
         mockUserBetDocument.append("username", "john_doe")
                           .append("betType", "Team 1 Score")
                           .append("betValue", "100");
+
+        when(mockUserBetsCollection.find()).thenReturn(mockFindIterable);
+        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, false);
         when(mockCursor.next()).thenReturn(mockUserBetDocument);
 
         verify(dataService.getUserBets()
@@ -138,14 +169,14 @@ class DataServiceTest {
 
     @Test
     void getPropBets() {
-        when(mockPropBetsCollection.find()).thenReturn(mockFindIterable);
-        when(mockFindIterable.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, false);
-
         Document mockPropBetDocument = new Document();
         mockPropBetDocument.append("name", "Super Bowl MVP")
                           .append("question", "Who will be the Super Bowl MVP?")
                           .append("choices", List.of("Tom Brady", "Patrick Mahomes", "Aaron Rodgers", "Josh Allen"));
+
+        when(mockPropBetsCollection.find()).thenReturn(mockFindIterable);
+        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, false);
         when(mockCursor.next()).thenReturn(mockPropBetDocument);
 
         verify(dataService.getPropBets()

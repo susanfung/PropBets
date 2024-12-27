@@ -13,6 +13,18 @@ public class PropBetsSummary {
         this.betters = betters;
     }
 
+    public String getBetType() {
+        return betType;
+    }
+
+    public String getBetValue() {
+        return betValue;
+    }
+
+    public List<String> getBetters() {
+        return betters;
+    }
+
     public String toString() {
         return getClass().getName() + "[betType=" + betType + ", betValue=" + betValue + ", betters=" + String.join(", ", betters) + "]";
     }
