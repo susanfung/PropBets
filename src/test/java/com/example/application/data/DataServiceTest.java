@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.application.views.placebets.PlaceBets.AMOUNT_PER_BET;
 import static com.mongodb.client.model.Filters.eq;
 import static org.approvaltests.Approvals.verify;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -226,7 +227,7 @@ class DataServiceTest {
         when(mockUserBetsSummaryCollection.find(eq(any()))).thenReturn(mockFindIterable);
         when(mockFindIterable.first()).thenReturn(null);
 
-        dataService.updateUser("john_doe", 5);
+        dataService.updateUser("john_doe", 5, 5 * AMOUNT_PER_BET);
 
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
 
@@ -252,7 +253,7 @@ class DataServiceTest {
         when(mockUserBetsSummaryCollection.find(eq(any()))).thenReturn(mockFindIterable);
         when(mockFindIterable.first()).thenReturn(mockUserDocument);
 
-        dataService.updateUser(username, numberOfBetsMade);
+        dataService.updateUser(username, numberOfBetsMade, numberOfBetsMade * AMOUNT_PER_BET);
 
         ArgumentCaptor<Bson> filterCaptor = ArgumentCaptor.forClass(Bson.class);
         ArgumentCaptor<Bson> updateCaptor = ArgumentCaptor.forClass(Bson.class);

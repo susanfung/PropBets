@@ -12,9 +12,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +24,8 @@ import java.util.stream.IntStream;
 @PageTitle("Place Bets")
 @Route(value = "placeBets", layout = MainLayout.class)
 public class PlaceBets extends VerticalLayout {
+    public static final int AMOUNT_PER_BET = 2;
+
     private final DataService dataService;
 
     private final Map<String, String> scoreBoardBets = new HashMap<>();
@@ -35,10 +37,6 @@ public class PlaceBets extends VerticalLayout {
 
     public PlaceBets(DataService dataService) {
         this.dataService = dataService;
-
-        TextField name = new TextField("Your name");
-        name.setRequiredIndicatorVisible(true);
-        add(name);
 
         H2 scoreBoardTitle = new H2("Score Board");
 
@@ -82,7 +80,7 @@ public class PlaceBets extends VerticalLayout {
 
         Button submit = new Button("Submit");
         submit.addClickListener(e -> {
-            String username = name.getValue();
+            String username = (String) VaadinSession.getCurrent().getAttribute("username");
 
             if (username.isEmpty()) {
                 Notification.show("Please enter your name");
@@ -92,7 +90,7 @@ public class PlaceBets extends VerticalLayout {
             this.dataService.saveScoreBoardBets(username, scoreBoardBets);
             this.dataService.savePropBets(username, propBets);
 
-            this.dataService.updateUser(username, scoreBoardBets.size() + propBets.size());
+            this.dataService.updateUser(username, betCount, betCount * AMOUNT_PER_BET);
 
             Notification.show("Bet submitted!");
 
@@ -180,6 +178,6 @@ public class PlaceBets extends VerticalLayout {
     }
 
     private String totalAmountText() {
-        return String.format("Total Amount: $%d", betCount * 2);
+        return String.format("Total Amount: $%d", betCount * AMOUNT_PER_BET);
     }
 }

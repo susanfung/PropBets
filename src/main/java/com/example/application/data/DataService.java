@@ -164,12 +164,12 @@ public class DataService {
         return string.endsWith("?") ? string : string + "?";
     }
 
-    public void updateUser(String username, Integer numberOfBetsMade) {
+    public void updateUser(String username, Integer numberOfBetsMade, Integer totalBetAmount) {
         Document foundUser = userBetsSummaryCollection.find(eq(USERNAME, username)).first();
 
         if (foundUser != null) {
             Integer updatedNumberOfBetsMade = foundUser.getInteger(NUMBER_OF_BETS_MADE) + numberOfBetsMade;
-            Double updatedAmountOwing = foundUser.getDouble(AMOUNT_OWING) + (numberOfBetsMade * 2);
+            Double updatedAmountOwing = foundUser.getDouble(AMOUNT_OWING) + totalBetAmount;
             Double amountWon = foundUser.getDouble(AMOUNT_WON);
 
             userBetsSummaryCollection.updateOne(eq(USERNAME, username),
