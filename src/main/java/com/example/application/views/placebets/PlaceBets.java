@@ -172,12 +172,12 @@ public class PlaceBets extends VerticalLayout {
         return String.format("Total Bets: %d", betCount);
     }
 
+    private String totalAmountText() {
+        return String.format("Total Amount: $%d", betCount * AMOUNT_PER_BET);
+    }
+
     private void setParagraphTexts() {
         totalBets.setText(totalBetsText());
         totalAmount.setText(totalAmountText());
-    }
-
-    private String totalAmountText() {
-        return String.format("Total Amount: $%d", betCount * AMOUNT_PER_BET);
     }
 }
