@@ -42,13 +42,13 @@ class DataServiceTest {
     private MongoDatabase mockDatabase;
 
     @Mock
-    private MongoCollection<Document> mockUserBetsCollection;
+    private MongoCollection<Document> mockUserBetsSummaryCollection;
 
     @Mock
     private MongoCollection<Document> mockPropBetsSummaryCollection;
 
     @Mock
-    private MongoCollection<Document> mockUserBetsSummaryCollection;
+    private MongoCollection<Document> mockUserBetsCollection;
 
     @Mock
     private MongoCollection<Document> mockPropBetsCollection;
@@ -66,9 +66,9 @@ class DataServiceTest {
         MockitoAnnotations.openMocks(this);
 
         when(mockMongoClient.getDatabase("SuperBowl")).thenReturn(mockDatabase);
-        when(mockDatabase.getCollection("UserBets")).thenReturn(mockUserBetsCollection);
-        when(mockDatabase.getCollection("PropBetsSummary")).thenReturn(mockPropBetsSummaryCollection);
         when(mockDatabase.getCollection("UserBetsSummary")).thenReturn(mockUserBetsSummaryCollection);
+        when(mockDatabase.getCollection("PropBetsSummary")).thenReturn(mockPropBetsSummaryCollection);
+        when(mockDatabase.getCollection("UserBets")).thenReturn(mockUserBetsCollection);
         when(mockDatabase.getCollection("PropBets")).thenReturn(mockPropBetsCollection);
 
         dataService = new DataService(mockMongoClient);
@@ -93,6 +93,27 @@ class DataServiceTest {
                           .stream()
                           .map(UserBetsSummary::toString)
                           .reduce("", (s1, s2) -> s1 + s2 + "\n"));
+        Mockito.verify(mockCursor, times(1)).close();
+    }
+
+    @Test
+    void getPropBetsSummary() {
+        when(mockPropBetsSummaryCollection.find()).thenReturn(mockFindIterable);
+        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, false);
+
+        Document mockPropBetsSummaryDocument = new Document();
+        mockPropBetsSummaryDocument.append("betType", "Proposal")
+                                   .append("betValue", "Yes")
+                                   .append("betters", List.of("jane_doe", "john_doe"));
+
+        when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument);
+
+        String result = dataService.getPropBetsSummary()
+                                   .stream()
+                                   .map(PropBetsSummary::toString)
+                                   .reduce("", (s1, s2) -> s1 + s2 + "\n");
+        verify(result);
         Mockito.verify(mockCursor, times(1)).close();
     }
 

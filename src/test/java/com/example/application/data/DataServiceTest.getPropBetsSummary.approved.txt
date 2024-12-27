@@ -1,0 +1,1 @@
+com.example.application.data.PropBetsSummary[betType=Proposal, betValue=Yes, betters=jane_doe, john_doe]

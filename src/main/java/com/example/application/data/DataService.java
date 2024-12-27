@@ -34,9 +34,9 @@ public class DataService {
     private static final String QUESTION = "question";
     private static final String CHOICES = "choices";
 
-    private final MongoCollection<Document> userBetsCollection;
-    private final MongoCollection<Document> propBetsSummaryCollection;
     private final MongoCollection<Document> userBetsSummaryCollection;
+    private final MongoCollection<Document> propBetsSummaryCollection;
+    private final MongoCollection<Document> userBetsCollection;
     private final MongoCollection<Document> propBetsCollection;
 
     @Autowired
@@ -71,6 +71,28 @@ public class DataService {
         }
 
         return userBetsSummaries;
+    }
+
+    public List<PropBetsSummary> getPropBetsSummary() {
+        MongoCursor<Document> cursor = propBetsSummaryCollection.find().iterator();
+
+        List<PropBetsSummary> propBetsSummaries = new ArrayList<>();
+
+        try {
+            while (cursor.hasNext()) {
+                Document document = cursor.next();
+
+                PropBetsSummary userBetsSummary = new PropBetsSummary(document.getString(BET_TYPE),
+                                                                      document.getString(BET_VALUE),
+                                                                      document.getList(BETTERS, String.class));
+
+                propBetsSummaries.add(userBetsSummary);
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return propBetsSummaries;
     }
 
     public List<UserBet> getUserBets() {
