@@ -42,10 +42,13 @@ class DataServiceTest {
     private MongoDatabase mockDatabase;
 
     @Mock
-    private MongoCollection<Document> mockUserBetsSummaryCollection;
+    private MongoCollection<Document> mockUserBetsCollection;
 
     @Mock
-    private MongoCollection<Document> mockUserBetsCollection;
+    private MongoCollection<Document> mockPropBetsSummaryCollection;
+
+    @Mock
+    private MongoCollection<Document> mockUserBetsSummaryCollection;
 
     @Mock
     private MongoCollection<Document> mockPropBetsCollection;
@@ -63,8 +66,9 @@ class DataServiceTest {
         MockitoAnnotations.openMocks(this);
 
         when(mockMongoClient.getDatabase("SuperBowl")).thenReturn(mockDatabase);
-        when(mockDatabase.getCollection("UserBetsSummary")).thenReturn(mockUserBetsSummaryCollection);
         when(mockDatabase.getCollection("UserBets")).thenReturn(mockUserBetsCollection);
+        when(mockDatabase.getCollection("PropBetsSummary")).thenReturn(mockPropBetsSummaryCollection);
+        when(mockDatabase.getCollection("UserBetsSummary")).thenReturn(mockUserBetsSummaryCollection);
         when(mockDatabase.getCollection("PropBets")).thenReturn(mockPropBetsCollection);
 
         dataService = new DataService(mockMongoClient);
@@ -164,6 +168,9 @@ class DataServiceTest {
                  .append("betType", betType2)
                  .append("betValue", betValue2);
 
+        when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
+        when(mockFindIterable.first()).thenReturn(null);
+
         dataService.saveScoreBoardBets(username, Map.of(betValue1, betType1, betValue2, betType2));
 
         ArgumentCaptor<Document> documentCaptor = ArgumentCaptor.forClass(Document.class);
@@ -190,6 +197,9 @@ class DataServiceTest {
                  .append("betType", betType2)
                  .append("betValue", betValue2);
 
+        when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
+        when(mockFindIterable.first()).thenReturn(null);
+
         dataService.savePropBets(username, Map.of(betType1, betValue1, betType2, betValue2));
 
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
@@ -212,14 +222,41 @@ class DataServiceTest {
     }
 
     @Test
-    void createNewPropBet() {
-        dataService.createNewPropBet("Super Bowl MVP", "Who will be the Super Bowl MVP?", "Tom Brady, Patrick Mahomes, Aaron Rodgers, Josh Allen");
+    void updatePropBetsSummary_whenPropBetsSummmaryDoesNotExist_addNewPropBetsSummary() {
+        when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
+        when(mockFindIterable.first()).thenReturn(null);
+
+        dataService.updatePropBetsSummary("Proposal", "Yes", "john_doe");
 
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
 
-        Mockito.verify(mockPropBetsCollection, times(1)).insertOne(any());
-        Mockito.verify(mockPropBetsCollection).insertOne(captor.capture());
+        Mockito.verify(mockPropBetsSummaryCollection, never()).updateOne(any(), Collections.singletonList(any()));
+        Mockito.verify(mockPropBetsSummaryCollection, times(1)).insertOne(captor.capture());
         verify(captor.getValue().toString());
+    }
+
+    @Test
+    void updatePropBetsSummary_whenPropBetsSummaryExists_updatesPropBetsSummary() {
+        String betType = "Proposal";
+        String betValue = "Yes";
+        String username = "john_doe";
+
+        Document mockPropBetsSummaryDocument = new Document();
+        mockPropBetsSummaryDocument.append("betType", betType)
+                                   .append("betValue", betValue)
+                                   .append("betters", List.of("jane_doe"));
+
+        when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
+        when(mockFindIterable.first()).thenReturn(mockPropBetsSummaryDocument);
+
+        dataService.updatePropBetsSummary(betType, betValue, username);
+
+        ArgumentCaptor<Bson> filterCaptor = ArgumentCaptor.forClass(Bson.class);
+        ArgumentCaptor<Bson> updateCaptor = ArgumentCaptor.forClass(Bson.class);
+
+        Mockito.verify(mockPropBetsSummaryCollection, never()).insertOne(any());
+        Mockito.verify(mockPropBetsSummaryCollection).updateOne(filterCaptor.capture(), updateCaptor.capture());
+        verify(updateCaptor.getValue().toString());
     }
 
     @Test
@@ -242,16 +279,16 @@ class DataServiceTest {
         String username = "john_doe";
         int numberOfBetsMade = 5;
 
-        Document mockUserDocument = new Document();
-        mockUserDocument.append("username", username)
-                        .append("numberOfBetsMade", 5)
-                        .append("amountOwing", 100.0)
-                        .append("numberOfBetsWon", 3)
-                        .append("amountWon", 150.0)
-                        .append("netAmount", 50.0);
+        Document mockUserBetsSummaryDocument = new Document();
+        mockUserBetsSummaryDocument.append("username", username)
+                                   .append("numberOfBetsMade", 5)
+                                   .append("amountOwing", 100.0)
+                                   .append("numberOfBetsWon", 3)
+                                   .append("amountWon", 150.0)
+                                   .append("netAmount", 50.0);
 
         when(mockUserBetsSummaryCollection.find(eq(any()))).thenReturn(mockFindIterable);
-        when(mockFindIterable.first()).thenReturn(mockUserDocument);
+        when(mockFindIterable.first()).thenReturn(mockUserBetsSummaryDocument);
 
         dataService.updateUserBetsSummary(username, numberOfBetsMade, numberOfBetsMade * AMOUNT_PER_BET);
 
@@ -261,5 +298,16 @@ class DataServiceTest {
         Mockito.verify(mockUserBetsSummaryCollection, never()).insertOne(any());
         Mockito.verify(mockUserBetsSummaryCollection).updateOne(filterCaptor.capture(), updateCaptor.capture());
         verify(updateCaptor.getValue().toString());
+    }
+
+    @Test
+    void createNewPropBet() {
+        dataService.createNewPropBet("Super Bowl MVP", "Who will be the Super Bowl MVP?", "Tom Brady, Patrick Mahomes, Aaron Rodgers, Josh Allen");
+
+        ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
+
+        Mockito.verify(mockPropBetsCollection, times(1)).insertOne(any());
+        Mockito.verify(mockPropBetsCollection).insertOne(captor.capture());
+        verify(captor.getValue().toString());
     }
 }

@@ -1,0 +1,1 @@
+Update{fieldName='betters', operator='$set', value=[jane_doe, john_doe]}

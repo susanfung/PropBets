@@ -1,0 +1,1 @@
+Document{{betType=Proposal, betValue=Yes, betters=[john_doe]}}
