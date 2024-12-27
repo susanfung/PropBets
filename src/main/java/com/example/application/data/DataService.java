@@ -164,7 +164,7 @@ public class DataService {
         return string.endsWith("?") ? string : string + "?";
     }
 
-    public void updateUser(String username, Integer numberOfBetsMade, Integer totalBetAmount) {
+    public void updateUserBetsSummary(String username, Integer numberOfBetsMade, Integer totalBetAmount) {
         Document foundUser = userBetsSummaryCollection.find(eq(USERNAME, username)).first();
 
         if (foundUser != null) {

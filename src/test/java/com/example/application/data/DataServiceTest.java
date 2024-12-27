@@ -223,11 +223,11 @@ class DataServiceTest {
     }
 
     @Test
-    void updateUser_whenUserDoesNotExist_addsNewUser() {
+    void updateUserBetsSummary_whenUserDoesNotExist_addsNewUserBetsSummary() {
         when(mockUserBetsSummaryCollection.find(eq(any()))).thenReturn(mockFindIterable);
         when(mockFindIterable.first()).thenReturn(null);
 
-        dataService.updateUser("john_doe", 5, 5 * AMOUNT_PER_BET);
+        dataService.updateUserBetsSummary("john_doe", 5, 5 * AMOUNT_PER_BET);
 
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
 
@@ -238,7 +238,7 @@ class DataServiceTest {
     }
 
     @Test
-    void updateUser_whenUserExists_updatesUser() {
+    void updateUserBetsSummary_whenUserExists_updatesUserBetsSummary() {
         String username = "john_doe";
         int numberOfBetsMade = 5;
 
@@ -253,7 +253,7 @@ class DataServiceTest {
         when(mockUserBetsSummaryCollection.find(eq(any()))).thenReturn(mockFindIterable);
         when(mockFindIterable.first()).thenReturn(mockUserDocument);
 
-        dataService.updateUser(username, numberOfBetsMade, numberOfBetsMade * AMOUNT_PER_BET);
+        dataService.updateUserBetsSummary(username, numberOfBetsMade, numberOfBetsMade * AMOUNT_PER_BET);
 
         ArgumentCaptor<Bson> filterCaptor = ArgumentCaptor.forClass(Bson.class);
         ArgumentCaptor<Bson> updateCaptor = ArgumentCaptor.forClass(Bson.class);
