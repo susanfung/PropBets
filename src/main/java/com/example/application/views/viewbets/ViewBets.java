@@ -114,12 +114,9 @@ public class ViewBets extends VerticalLayout {
     private static HorizontalLayout createUserLayout(Document user, UserBetsSummary userBetsSummary) {
         String name = userBetsSummary.getUsername();
         String firstName = user.getString("firstName");
-        String lastName = user.getString("lastName");
 
-        if (firstName != null && lastName != null) {
-            name = firstName + " " + lastName;
-        } else if (firstName != null) {
-            name = firstName;
+        if (firstName != null) {
+            name = name + " (" + firstName + ")";
         }
 
         StreamResource profileImage = new StreamResource("profile-image",
