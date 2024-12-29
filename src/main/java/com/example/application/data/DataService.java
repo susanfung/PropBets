@@ -114,7 +114,7 @@ public class DataService {
 
                 if (betType.equals("Score")) {
                     String betValue = document.getString(BET_VALUE);
-                    String betters = String.join(", ", document.getList(BETTERS, String.class));
+                    String betters = String.join("\n", document.getList(BETTERS, String.class));
 
                     scoreBoardBetsSummaries.put(betValue, betters);
                 }

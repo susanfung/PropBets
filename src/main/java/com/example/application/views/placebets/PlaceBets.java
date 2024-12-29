@@ -106,20 +106,24 @@ public class PlaceBets extends VerticalLayout {
     private static HorizontalLayout createColumnNamesForScoreBoard() {
         HorizontalLayout columnNames = new HorizontalLayout();
         columnNames.add(new Button());
+
         for (int col = 0; col <= 9; col++) {
             Button columnButton = new Button(String.valueOf(col));
             columnButton.setEnabled(false);
             columnButton.addClassName("team-2");
             columnNames.add(columnButton);
         }
+
         return columnNames;
     }
 
     private HorizontalLayout createRowsForScoreBoard(int row) {
         HorizontalLayout rows = new HorizontalLayout();
+
         Button rowButton = new Button(String.valueOf(row));
         rowButton.setEnabled(false);
         rowButton.addClassName("team-1");
+
         rows.add(rowButton);
 
         IntStream.rangeClosed(0, 9).forEach(col -> {
@@ -127,6 +131,7 @@ public class PlaceBets extends VerticalLayout {
             cellButton.addClickListener(e -> handleScoreBoardSelection(cellButton));
             rows.add(cellButton);
         });
+
         return rows;
     }
 
