@@ -5,6 +5,7 @@ import com.example.application.views.createnewbet.CreateNewBet;
 import com.example.application.views.placebets.PlaceBets;
 import com.example.application.views.profile.Profile;
 import com.example.application.views.viewbets.ViewBets;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
@@ -90,6 +91,11 @@ public class MainLayout extends AppLayout {
     private VerticalLayout createFooter() {
         VerticalLayout layout = new VerticalLayout();
 
+        Text partnerText = new Text("Partnered with:");
+
+        Image partnerImage = new Image("images/murfys-bbq.png", "Murfy's BBQ");
+        partnerImage.setWidth("100%");
+
         Button logoutButton = new Button("Logout", event -> logout());
 
         Anchor anchorBetIcon = new Anchor("https://www.flaticon.com/free-icons/bet", "Bet icons created by Freepik - Flaticon");
@@ -105,7 +111,7 @@ public class MainLayout extends AppLayout {
         anchorProfileIcon.setTitle("User Icons");
         anchorProfileIcon.getElement().getStyle().set("font-size", "10px");
 
-        layout.add(logoutButton, anchorBetIcon, anchorBettingIcon, anchorProfileIcon);
+        layout.add(partnerText, partnerImage, logoutButton, anchorBetIcon, anchorBettingIcon, anchorProfileIcon);
 
         return layout;
     }

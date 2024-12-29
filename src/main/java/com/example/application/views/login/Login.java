@@ -29,6 +29,7 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
         setAlignItems(FlexComponent.Alignment.CENTER);
         setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         setSizeFull();
+        getStyle().set("position", "relative");
 
         Image propBetsLogo = new Image("images/prop-bets-logo.png", "Prop Bets");
         propBetsLogo.getStyle().set("max-width", "100%");
@@ -42,7 +43,11 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
         createUserButton = new Button("Sign up", event -> saveUser());
 
         buttonsLayout.add(loginButton, createUserButton);
-        add(propBetsLogo, usernameField, buttonsLayout);
+
+        Image partnerImage = new Image("images/murfys-bbq.png", "Murfy's BBQ");
+        partnerImage.setWidth("25%");
+
+        add(propBetsLogo, usernameField, buttonsLayout, partnerImage);
     }
 
     private void login() {
