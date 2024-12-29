@@ -102,16 +102,19 @@ class DataServiceTest {
     @Test
     void getPropBetsSummary_whenReceivesNonScoreBetType_returnsPropBetsSummary() {
         String betType = "Proposal";
+        String question = "Will Kelce propose at the game?";
 
         Document mockPropBetsSummaryDocument1 = new Document();
         mockPropBetsSummaryDocument1.append("betType", betType)
                                     .append("betValue", "Yes")
-                                    .append("betters", List.of("jane_doe", "john_doe"));
+                                    .append("betters", List.of("jane_doe", "john_doe"))
+                                    .append("question", question);
 
         Document mockPropBetsSummaryDocument2 = new Document();
         mockPropBetsSummaryDocument2.append("betType", betType)
                                     .append("betValue", "No")
-                                    .append("betters", List.of("jack_doe", "jill_doe"));
+                                    .append("betters", List.of("jack_doe", "jill_doe"))
+                                    .append("question", question);
 
         when(mockPropBetsSummaryCollection.find()).thenReturn(mockFindIterable);
         when(mockFindIterable.iterator()).thenReturn(mockCursor);
@@ -128,10 +131,14 @@ class DataServiceTest {
 
     @Test
     void getPropBetsSummary_whenReceivesScoreBetType_returnsPropBetsSummary() {
+        String betType = "Proposal";
+        String betValue = "Yes";
+
         Document mockPropBetsSummaryDocument1 = new Document();
-        mockPropBetsSummaryDocument1.append("betType", "Proposal")
-                                    .append("betValue", "Yes")
-                                    .append("betters", List.of("jane_doe", "john_doe"));
+        mockPropBetsSummaryDocument1.append("betType", betType)
+                                    .append("betValue", betValue)
+                                    .append("betters", List.of("jane_doe", "john_doe"))
+                                    .append("question", "Will Kelce propose at the game?");
 
         Document mockPropBetsSummaryDocument2 = new Document();
         mockPropBetsSummaryDocument2.append("betType", "Score")
@@ -213,6 +220,27 @@ class DataServiceTest {
         verify(dataService.getPropBets()
                           .stream()
                           .map(PropBet::toString)
+                          .reduce("", (s1, s2) -> s1 + s2 + "\n"));
+        Mockito.verify(mockCursor, times(1)).close();
+    }
+
+    @Test
+    void findUserBetsByUsername() {
+        String username = "john_doe";
+
+        Document mockUserBetDocument = new Document();
+        mockUserBetDocument.append("username", username)
+                           .append("betType", "Team 1 Score")
+                           .append("betValue", "100");
+
+        when(mockUserBetsCollection.find(eq(any()))).thenReturn(mockFindIterable);
+        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, false);
+        when(mockCursor.next()).thenReturn(mockUserBetDocument);
+
+        verify(dataService.findUserBetsByUsername(username)
+                          .stream()
+                          .map(UserBet::toString)
                           .reduce("", (s1, s2) -> s1 + s2 + "\n"));
         Mockito.verify(mockCursor, times(1)).close();
     }

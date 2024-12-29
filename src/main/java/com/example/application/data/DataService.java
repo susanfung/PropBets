@@ -171,6 +171,28 @@ public class DataService {
         return propBets;
     }
 
+    public List<UserBet> findUserBetsByUsername(String username) {
+        MongoCursor<Document> cursor = userBetsCollection.find(eq("username", username)).iterator();
+
+        List<UserBet> userBets = new ArrayList<>();
+
+        try {
+            while (cursor.hasNext()) {
+                Document document = cursor.next();
+
+                UserBet userBet = new UserBet(document.getString(USERNAME),
+                                              document.getString(BET_TYPE),
+                                              document.getString(BET_VALUE));
+
+                userBets.add(userBet);
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return userBets;
+    }
+
     public boolean isPropBetNameTaken(String name) {
         return propBetsCollection.find(eq(NAME, toCamelCase(name))).first() != null;
     }
