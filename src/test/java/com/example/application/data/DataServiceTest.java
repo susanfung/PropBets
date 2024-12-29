@@ -57,6 +57,9 @@ class DataServiceTest {
     private FindIterable<Document> mockFindIterable;
 
     @Mock
+    private FindIterable<Document> mockPropBetFindIterable;
+
+    @Mock
     private MongoCursor<Document> mockCursor;
 
     private DataService dataService;
@@ -249,6 +252,7 @@ class DataServiceTest {
                  .append("betValue", betValue2);
 
         when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
+        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
         when(mockFindIterable.first()).thenReturn(null);
 
         dataService.saveScoreBoardBets(username, Map.of(betValue1, betType1, betValue2, betType2));
@@ -278,6 +282,7 @@ class DataServiceTest {
                  .append("betValue", betValue2);
 
         when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
+        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
         when(mockFindIterable.first()).thenReturn(null);
 
         dataService.savePropBets(username, Map.of(betType1, betValue1, betType2, betValue2));
@@ -303,10 +308,20 @@ class DataServiceTest {
 
     @Test
     void updatePropBetsSummary_whenPropBetsSummmaryDoesNotExist_addNewPropBetsSummary() {
+        String betType = "Proposal";
+        String betValue = "Yes";
+
+        Document propBet = new Document();
+        propBet.append("name", betType)
+               .append("question", "Will Kelce propose at the game?")
+               .append("choices", List.of(betValue, "No"));
+
         when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
         when(mockFindIterable.first()).thenReturn(null);
+        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockPropBetFindIterable);
+        when(mockPropBetFindIterable.first()).thenReturn(propBet);
 
-        dataService.updatePropBetsSummary("Proposal", "Yes", "john_doe");
+        dataService.updatePropBetsSummary(betType, betValue, "john_doe");
 
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
 
@@ -326,8 +341,15 @@ class DataServiceTest {
                                    .append("betValue", betValue)
                                    .append("betters", List.of("jane_doe"));
 
+        Document propBet = new Document();
+        propBet.append("name", betType)
+               .append("question", "Will Kelce propose at the game?")
+               .append("choices", List.of(betValue, "No"));
+
         when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
         when(mockFindIterable.first()).thenReturn(mockPropBetsSummaryDocument);
+        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockPropBetFindIterable);
+        when(mockPropBetFindIterable.first()).thenReturn(propBet);
 
         dataService.updatePropBetsSummary(betType, betValue, username);
 

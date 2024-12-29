@@ -91,7 +91,8 @@ public class DataService {
                               .append(" - ")
                               .append(String.join(", ", document.getList(BETTERS, String.class))).append("\n");
 
-                    propBetsSummaries.computeIfAbsent(betType, k -> new ArrayList<>()).add(betSummary.toString());
+                    propBetsSummaries.computeIfAbsent(betType + " - " + document.getString(QUESTION), k -> new ArrayList<>())
+                                     .add(betSummary.toString());
                 }
             }
         } finally {
@@ -200,6 +201,7 @@ public class DataService {
 
     public void updatePropBetsSummary(String betType, String betValue, String username) {
         Document foundPropBetsSummary = propBetsSummaryCollection.find(and(eq(BET_TYPE, betType), eq(BET_VALUE, betValue))).first();
+        Document foundPropBets = propBetsCollection.find(eq(NAME, betType)).first();
 
         if (foundPropBetsSummary != null) {
             List<String> betters = new ArrayList<>(foundPropBetsSummary.getList(BETTERS, String.class));
@@ -210,6 +212,10 @@ public class DataService {
         } else {
             Document newPropBetsSummary = new Document(BET_TYPE, betType).append(BET_VALUE, betValue)
                                                                          .append(BETTERS, List.of(username));
+
+            if (foundPropBets != null) {
+                newPropBetsSummary.append(QUESTION, foundPropBets.getString(QUESTION));
+            }
 
             propBetsSummaryCollection.insertOne(newPropBetsSummary);
         }

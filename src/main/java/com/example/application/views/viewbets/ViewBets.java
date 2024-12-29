@@ -7,8 +7,10 @@ import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -96,19 +98,7 @@ public class ViewBets extends VerticalLayout {
         });
 
         Map<String, List<String>> propBetsSummaries = this.dataService.getPropBetsSummary();
-        propBetsSummaries.forEach((betType, betValues) -> {
-            VerticalLayout betSummary = new VerticalLayout();
-            betSummary.setSpacing(false);
-
-            betSummary.add(new Div(new Text(betType)));
-
-            betValues.forEach(betValue -> {
-                Div betValueDiv = new Div(new Text(betValue));
-                betSummary.add(betValueDiv);
-            });
-
-            add(betSummary);
-        });
+        propBetsSummaries.forEach((betType, betValues) -> createPropBetsSummary(betType, betValues));
     }
 
     private static HorizontalLayout createUserLayout(Document user, UserBetsSummary userBetsSummary) {
@@ -230,5 +220,36 @@ public class ViewBets extends VerticalLayout {
 
     private static void setSpanStyle(Span rowSpan) {
         rowSpan.getStyle().set("text-align", "center");
+    }
+
+    private void createPropBetsSummary(String betType, List<String> betValues) {
+        Hr separator = new Hr();
+        separator.getElement().getStyle().set("background-color", "black");
+
+        VerticalLayout betSummary = new VerticalLayout();
+        betSummary.setPadding(false);
+
+        String[] question = betType.split(" - ");
+
+        Button questionButton = new Button(question[question.length - 1]);
+        setPropBetSummaryButtonStyle(questionButton);
+        questionButton.getStyle().set("color", "blue");
+
+        betSummary.add(questionButton);
+
+        betValues.forEach(betValue -> {
+            Button betValueButton = new Button(betValue);
+            setPropBetSummaryButtonStyle(betValueButton);
+
+            betSummary.add(betValueButton);
+        });
+
+        add(separator, betSummary);
+    }
+
+    private static void setPropBetSummaryButtonStyle(Button button) {
+        button.setEnabled(false);
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        button.addClassName("prop-bet-summary-button");
     }
 }
