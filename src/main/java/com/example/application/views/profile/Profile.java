@@ -6,6 +6,7 @@ import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
@@ -28,8 +29,10 @@ public class Profile extends VerticalLayout {
 
     private String username;
     private Paragraph usernameParagraph;
-    private String name;
-    private TextField nameField;
+    private String firstName;
+    private String lastName;
+    private TextField firstNameField;
+    private TextField lastNameField;
     private Binary image;
     private Avatar profileImage;
     private Upload upload;
@@ -39,18 +42,28 @@ public class Profile extends VerticalLayout {
         this.userService = userService;
         username = (String) VaadinSession.getCurrent().getAttribute("username");
         Document user = userService.findUserByUsername(username);
-        name = user.getString("name");
+        firstName = user.getString("firstName");
+        lastName = user.getString("lastName");
         image = user.get("profileImage", Binary.class);
 
         usernameParagraph = new Paragraph();
         usernameParagraph.getElement().setProperty("innerHTML", "<b>Username:</b> " + username);
         usernameParagraph.getStyle().set("margin", "0px");
 
-        nameField = new TextField("Name");
+        HorizontalLayout nameFields = new HorizontalLayout();
 
-        if (name != null) {
-            nameField.setValue(name);
+        firstNameField = new TextField("First Name");
+        lastNameField = new TextField("Last Name");
+
+        if (firstName != null) {
+            firstNameField.setValue(firstName);
         }
+
+        if (lastName != null) {
+            lastNameField.setValue(lastName);
+        }
+
+        nameFields.add(firstNameField, lastNameField);
 
         profileImage = new Avatar();
         profileImage.setHeight("256px");
@@ -75,11 +88,11 @@ public class Profile extends VerticalLayout {
         });
         Button saveButton = new Button("Save", event -> saveProfile());
 
-        add(usernameParagraph, nameField, profileImage, upload, saveButton);
+        add(usernameParagraph, nameFields, profileImage, upload, saveButton);
     }
 
     private void saveProfile() {
-        userService.updateUser(username, nameField.getValue(), image.getData());
+        userService.updateUser(username, firstNameField.getValue(), lastNameField.getValue(), image.getData());
 
         Notification.show("Profile updated successfully");
     }

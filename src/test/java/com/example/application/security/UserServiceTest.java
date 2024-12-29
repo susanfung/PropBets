@@ -63,10 +63,11 @@ class UserServiceTest {
     @Test
     void updateUser() {
         String username = "john_doe";
-        String name = "John Doe";
+        String firstName = "John";
+        String lastName = "Doe";
         byte[] profileImage = new byte[]{1, 2, 3};
 
-        userService.updateUser(username, name, profileImage);
+        userService.updateUser(username, firstName, lastName, profileImage);
 
         ArgumentCaptor<Document> queryCaptor = ArgumentCaptor.forClass(Document.class);
         ArgumentCaptor<Document> updateCaptor = ArgumentCaptor.forClass(Document.class);
@@ -74,7 +75,8 @@ class UserServiceTest {
 
         List<String> results = new ArrayList<>();
         results.add(queryCaptor.getValue().toString());
-        results.add(((Document) updateCaptor.getValue().get("$set")).getString("name"));
+        results.add(((Document) updateCaptor.getValue().get("$set")).getString("firstName"));
+        results.add(((Document) updateCaptor.getValue().get("$set")).getString("lastName"));
 
         verify(String.join("\n", results));
     }

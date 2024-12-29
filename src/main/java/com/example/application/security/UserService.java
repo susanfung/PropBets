@@ -23,15 +23,22 @@ public class UserService {
         usersCollection.insertOne(user);
     }
 
-    public void updateUser(String username, String name, byte[] profileImage) {
+    public void updateUser(String username, String firstName, String lastName, byte[] profileImage) {
         Document query = new Document("username", username);
         Document update = new Document();
-        if (name != null) {
-            update.append("name", name);
+
+        if (firstName != null) {
+            update.append("firstName", firstName);
         }
+
+        if (lastName != null) {
+            update.append("lastName", lastName);
+        }
+
         if (profileImage != null) {
             update.append("profileImage", profileImage);
         }
+
         usersCollection.updateOne(query, new Document("$set", update));
     }
 
