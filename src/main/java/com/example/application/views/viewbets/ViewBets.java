@@ -1,14 +1,12 @@
 package com.example.application.views.viewbets;
 
 import com.example.application.data.DataService;
-import com.example.application.data.UserBet;
 import com.example.application.data.UserBetsSummary;
 import com.example.application.security.UserService;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -33,9 +31,11 @@ import java.util.stream.IntStream;
 @Route(value = "viewBets", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
 public class ViewBets extends VerticalLayout {
-    private Grid<UserBet> grid;
     private final DataService dataService;
     private final UserService userService;
+
+    private static final String rowNumberWidth = "75px";
+    private static final String cellWidth = "100px";
 
     private Map<String, String> scoreBoardBetsSummary;
 
@@ -109,14 +109,6 @@ public class ViewBets extends VerticalLayout {
 
             add(betSummary);
         });
-
-        grid = new Grid<>(UserBet.class, false);
-        grid.addColumn(UserBet::getUsername).setHeader("Name").setAutoWidth(true);
-        grid.addColumn(UserBet::getBetType).setHeader("Bet Type").setAutoWidth(true);
-        grid.addColumn(UserBet::getBetValue).setHeader("Bet Value").setAutoWidth(true);
-        grid.setItems(dataService.getUserBets());
-
-        add(grid);
     }
 
     private static HorizontalLayout createUserLayout(Document user, UserBetsSummary userBetsSummary) {
@@ -177,19 +169,17 @@ public class ViewBets extends VerticalLayout {
         HorizontalLayout columnNames = new HorizontalLayout();
 
         VerticalLayout blankCell = new VerticalLayout();
-        blankCell.setWidth("75px");
+        setCellStyle(blankCell, rowNumberWidth, false);
 
         columnNames.add(blankCell);
 
         for (int col = 0; col <= 9; col++) {
             VerticalLayout columnNumber = new VerticalLayout();
             columnNumber.addClassName("team-2");
-            columnNumber.getStyle().set("border-radius", "10px");
-            columnNumber.setWidth("100px");
-            columnNumber.setAlignItems(Alignment.CENTER);
+            setCellStyle(columnNumber, cellWidth, true);
 
             Span columnSpan = new Span(String.valueOf(col));
-            columnSpan.getStyle().set("text-align", "center");
+            setSpanStyle(columnSpan);
             columnNumber.add(columnSpan);
             columnNames.add(columnNumber);
         }
@@ -202,13 +192,11 @@ public class ViewBets extends VerticalLayout {
 
         VerticalLayout rowNumber = new VerticalLayout();
         rowNumber.addClassName("team-1");
-        rowNumber.getStyle().set("border-radius", "10px");
-        rowNumber.setWidth("75px");
-        rowNumber.setAlignItems(Alignment.CENTER);
+        setCellStyle(rowNumber, rowNumberWidth, true);
         rowNumber.setJustifyContentMode(JustifyContentMode.CENTER);
 
         Span rowSpan = new Span(String.valueOf(row));
-        rowSpan.getStyle().set("text-align", "center");
+        setSpanStyle(rowSpan);
         rowNumber.add(rowSpan);
         rows.add(rowNumber);
 
@@ -216,9 +204,8 @@ public class ViewBets extends VerticalLayout {
             String buttonText = scoreBoardBetsSummary.get(row + "," + col);
 
             VerticalLayout cellLayout = new VerticalLayout();
-            cellLayout.setWidth("100px");
+            setCellStyle(cellLayout, cellWidth, false);
             cellLayout.getStyle().set("border", "1px solid black");
-            cellLayout.getStyle().set("border-radius", "10px");
 
             if (buttonText != null) {
                 Span span = new Span(buttonText);
@@ -230,5 +217,18 @@ public class ViewBets extends VerticalLayout {
         });
 
         return rows;
+    }
+
+    private static void setCellStyle(VerticalLayout layout, String width, Boolean isLabel) {
+        layout.getStyle().set("border-radius", "10px");
+        layout.setWidth(width);
+
+        if (isLabel) {
+            layout.setAlignItems(Alignment.CENTER);
+        }
+    }
+
+    private static void setSpanStyle(Span rowSpan) {
+        rowSpan.getStyle().set("text-align", "center");
     }
 }
