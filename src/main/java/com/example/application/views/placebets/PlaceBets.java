@@ -2,7 +2,9 @@ package com.example.application.views.placebets;
 
 import com.example.application.data.DataService;
 import com.example.application.data.PropBet;
+import com.example.application.data.UserBet;
 import com.example.application.views.MainLayout;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
@@ -19,6 +21,7 @@ import com.vaadin.flow.server.VaadinSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 @PageTitle("Place Bets")
@@ -78,10 +81,14 @@ public class PlaceBets extends VerticalLayout {
 
         add(separator, totalBets, totalAmount);
 
+        String username = (String) VaadinSession.getCurrent().getAttribute("username");
+        if (username != null && !username.isEmpty()) {
+            List<UserBet> userBets = this.dataService.findUserBetsByUsername(username);
+            displayUserBets(userBets);
+        }
+
         Button submit = new Button("Submit");
         submit.addClickListener(e -> {
-            String username = (String) VaadinSession.getCurrent().getAttribute("username");
-
             if (username.isEmpty()) {
                 Notification.show("Please enter your name");
                 return;
@@ -184,5 +191,44 @@ public class PlaceBets extends VerticalLayout {
     private void setParagraphTexts() {
         totalBets.setText(totalBetsText());
         totalAmount.setText(totalAmountText());
+    }
+
+    private void displayUserBets(List<UserBet> userBets) {
+        userBets.forEach(userBet -> {
+            if ("Score".equals(userBet.getBetType())) {
+                scoreBoardBets.put(userBet.getBetValue(),
+                                   userBet.getBetType());
+
+                findButtonByValue(userBet.getBetValue()).ifPresent(button -> button.addClassName("selected"));
+                increaseBetCounter();
+            } else {
+                propBets.put(userBet.getBetType(),
+                             userBet.getBetValue());
+
+                findRadioButtonGroup(userBet.getBetType()).ifPresent(group -> group.setValue(userBet.getBetValue()));
+            }
+        });
+    }
+
+    private Optional<Button> findButtonByValue(String value) {
+        return getChildren()
+                .filter(HorizontalLayout.class::isInstance)
+                .flatMap(Component::getChildren)
+                .filter(Button.class::isInstance)
+                .map(Button.class::cast)
+                .filter(button -> value.equals(button.getText()))
+                .findFirst()
+                .map(button -> {
+                    button.addClassName("selected");
+                    return button;
+                });
+    }
+
+
+    private Optional<RadioButtonGroup<String>> findRadioButtonGroup(String className) {
+        return getChildren().filter(RadioButtonGroup.class::isInstance)
+                            .map(component -> (RadioButtonGroup<String>) component)
+                            .filter(group -> className.equals(group.getClassName()))
+                            .findFirst();
     }
 }
