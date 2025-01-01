@@ -56,7 +56,7 @@ public class ViewBets extends VerticalLayout {
 
         List<UserBetsSummary> userBetsSummaries = this.dataService.getUserBetsSummary();
         userBetsSummaries.forEach(userBetsSummary -> {
-            Document user = userService.findUserByUsername(userBetsSummary.getUsername());
+            Document user = userService.findUserByUsername(userBetsSummary.username());
             HorizontalLayout userLayout = createUserLayout(user, userBetsSummary);
             usersLayout.add(userLayout);
         });
@@ -102,7 +102,7 @@ public class ViewBets extends VerticalLayout {
     }
 
     private static HorizontalLayout createUserLayout(Document user, UserBetsSummary userBetsSummary) {
-        String name = userBetsSummary.getUsername();
+        String name = userBetsSummary.username();
         String firstName = user.getString("firstName");
 
         if (firstName != null) {
@@ -127,12 +127,12 @@ public class ViewBets extends VerticalLayout {
 
         VerticalLayout userStats = new VerticalLayout();
         userStats.setSpacing(false);
-        userStats.add(new Div(new Text("Number of Bets Made: " + userBetsSummary.getNumberOfBetsMade().toString())));
-        userStats.add(new Div(new Text("Number of Bets Won: "+ userBetsSummary.getNumberOfBetsWon().toString())));
-        userStats.add(new Div(new Text("Amount Owing: $" + userBetsSummary.getAmountOwing().toString())));
-        userStats.add(new Div(new Text("Amount Won: $" + userBetsSummary.getAmountWon().toString())));
+        userStats.add(new Div(new Text("Number of Bets Made: " + userBetsSummary.numberOfBetsMade().toString())));
+        userStats.add(new Div(new Text("Number of Bets Won: "+ userBetsSummary.numberOfBetsWon().toString())));
+        userStats.add(new Div(new Text("Amount Owing: $" + userBetsSummary.amountOwing().toString())));
+        userStats.add(new Div(new Text("Amount Won: $" + userBetsSummary.amountWon().toString())));
 
-        String netAmount = userBetsSummary.getNetAmount().toString();
+        String netAmount = userBetsSummary.netAmount().toString();
         if (netAmount.contains("-")) {
             Div div = new Div(new Text("Net Amount: -$" + netAmount.substring(1)));
             div.getStyle().set("font-weight", "bold");

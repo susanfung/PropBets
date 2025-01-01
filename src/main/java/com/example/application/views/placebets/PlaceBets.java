@@ -68,7 +68,7 @@ public class PlaceBets extends VerticalLayout {
 
         List<PropBet> propBetList = this.dataService.getPropBets();
         propBetList.forEach(propBet -> {
-            RadioButtonGroup<String> bet = createPropBet(propBet.getName(), propBet.getQuestion(), propBet.getChoices());
+            RadioButtonGroup<String> bet = createPropBet(propBet.name(), propBet.question(), propBet.choices());
             add(bet);
         });
 
@@ -197,17 +197,17 @@ public class PlaceBets extends VerticalLayout {
 
     private void displayUserBets(List<UserBet> userBets) {
         userBets.forEach(userBet -> {
-            if ("Score".equals(userBet.getBetType())) {
-                scoreBoardBets.put(userBet.getBetValue(),
-                                   userBet.getBetType());
+            if ("Score".equals(userBet.betType())) {
+                scoreBoardBets.put(userBet.betValue(),
+                                   userBet.betType());
 
-                findButtonByValue(userBet.getBetValue()).ifPresent(button -> button.addClassName("selected"));
+                findButtonByValue(userBet.betValue()).ifPresent(button -> button.addClassName("selected"));
                 increaseBetCounter();
             } else {
-                propBets.put(userBet.getBetType(),
-                             userBet.getBetValue());
+                propBets.put(userBet.betType(),
+                             userBet.betValue());
 
-                findRadioButtonGroup(userBet.getBetType()).ifPresent(group -> group.setValue(userBet.getBetValue()));
+                findRadioButtonGroup(userBet.betType()).ifPresent(group -> group.setValue(userBet.betValue()));
             }
         });
     }

@@ -227,9 +227,9 @@ public class DataService {
     }
 
     public void addUserBet(UserBet userBet) {
-        Document document = new Document().append(USERNAME, userBet.getUsername())
-                                          .append(BET_TYPE, userBet.getBetType())
-                                          .append(BET_VALUE, userBet.getBetValue());
+        Document document = new Document().append(USERNAME, userBet.username())
+                                          .append(BET_TYPE, userBet.betType())
+                                          .append(BET_VALUE, userBet.betValue());
 
         userBetsCollection.insertOne(document);
     }
