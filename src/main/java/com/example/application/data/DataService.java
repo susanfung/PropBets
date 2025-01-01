@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.ne;
 
 @Service
 public class DataService {
@@ -197,7 +198,17 @@ public class DataService {
         return propBetsCollection.find(eq(NAME, toCamelCase(name))).first() != null;
     }
 
+    public void deletePreviousBets(String username) {
+        userBetsCollection.deleteMany(eq(USERNAME, username));
+
+        propBetsSummaryCollection.updateMany(eq(BETTERS, username), Updates.pull(BETTERS, username));
+
+        propBetsSummaryCollection.deleteMany(eq(BETTERS, Collections.emptyList()));
+    }
+
     public void saveScoreBoardBets(String username, Map<String, String> bets) {
+        userBetsCollection.deleteMany(and(eq(USERNAME, username), eq(BET_TYPE, "Score")));
+
         bets.forEach((betValue, betType) -> {
             UserBet bet = new UserBet(username, betType, betValue);
             addUserBet(bet);
@@ -206,6 +217,8 @@ public class DataService {
     }
 
     public void savePropBets(String username, Map<String, String> bets) {
+        userBetsCollection.deleteMany(and(eq(USERNAME, username), ne(BET_TYPE, "Score")));
+
         bets.forEach((betType, betValue) -> {
             UserBet bet = new UserBet(username, betType, betValue);
             addUserBet(bet);
@@ -247,25 +260,21 @@ public class DataService {
         Document foundUser = userBetsSummaryCollection.find(eq(USERNAME, username)).first();
 
         if (foundUser != null) {
-            Integer updatedNumberOfBetsMade = foundUser.getInteger(NUMBER_OF_BETS_MADE) + numberOfBetsMade;
-            Double updatedAmountOwing = foundUser.getDouble(AMOUNT_OWING) + totalBetAmount;
             Double amountWon = foundUser.getDouble(AMOUNT_WON);
 
             userBetsSummaryCollection.updateOne(eq(USERNAME, username),
-                                                Updates.combine(Updates.set(NUMBER_OF_BETS_MADE, updatedNumberOfBetsMade),
-                                                                Updates.set(AMOUNT_OWING, updatedAmountOwing),
+                                                Updates.combine(Updates.set(NUMBER_OF_BETS_MADE, numberOfBetsMade),
+                                                                Updates.set(AMOUNT_OWING, totalBetAmount.doubleValue()),
                                                                 Updates.set(NUMBER_OF_BETS_WON, foundUser.getInteger(NUMBER_OF_BETS_WON)),
                                                                 Updates.set(AMOUNT_WON, amountWon),
-                                                                Updates.set(NET_AMOUNT, amountWon - updatedAmountOwing)));
+                                                                Updates.set(NET_AMOUNT, amountWon - totalBetAmount.doubleValue())));
         } else {
-            Double amountOwing = Double.valueOf(numberOfBetsMade * 2);
-            Double amountWon = Double.valueOf(0);
 
             Document newUser = new Document(USERNAME, username).append(NUMBER_OF_BETS_MADE, numberOfBetsMade)
-                                                               .append(AMOUNT_OWING, amountOwing)
+                                                               .append(AMOUNT_OWING, totalBetAmount.doubleValue())
                                                                .append(NUMBER_OF_BETS_WON, 0)
-                                                               .append(AMOUNT_WON, amountWon)
-                                                               .append(NET_AMOUNT, amountWon - amountOwing);
+                                                               .append(AMOUNT_WON, 0.0)
+                                                               .append(NET_AMOUNT, -totalBetAmount.doubleValue());
 
             userBetsSummaryCollection.insertOne(newUser);
         }

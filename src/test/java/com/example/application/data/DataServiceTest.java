@@ -5,6 +5,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Updates;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.junit.jupiter.api.BeforeEach;
@@ -262,6 +263,21 @@ class DataServiceTest {
     }
 
     @Test
+    void deletePreviousBets() {
+        String username = "john_doe";
+
+        when(mockUserBetsCollection.deleteMany(any())).thenReturn(null);
+        when(mockPropBetsSummaryCollection.updateMany(any(), Updates.pull("betters", any()))).thenReturn(null);
+        when(mockPropBetsSummaryCollection.deleteMany(eq("betters", any()))).thenReturn(null);
+
+        dataService.deletePreviousBets(username);
+
+        Mockito.verify(mockUserBetsCollection, times(1)).deleteMany(eq("username", username));
+        Mockito.verify(mockPropBetsSummaryCollection, times(1)).updateMany(eq("betters", username), Updates.pull("betters", username));
+        Mockito.verify(mockPropBetsSummaryCollection, times(1)).deleteMany(eq("betters", Collections.emptyList()));
+    }
+
+    @Test
     void saveScoreBoardBets() {
         String username = "john_doe";
         String betType1 = "Team 1 Score";
@@ -411,7 +427,7 @@ class DataServiceTest {
 
         Document mockUserBetsSummaryDocument = new Document();
         mockUserBetsSummaryDocument.append("username", username)
-                                   .append("numberOfBetsMade", 5)
+                                   .append("numberOfBetsMade", 10)
                                    .append("amountOwing", 100.0)
                                    .append("numberOfBetsWon", 3)
                                    .append("amountWon", 150.0)

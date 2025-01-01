@@ -94,6 +94,8 @@ public class PlaceBets extends VerticalLayout {
                 return;
             }
 
+            this.dataService.deletePreviousBets(username);
+
             this.dataService.saveScoreBoardBets(username, scoreBoardBets);
             this.dataService.savePropBets(username, propBets);
 
