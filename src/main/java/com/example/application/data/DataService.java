@@ -35,11 +35,14 @@ public class DataService {
     private static final String NAME = "name";
     private static final String QUESTION = "question";
     private static final String CHOICES = "choices";
+    private static final String WINNING_BET_VALUE = "winningBetValue";
+    private static final String IS_WINNER = "isWinner";
 
     private final MongoCollection<Document> userBetsSummaryCollection;
     private final MongoCollection<Document> propBetsSummaryCollection;
     private final MongoCollection<Document> userBetsCollection;
     private final MongoCollection<Document> propBetsCollection;
+    private final MongoCollection<Document> resultsCollection;
 
     @Autowired
     public DataService(MongoClient mongoClient) {
@@ -48,6 +51,7 @@ public class DataService {
         propBetsSummaryCollection = database.getCollection("PropBetsSummary");
         userBetsSummaryCollection = database.getCollection("UserBetsSummary");
         propBetsCollection = database.getCollection("PropBets");
+        resultsCollection = database.getCollection("Results");
     }
 
     public List<UserBetsSummary> getUserBetsSummary() {
@@ -304,5 +308,55 @@ public class DataService {
     private String formatQuestion(String input) {
         String string = input.substring(0, 1).toUpperCase() + input.substring(1);
         return string.endsWith("?") ? string : string + "?";
+    }
+
+    public void saveResult(String betType, String winningBetValue) {
+        Document document = new Document().append(BET_TYPE, betType)
+                                          .append(WINNING_BET_VALUE, winningBetValue);
+
+        resultsCollection.insertOne(document);
+
+        Document foundPropBet = propBetsCollection.find(eq(NAME, betType)).first();
+        List<String> winningBetters = new ArrayList<>();
+        List<String> losingBetters = new ArrayList<>();
+
+        if (foundPropBet != null) {
+            List<String> betValues = foundPropBet.getList(CHOICES, String.class);
+
+            for (String betValue : betValues) {
+                Document foundPropBetsSummary = propBetsSummaryCollection.find(and(eq(BET_TYPE, betType), eq(BET_VALUE, betValue))).first();
+
+                if (foundPropBetsSummary != null) {
+                    List<String> betters = new ArrayList<>(foundPropBetsSummary.getList(BETTERS, String.class));
+
+                    if (betValue.equals(winningBetValue)) {
+                        winningBetters.addAll(betters);
+                        propBetsSummaryCollection.updateOne(and(eq(BET_TYPE, betType), eq(BET_VALUE, betValue)),
+                                                            Updates.set(IS_WINNER, true));
+                    } else {
+                        losingBetters.addAll(betters);
+                        propBetsSummaryCollection.updateOne(and(eq(BET_TYPE, betType), eq(BET_VALUE, betValue)),
+                                                            Updates.set(IS_WINNER, false));
+                    }
+                }
+            }
+        }
+
+        Double amountWonPerBetter = Double.valueOf((winningBetters.size() + losingBetters.size()) * 2 / winningBetters.size());
+
+        for (String username : winningBetters) {
+            Document foundUserBetSummary = userBetsSummaryCollection.find(eq(USERNAME, username)).first();
+
+            if (foundUserBetSummary != null) {
+                Double amountOwing = foundUserBetSummary.getDouble(AMOUNT_OWING);
+                Double updatedAmountWon = foundUserBetSummary.getDouble(AMOUNT_WON) + amountWonPerBetter;
+
+                userBetsSummaryCollection.updateOne(eq(USERNAME, username),
+                                                    Updates.combine(Updates.set(NUMBER_OF_BETS_WON,
+                                                                                foundUserBetSummary.getInteger(NUMBER_OF_BETS_WON) + 1),
+                                                                    Updates.set(AMOUNT_WON, updatedAmountWon),
+                                                                    Updates.set(NET_AMOUNT, updatedAmountWon - amountOwing)));
+            }
+        }
     }
 }

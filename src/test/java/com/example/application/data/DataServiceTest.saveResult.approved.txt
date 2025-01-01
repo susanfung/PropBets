@@ -1,0 +1,1 @@
+Document{{betType=Proposal, winningBetValue=Yes}}

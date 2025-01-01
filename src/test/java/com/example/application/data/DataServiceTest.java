@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.example.application.views.placebets.PlaceBets.AMOUNT_PER_BET;
+import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static org.approvaltests.Approvals.verify;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -55,10 +56,19 @@ class DataServiceTest {
     private MongoCollection<Document> mockPropBetsCollection;
 
     @Mock
+    private MongoCollection<Document> mockResultsCollection;
+
+    @Mock
     private FindIterable<Document> mockFindIterable;
 
     @Mock
     private FindIterable<Document> mockPropBetFindIterable;
+
+    @Mock
+    private FindIterable<Document> mockPropBetsSummaryFindIterable;
+
+    @Mock
+    private FindIterable<Document> mockUserBetsSummaryFindIterable;
 
     @Mock
     private MongoCursor<Document> mockCursor;
@@ -74,6 +84,7 @@ class DataServiceTest {
         when(mockDatabase.getCollection("PropBetsSummary")).thenReturn(mockPropBetsSummaryCollection);
         when(mockDatabase.getCollection("UserBets")).thenReturn(mockUserBetsCollection);
         when(mockDatabase.getCollection("PropBets")).thenReturn(mockPropBetsCollection);
+        when(mockDatabase.getCollection("Results")).thenReturn(mockResultsCollection);
 
         dataService = new DataService(mockMongoClient);
     }
@@ -452,5 +463,68 @@ class DataServiceTest {
 
         Mockito.verify(mockPropBetsCollection, times(1)).insertOne(captor.capture());
         verify(captor.getValue().toString());
+    }
+
+    @Test
+    void saveResult() {
+        String betType = "Proposal";
+        String question = "Will Kelce propose at the game?";
+        String winningBetValue = "Yes";
+        String losingBetValue = "No";
+        String winningUsername = "john_doe";
+        String losingUsername = "jane_doe";
+        Double amountOwing = 100.0;
+        Integer numberOfBetsWon = 0;
+        Double amountWon = 0.0;
+        Double updatedAmountWon = amountWon + 4;
+
+        Document propBet = new Document();
+        propBet.append("name", betType)
+               .append("question", question)
+               .append("choices", List.of(winningBetValue, losingBetValue));
+
+        Document winningPropBetsSummary = new Document();
+        winningPropBetsSummary.append("betType", betType)
+                              .append("betValue", winningBetValue)
+                              .append("betters", List.of(winningUsername))
+                              .append("question", question);
+
+        Document losingPropBetsSummary = new Document();
+        losingPropBetsSummary.append("betType", betType)
+                             .append("betValue", losingBetValue)
+                             .append("betters", List.of(losingUsername))
+                             .append("question", question);
+
+        Document userBetsSummary = new Document();
+        userBetsSummary.append("username", "john_doe")
+                       .append("numberOfBetsMade", 5)
+                       .append("amountOwing", amountOwing)
+                       .append("numberOfBetsWon", numberOfBetsWon)
+                       .append("amountWon", amountWon)
+                       .append("netAmount", -100.0);
+
+        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockPropBetFindIterable);
+        when(mockPropBetFindIterable.first()).thenReturn(propBet);
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", winningBetValue)))).thenReturn(mockFindIterable);
+        when(mockFindIterable.first()).thenReturn(winningPropBetsSummary);
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", losingBetValue)))).thenReturn(mockPropBetsSummaryFindIterable);
+        when(mockPropBetsSummaryFindIterable.first()).thenReturn(losingPropBetsSummary);
+        when(mockUserBetsSummaryCollection.find(eq("username", any()))).thenReturn(mockUserBetsSummaryFindIterable);
+        when(mockUserBetsSummaryFindIterable.first()).thenReturn(userBetsSummary);
+
+        dataService.saveResult(betType, winningBetValue);
+
+        ArgumentCaptor<Document> resultsCaptor = ArgumentCaptor.forClass(Document.class);
+
+        Mockito.verify(mockResultsCollection, times(1)).insertOne(resultsCaptor.capture());
+        Mockito.verify(mockPropBetsSummaryCollection, times(2)).updateOne(and(eq("betvalue", any()), eq("betValue", winningBetValue)), Updates.set("isWinner", any()));
+        Mockito.verify(mockPropBetsSummaryCollection).updateOne(and(eq("betType", betType), eq("betValue", winningBetValue)), Updates.set("isWinner", true));
+        Mockito.verify(mockPropBetsSummaryCollection).updateOne(and(eq("betType", betType), eq("betValue", losingBetValue)), Updates.set("isWinner", false));
+        Mockito.verify(mockUserBetsSummaryCollection)
+               .updateOne(eq("username", winningUsername),
+                          Updates.combine(Updates.set("numberOfBetsWon", numberOfBetsWon + 1),
+                                          Updates.set("amountWon", updatedAmountWon),
+                                          Updates.set("netAmount", updatedAmountWon - amountOwing)));
+        verify(resultsCaptor.getValue().toString());
     }
 }
