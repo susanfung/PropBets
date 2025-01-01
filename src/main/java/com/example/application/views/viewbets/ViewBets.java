@@ -135,10 +135,14 @@ public class ViewBets extends VerticalLayout {
         String netAmount = userBetsSummary.getNetAmount().toString();
         if (netAmount.contains("-")) {
             Div div = new Div(new Text("Net Amount: -$" + netAmount.substring(1)));
+            div.getStyle().set("font-weight", "bold");
             div.getStyle().set("color", "red");
             userStats.add(div);
         } else {
-            userStats.add(new Div(new Text("Net Amount: $" + netAmount)));
+            Div div = new Div(new Text("Net Amount: $" + netAmount));
+            div.getStyle().set("font-weight", "bold");
+            div.getStyle().set("color", "green");
+            userStats.add(div);
         }
 
         userInformation.add(userStats);
