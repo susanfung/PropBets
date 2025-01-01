@@ -345,8 +345,7 @@ class DataServiceTest {
 
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
 
-        Mockito.verify(mockUserBetsCollection, times(1)).insertOne(any());
-        Mockito.verify(mockUserBetsCollection).insertOne(captor.capture());
+        Mockito.verify(mockUserBetsCollection, times(1)).insertOne(captor.capture());
         verify(captor.getValue().toString());
     }
 
@@ -415,8 +414,7 @@ class DataServiceTest {
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
 
         Mockito.verify(mockUserBetsSummaryCollection, never()).updateOne(any(), Collections.singletonList(any()));
-        Mockito.verify(mockUserBetsSummaryCollection, times(1)).insertOne(any());
-        Mockito.verify(mockUserBetsSummaryCollection).insertOne(captor.capture());
+        Mockito.verify(mockUserBetsSummaryCollection, times(1)).insertOne(captor.capture());
         verify(captor.getValue().toString());
     }
 
@@ -452,8 +450,7 @@ class DataServiceTest {
 
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
 
-        Mockito.verify(mockPropBetsCollection, times(1)).insertOne(any());
-        Mockito.verify(mockPropBetsCollection).insertOne(captor.capture());
+        Mockito.verify(mockPropBetsCollection, times(1)).insertOne(captor.capture());
         verify(captor.getValue().toString());
     }
 }

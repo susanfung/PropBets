@@ -21,3 +21,4 @@ error-screenshots/
 webpack.generated.js
 .env
 *.db
+.approval_tests_temp/.approved_files.log
