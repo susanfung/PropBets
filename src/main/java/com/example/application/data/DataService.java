@@ -269,11 +269,8 @@ public class DataService {
             userBetsSummaryCollection.updateOne(eq(USERNAME, username),
                                                 Updates.combine(Updates.set(NUMBER_OF_BETS_MADE, numberOfBetsMade),
                                                                 Updates.set(AMOUNT_OWING, totalBetAmount.doubleValue()),
-                                                                Updates.set(NUMBER_OF_BETS_WON, foundUser.getInteger(NUMBER_OF_BETS_WON)),
-                                                                Updates.set(AMOUNT_WON, amountWon),
                                                                 Updates.set(NET_AMOUNT, amountWon - totalBetAmount.doubleValue())));
         } else {
-
             Document newUser = new Document(USERNAME, username).append(NUMBER_OF_BETS_MADE, numberOfBetsMade)
                                                                .append(AMOUNT_OWING, totalBetAmount.doubleValue())
                                                                .append(NUMBER_OF_BETS_WON, 0)
@@ -323,7 +320,7 @@ public class DataService {
         if (foundPropBet != null) {
             List<String> betValues = foundPropBet.getList(CHOICES, String.class);
 
-            for (String betValue : betValues) {
+            betValues.forEach(betValue -> {
                 Document foundPropBetsSummary = propBetsSummaryCollection.find(and(eq(BET_TYPE, betType), eq(BET_VALUE, betValue))).first();
 
                 if (foundPropBetsSummary != null) {
@@ -339,12 +336,12 @@ public class DataService {
                                                             Updates.set(IS_WINNER, false));
                     }
                 }
-            }
+            });
         }
 
         Double amountWonPerBetter = Double.valueOf((winningBetters.size() + losingBetters.size()) * 2 / winningBetters.size());
 
-        for (String username : winningBetters) {
+        winningBetters.forEach(username -> {
             Document foundUserBetSummary = userBetsSummaryCollection.find(eq(USERNAME, username)).first();
 
             if (foundUserBetSummary != null) {
@@ -357,6 +354,6 @@ public class DataService {
                                                                     Updates.set(AMOUNT_WON, updatedAmountWon),
                                                                     Updates.set(NET_AMOUNT, updatedAmountWon - amountOwing)));
             }
-        }
+        });
     }
 }
