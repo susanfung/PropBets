@@ -4,6 +4,7 @@ package com.example.application.views;
 import com.example.application.views.createnewbet.CreateNewBet;
 import com.example.application.views.placebets.PlaceBets;
 import com.example.application.views.profile.Profile;
+import com.example.application.views.saveresults.SaveResults;
 import com.example.application.views.viewbets.ViewBets;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -75,12 +76,17 @@ public class MainLayout extends AppLayout {
         userIcon.setWidth("24px");
         userIcon.setHeight("24px");
 
+        Image saveResultsIcon = new Image("icons/win.png", "Save Results");
+        saveResultsIcon.setWidth("24px");
+        saveResultsIcon.setHeight("24px");
+
         nav.addItem(new SideNavItem("View Bets", ViewBets.class, betsIcon));
         nav.addItem(new SideNavItem("Place Bets", PlaceBets.class, placeBetsIcon));
 
         String role = (String) VaadinSession.getCurrent().getAttribute("role");
         if ("admin".equals(role)) {
             nav.addItem(new SideNavItem("Create New Bet", CreateNewBet.class, createNewBetIcon));
+            nav.addItem(new SideNavItem("Save Results", SaveResults.class, saveResultsIcon));
         }
 
         nav.addItem(new SideNavItem("Profile", Profile.class, userIcon));
@@ -101,6 +107,7 @@ public class MainLayout extends AppLayout {
         Anchor anchorBetIcon = new Anchor("https://www.flaticon.com/free-icons/bet", "Bet icons created by Freepik - Flaticon");
         Anchor anchorBettingIcon = new Anchor("https://www.flaticon.com/free-icons/betting", "Betting icons created by Vitaly Gorbachev - Flaticon");
         Anchor anchorProfileIcon = new Anchor("https://www.flaticon.com/free-icons/user", "User icons created by Freepik - Flaticon");
+        Anchor anchorWinnerIcon = new Anchor("https://www.flaticon.com/free-icons/winner", "Winner icons created by Freepik - Flaticon");
 
         anchorBetIcon.setTitle("Bet Icons");
         anchorBetIcon.getElement().getStyle().set("font-size", "10px");
@@ -111,7 +118,10 @@ public class MainLayout extends AppLayout {
         anchorProfileIcon.setTitle("User Icons");
         anchorProfileIcon.getElement().getStyle().set("font-size", "10px");
 
-        layout.add(partnerText, partnerImage, logoutButton, anchorBetIcon, anchorBettingIcon, anchorProfileIcon);
+        anchorWinnerIcon.setTitle("Winner Icons");
+        anchorWinnerIcon.getElement().getStyle().set("font-size", "10px");
+
+        layout.add(partnerText, partnerImage, logoutButton, anchorBetIcon, anchorBettingIcon, anchorProfileIcon, anchorWinnerIcon);
 
         return layout;
     }

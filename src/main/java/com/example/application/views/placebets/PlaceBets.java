@@ -13,7 +13,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
-import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
@@ -23,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
+
+import static com.example.application.utils.Utils.createPropBet;
 
 @PageTitle("Place Bets")
 @Route(value = "placeBets", layout = MainLayout.class)
@@ -69,6 +70,7 @@ public class PlaceBets extends VerticalLayout {
         List<PropBet> propBetList = this.dataService.getPropBets();
         propBetList.forEach(propBet -> {
             RadioButtonGroup<String> bet = createPropBet(propBet.name(), propBet.question(), propBet.choices());
+            bet.addValueChangeListener(e -> handlePropBetSelection(bet.getClassName(), e.getValue()));
             add(bet);
         });
 
@@ -155,16 +157,6 @@ public class PlaceBets extends VerticalLayout {
             button.addClassName("selected");
             increaseBetCounter();
         }
-    }
-
-    private RadioButtonGroup<String> createPropBet(String name, String question, List<String> choices) {
-        RadioButtonGroup<String> propBet = new RadioButtonGroup<>();
-        propBet.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-        propBet.setClassName(name);
-        propBet.setLabel(question);
-        propBet.setItems(choices);
-        propBet.addValueChangeListener(e -> handlePropBetSelection(propBet.getClassName(), e.getValue()));
-        return propBet;
     }
 
     private void handlePropBetSelection(String betType, String betValue) {
