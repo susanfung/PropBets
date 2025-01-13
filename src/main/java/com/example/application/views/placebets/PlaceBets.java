@@ -33,7 +33,7 @@ public class PlaceBets extends VerticalLayout {
     private final DataService dataService;
 
     private final Map<String, String> scoreBoardBets = new HashMap<>();
-    private static final Map<String, String> propBets = new HashMap<>();
+    private final Map<String, String> propBets = new HashMap<>();
 
     private int betCount = 0;
     private Paragraph totalBets;
@@ -91,11 +91,6 @@ public class PlaceBets extends VerticalLayout {
 
         Button submit = new Button("Submit");
         submit.addClickListener(e -> {
-            if (username.isEmpty()) {
-                Notification.show("Please enter your name");
-                return;
-            }
-
             this.dataService.deletePreviousBets(username);
 
             this.dataService.saveScoreBoardBets(username, scoreBoardBets);
