@@ -3,6 +3,7 @@ package com.example.application.views.placebets;
 import com.example.application.data.DataService;
 import com.example.application.data.PropBet;
 import com.example.application.data.UserBet;
+import com.example.application.utils.Utils;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -184,7 +185,7 @@ public class PlaceBets extends VerticalLayout {
 
     private void displayUserBets(List<UserBet> userBets) {
         userBets.forEach(userBet -> {
-            if ("Score".equals(userBet.betType())) {
+            if (userBet.betType().equals("Score")) {
                 scoreBoardBets.put(userBet.betValue(),
                                    userBet.betType());
 
@@ -194,7 +195,7 @@ public class PlaceBets extends VerticalLayout {
                 propBets.put(userBet.betType(),
                              userBet.betValue());
 
-                findRadioButtonGroup(userBet.betType()).ifPresent(group -> group.setValue(userBet.betValue()));
+                Utils.findRadioButtonGroup(this, userBet.betType()).ifPresent(group -> group.setValue(userBet.betValue()));
             }
         });
     }
@@ -211,13 +212,5 @@ public class PlaceBets extends VerticalLayout {
                     button.addClassName("selected");
                     return button;
                 });
-    }
-
-
-    private Optional<RadioButtonGroup<String>> findRadioButtonGroup(String className) {
-        return getChildren().filter(RadioButtonGroup.class::isInstance)
-                            .map(component -> (RadioButtonGroup<String>) component)
-                            .filter(group -> className.equals(group.getClassName()))
-                            .findFirst();
     }
 }

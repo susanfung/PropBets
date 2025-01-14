@@ -2,6 +2,8 @@ package com.example.application.views.saveresults;
 
 import com.example.application.data.DataService;
 import com.example.application.data.PropBet;
+import com.example.application.data.Result;
+import com.example.application.utils.Utils;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
@@ -45,6 +47,9 @@ public class SaveResults extends VerticalLayout implements BeforeEnterObserver {
             add(bet);
         });
 
+        List<Result> results = this.dataService.findResults();
+        displayResults(results);
+
         Hr separator2 = new Hr();
 
         Button submit = new Button("Submit");
@@ -63,6 +68,18 @@ public class SaveResults extends VerticalLayout implements BeforeEnterObserver {
 
     private void handlePropBetSelection(String betType, String winningValue) {
         propBetsResults.put(betType, winningValue);
+    }
+
+    private void displayResults(List<Result> results) {
+        results.forEach(result -> {
+            if (result.betType().equals("Score")) {
+            } else {
+                Utils.findRadioButtonGroup(this, result.betType()).ifPresent(group -> {
+                    group.setValue(result.winningBetValue());
+                    group.setEnabled(false);
+                });
+            }
+        });
     }
 
     public void beforeEnter(BeforeEnterEvent event) {
