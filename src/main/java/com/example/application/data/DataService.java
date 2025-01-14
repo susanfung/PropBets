@@ -198,6 +198,27 @@ public class DataService {
         return userBets;
     }
 
+    public List<Result> findResults() {
+        MongoCursor<Document> cursor = resultsCollection.find().iterator();
+
+        List<Result> results = new ArrayList<>();
+
+        try {
+            while (cursor.hasNext()) {
+                Document document = cursor.next();
+
+                Result result = new Result(document.getString(BET_TYPE),
+                                           document.getString(WINNING_BET_VALUE));
+
+                results.add(result);
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return results;
+    }
+
     public boolean isPropBetNameTaken(String name) {
         return propBetsCollection.find(eq(NAME, toCamelCase(name))).first() != null;
     }

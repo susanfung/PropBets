@@ -258,6 +258,24 @@ class DataServiceTest {
     }
 
     @Test
+    void findResults() {
+        Document mockResultsDocument = new Document();
+        mockResultsDocument.append("betType", "Team 1 Score")
+                           .append("winningBetValue", "100");
+
+        when(mockResultsCollection.find()).thenReturn(mockFindIterable);
+        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, false);
+        when(mockCursor.next()).thenReturn(mockResultsDocument);
+
+        verify(dataService.findResults()
+                          .stream()
+                          .map(Result::toString)
+                          .reduce("", (s1, s2) -> s1 + s2 + "\n"));
+        Mockito.verify(mockCursor, times(1)).close();
+    }
+
+    @Test
     void isPropBetNameTaken_whenPropBetNameDoesNotExist_returnFalse() {
         when(mockPropBetsCollection.find(eq(any()))).thenReturn(mockFindIterable);
         when(mockFindIterable.first()).thenReturn(null);
