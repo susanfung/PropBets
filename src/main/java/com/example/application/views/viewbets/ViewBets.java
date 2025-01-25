@@ -12,6 +12,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -28,6 +29,7 @@ import org.bson.types.Binary;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @PageTitle("View Bets")
@@ -39,6 +41,7 @@ public class ViewBets extends VerticalLayout {
 
     private static final String rowNumberWidth = "75px";
     private static final String cellWidth = "100px";
+    private static final String iconSize = "24px";
 
     private Map<String, String> scoreBoardBetsSummary;
 
@@ -99,7 +102,10 @@ public class ViewBets extends VerticalLayout {
         });
 
         List<PropBetsSummary> propBetsSummaries = this.dataService.getPropBetsSummary();
-//        propBetsSummaries.forEach((betType, betValues) -> createPropBetsSummary(betType, betValues));
+        Map<String, List<PropBetsSummary>> groupedSummaries = propBetsSummaries.stream()
+                                                                               .collect(Collectors.groupingBy(PropBetsSummary::question));
+
+        groupedSummaries.forEach(this::createPropBetsSummary);
     }
 
     private static HorizontalLayout createUserLayout(Document user, UserBetsSummary userBetsSummary) {
@@ -227,24 +233,37 @@ public class ViewBets extends VerticalLayout {
         rowSpan.getStyle().set("text-align", "center");
     }
 
-    private void createPropBetsSummary(String betType, List<String> betValues) {
+    private void createPropBetsSummary(String question, List<PropBetsSummary> summaries) {
         Hr separator = new Hr();
         separator.getElement().getStyle().set("background-color", "black");
 
         VerticalLayout betSummary = new VerticalLayout();
         betSummary.setPadding(false);
 
-        String[] question = betType.split(" - ");
-
-        Button questionButton = new Button(question[question.length - 1]);
+        Button questionButton = new Button(question);
         setPropBetSummaryButtonStyle(questionButton);
         questionButton.getStyle().set("color", "blue");
 
         betSummary.add(questionButton);
 
-        betValues.forEach(betValue -> {
-            Button betValueButton = new Button(betValue);
+        summaries.forEach(summary -> {
+            String betValueText = summary.betValue() + " - " + String.join(", ", summary.betters());
+            Button betValueButton = new Button(betValueText);
             setPropBetSummaryButtonStyle(betValueButton);
+
+            Image winnerIcon = new Image("icons/success.png", "Winner");
+            winnerIcon.setWidth(iconSize);
+            winnerIcon.setHeight(iconSize);
+
+            Image loserIcon = new Image("icons/loser.png", "Loser");
+            loserIcon.setWidth(iconSize);
+            loserIcon.setHeight(iconSize);
+
+            if (summary.isWinner() != null && summary.isWinner()) {
+                betValueButton.setIcon(winnerIcon);
+            } else if (summary.isWinner() != null) {
+                betValueButton.setIcon(loserIcon);
+            }
 
             betSummary.add(betValueButton);
         });

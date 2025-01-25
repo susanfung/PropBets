@@ -59,26 +59,27 @@ public class MainLayout extends AppLayout {
 
     private SideNav createNavigation() {
         SideNav nav = new SideNav();
+        String iconSize = "24px";
 
         Image betsIcon = new Image("icons/football-bet.png", "Bets");
-        betsIcon.setWidth("24px");
-        betsIcon.setHeight("24px");
+        betsIcon.setWidth(iconSize);
+        betsIcon.setHeight(iconSize);
 
         Image placeBetsIcon = new Image("icons/place-bet.png", "Place Bets");
-        placeBetsIcon.setWidth("24px");
-        placeBetsIcon.setHeight("24px");
+        placeBetsIcon.setWidth(iconSize);
+        placeBetsIcon.setHeight(iconSize);
 
         Image createNewBetIcon = new Image("icons/create-new-bet.png", "Create New Bet");
-        createNewBetIcon.setWidth("24px");
-        createNewBetIcon.setHeight("24px");
+        createNewBetIcon.setWidth(iconSize);
+        createNewBetIcon.setHeight(iconSize);
 
         Image userIcon = new Image("icons/user.png", "Profile");
-        userIcon.setWidth("24px");
-        userIcon.setHeight("24px");
+        userIcon.setWidth(iconSize);
+        userIcon.setHeight(iconSize);
 
         Image saveResultsIcon = new Image("icons/win.png", "Save Results");
-        saveResultsIcon.setWidth("24px");
-        saveResultsIcon.setHeight("24px");
+        saveResultsIcon.setWidth(iconSize);
+        saveResultsIcon.setHeight(iconSize);
 
         nav.addItem(new SideNavItem("View Bets", ViewBets.class, betsIcon));
         nav.addItem(new SideNavItem("Place Bets", PlaceBets.class, placeBetsIcon));
@@ -107,7 +108,9 @@ public class MainLayout extends AppLayout {
         Anchor anchorBetIcon = new Anchor("https://www.flaticon.com/free-icons/bet", "Bet icons created by Freepik - Flaticon");
         Anchor anchorBettingIcon = new Anchor("https://www.flaticon.com/free-icons/betting", "Betting icons created by Vitaly Gorbachev - Flaticon");
         Anchor anchorProfileIcon = new Anchor("https://www.flaticon.com/free-icons/user", "User icons created by Freepik - Flaticon");
-        Anchor anchorWinnerIcon = new Anchor("https://www.flaticon.com/free-icons/winner", "Winner icons created by Freepik - Flaticon");
+        Anchor anchorWinnerIcon = new Anchor("https://www.flaticon.com/free-icons/success", "Winner icons created by Freepik - Flaticon");
+        Anchor anchorSuccessIcon = new Anchor("https://www.flaticon.com/free-icons/winner", "Success icons created by Wichai.wi - Flaticon");
+        Anchor anchorLoserIcon = new Anchor("https://www.flaticon.com/free-icons/loser", "Loser icons created by surang - Flaticon");
 
         anchorBetIcon.setTitle("Bet Icons");
         anchorBetIcon.getElement().getStyle().set("font-size", "10px");
@@ -121,7 +124,13 @@ public class MainLayout extends AppLayout {
         anchorWinnerIcon.setTitle("Winner Icons");
         anchorWinnerIcon.getElement().getStyle().set("font-size", "10px");
 
-        layout.add(partnerText, partnerImage, logoutButton, anchorBetIcon, anchorBettingIcon, anchorProfileIcon, anchorWinnerIcon);
+        anchorSuccessIcon.setTitle("Success Icons");
+        anchorSuccessIcon.getElement().getStyle().set("font-size", "10px");
+
+        anchorLoserIcon.setTitle("Loser Icons");
+        anchorLoserIcon.getElement().getStyle().set("font-size", "10px");
+
+        layout.add(partnerText, partnerImage, logoutButton, anchorBetIcon, anchorBettingIcon, anchorProfileIcon, anchorWinnerIcon, anchorSuccessIcon, anchorLoserIcon);
 
         return layout;
     }
