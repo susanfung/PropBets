@@ -120,24 +120,25 @@ class DataServiceTest {
         mockPropBetsSummaryDocument1.append("betType", betType)
                                     .append("betValue", "Yes")
                                     .append("betters", List.of("jane_doe", "john_doe"))
-                                    .append("question", question);
+                                    .append("question", question)
+                                    .append("isWinner", true);
 
         Document mockPropBetsSummaryDocument2 = new Document();
         mockPropBetsSummaryDocument2.append("betType", betType)
                                     .append("betValue", "No")
                                     .append("betters", List.of("jack_doe", "jill_doe"))
-                                    .append("question", question);
+                                    .append("question", question)
+                                    .append("isWinner", false);
 
         when(mockPropBetsSummaryCollection.find()).thenReturn(mockFindIterable);
         when(mockFindIterable.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, true, false);
         when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
 
-        Map<String, List<String>> result = dataService.getPropBetsSummary();
-        verify(result.entrySet()
-                     .stream()
-                     .map(entry -> entry.getKey() + ":\n" + String.join("\n", entry.getValue()))
-                     .reduce("", (s1, s2) -> s1 + s2 + "\n"));
+        verify(dataService.getPropBetsSummary()
+                          .stream()
+                          .map(PropBetsSummary::toString)
+                          .reduce("", (s1, s2) -> s1 + s2 + "\n"));
         Mockito.verify(mockCursor, times(1)).close();
     }
 
@@ -150,7 +151,8 @@ class DataServiceTest {
         mockPropBetsSummaryDocument1.append("betType", betType)
                                     .append("betValue", betValue)
                                     .append("betters", List.of("jane_doe", "john_doe"))
-                                    .append("question", "Will Kelce propose at the game?");
+                                    .append("question", "Will Kelce propose at the game?")
+                                    .append("isWinner", true);
 
         Document mockPropBetsSummaryDocument2 = new Document();
         mockPropBetsSummaryDocument2.append("betType", "Score")
@@ -162,11 +164,10 @@ class DataServiceTest {
         when(mockCursor.hasNext()).thenReturn(true, true, false);
         when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
 
-        Map<String, List<String>> result = dataService.getPropBetsSummary();
-        verify(result.entrySet()
-                     .stream()
-                     .map(entry -> entry.getKey() + ":\n" + String.join("\n", entry.getValue()))
-                     .reduce("", (s1, s2) -> s1 + s2 + "\n"));
+        verify(dataService.getPropBetsSummary()
+                          .stream()
+                          .map(PropBetsSummary::toString)
+                          .reduce("", (s1, s2) -> s1 + s2 + "\n"));
         Mockito.verify(mockCursor, times(1)).close();
     }
 

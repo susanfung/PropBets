@@ -1,3 +1,1 @@
-Proposal - Will Kelce propose at the game?:
-Yes - jane_doe, john_doe
-
+com.example.application.data.PropBetsSummary[betType=Proposal,betValue=Yes,betters=[jane_doe, john_doe],question=Will Kelce propose at the game?,isWinner=true]

@@ -1,6 +1,7 @@
 package com.example.application.views.viewbets;
 
 import com.example.application.data.DataService;
+import com.example.application.data.PropBetsSummary;
 import com.example.application.data.UserBetsSummary;
 import com.example.application.security.UserService;
 import com.example.application.views.MainLayout;
@@ -97,8 +98,8 @@ public class ViewBets extends VerticalLayout {
             add(rowsForScoreBoard);
         });
 
-        Map<String, List<String>> propBetsSummaries = this.dataService.getPropBetsSummary();
-        propBetsSummaries.forEach((betType, betValues) -> createPropBetsSummary(betType, betValues));
+        List<PropBetsSummary> propBetsSummaries = this.dataService.getPropBetsSummary();
+//        propBetsSummaries.forEach((betType, betValues) -> createPropBetsSummary(betType, betValues));
     }
 
     private static HorizontalLayout createUserLayout(Document user, UserBetsSummary userBetsSummary) {
