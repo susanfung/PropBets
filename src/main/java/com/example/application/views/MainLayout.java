@@ -105,32 +105,12 @@ public class MainLayout extends AppLayout {
 
         Button logoutButton = new Button("Logout", event -> logout());
 
-        Anchor anchorBetIcon = new Anchor("https://www.flaticon.com/free-icons/bet", "Bet icons created by Freepik - Flaticon");
-        Anchor anchorBettingIcon = new Anchor("https://www.flaticon.com/free-icons/betting", "Betting icons created by Vitaly Gorbachev - Flaticon");
-        Anchor anchorProfileIcon = new Anchor("https://www.flaticon.com/free-icons/user", "User icons created by Freepik - Flaticon");
-        Anchor anchorWinnerIcon = new Anchor("https://www.flaticon.com/free-icons/success", "Winner icons created by Freepik - Flaticon");
-        Anchor anchorSuccessIcon = new Anchor("https://www.flaticon.com/free-icons/winner", "Success icons created by Wichai.wi - Flaticon");
-        Anchor anchorLoserIcon = new Anchor("https://www.flaticon.com/free-icons/loser", "Loser icons created by surang - Flaticon");
+        Anchor anchorIcons = new Anchor("https://www.flaticon.com", "Icons created by Freepik, Vitaly Gorbachev, Wichai.wi, surang - Flaticon");
 
-        anchorBetIcon.setTitle("Bet Icons");
-        anchorBetIcon.getElement().getStyle().set("font-size", "10px");
+        anchorIcons.setTitle("Bet Icons");
+        anchorIcons.getElement().getStyle().set("font-size", "10px");
 
-        anchorBettingIcon.setTitle("Betting Icons");
-        anchorBettingIcon.getElement().getStyle().set("font-size", "10px");
-
-        anchorProfileIcon.setTitle("User Icons");
-        anchorProfileIcon.getElement().getStyle().set("font-size", "10px");
-
-        anchorWinnerIcon.setTitle("Winner Icons");
-        anchorWinnerIcon.getElement().getStyle().set("font-size", "10px");
-
-        anchorSuccessIcon.setTitle("Success Icons");
-        anchorSuccessIcon.getElement().getStyle().set("font-size", "10px");
-
-        anchorLoserIcon.setTitle("Loser Icons");
-        anchorLoserIcon.getElement().getStyle().set("font-size", "10px");
-
-        layout.add(partnerText, partnerImage, logoutButton, anchorBetIcon, anchorBettingIcon, anchorProfileIcon, anchorWinnerIcon, anchorSuccessIcon, anchorLoserIcon);
+        layout.add(partnerText, partnerImage, logoutButton, anchorIcons);
 
         return layout;
     }
