@@ -495,7 +495,7 @@ class DataServiceTest {
         Double amountOwing = 100.0;
         Integer numberOfBetsWon = 0;
         Double amountWon = 0.0;
-        Double updatedAmountWon = amountWon + 4;
+        Double updatedAmountWon = amountWon + 2.67;
 
         Document propBet = new Document();
         propBet.append("name", betType)
@@ -505,7 +505,7 @@ class DataServiceTest {
         Document winningPropBetsSummary = new Document();
         winningPropBetsSummary.append("betType", betType)
                               .append("betValue", winningBetValue)
-                              .append("betters", List.of(winningUsername))
+                              .append("betters", List.of(winningUsername, "winner1", "winner2"))
                               .append("question", question);
 
         Document losingPropBetsSummary = new Document();

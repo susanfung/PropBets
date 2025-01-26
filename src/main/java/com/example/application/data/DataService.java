@@ -9,6 +9,8 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -359,7 +361,9 @@ public class DataService {
             });
         }
 
-        Double amountWonPerBetter = Double.valueOf((winningBetters.size() + losingBetters.size()) * 2 / winningBetters.size());
+        Double amountWonPerBetter = BigDecimal.valueOf((double) (winningBetters.size() + losingBetters.size()) * 2 / winningBetters.size())
+                                              .setScale(2, RoundingMode.HALF_UP)
+                                              .doubleValue();
 
         winningBetters.forEach(username -> {
             Document foundUserBetSummary = userBetsSummaryCollection.find(eq(USERNAME, username)).first();
