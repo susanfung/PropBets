@@ -49,6 +49,7 @@ public class SaveResults extends VerticalLayout implements BeforeEnterObserver {
 
         List<Result> results = this.dataService.findResults();
         displayResults(results);
+        propBetsResults.clear();
 
         Hr separator2 = new Hr();
 
