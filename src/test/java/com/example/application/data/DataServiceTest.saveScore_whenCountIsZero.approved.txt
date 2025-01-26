@@ -1,0 +1,4 @@
+Team Score:
+Document{{Team 1=12, Team 2=10}}
+ScoreBoard Events Tracker:
+Document{{isScoreBoardEventsTracker=true, totalAmountOfBets=84.0, numberOfWinningEvents=9, totalAmountWonPerEvent=9.33}}

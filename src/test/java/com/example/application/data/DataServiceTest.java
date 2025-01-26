@@ -20,12 +20,14 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.example.application.views.placebets.PlaceBets.AMOUNT_PER_BET;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.exists;
 import static org.approvaltests.Approvals.verify;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -59,13 +61,22 @@ class DataServiceTest {
     private MongoCollection<Document> mockResultsCollection;
 
     @Mock
+    private MongoCollection<Document> mockScoreCollection;
+
+    @Mock
     private FindIterable<Document> mockFindIterable;
 
     @Mock
     private FindIterable<Document> mockPropBetFindIterable;
 
     @Mock
-    private FindIterable<Document> mockPropBetsSummaryFindIterable;
+    private FindIterable<Document> mockPropBetsSummaryFindIterable1;
+
+    @Mock
+    private FindIterable<Document> mockPropBetsSummaryFindIterable2;
+
+    @Mock
+    private FindIterable<Document> mockPropBetsSummaryFindIterable3;
 
     @Mock
     private FindIterable<Document> mockUserBetsSummaryFindIterable1;
@@ -91,6 +102,7 @@ class DataServiceTest {
         when(mockDatabase.getCollection("UserBets")).thenReturn(mockUserBetsCollection);
         when(mockDatabase.getCollection("PropBets")).thenReturn(mockPropBetsCollection);
         when(mockDatabase.getCollection("Results")).thenReturn(mockResultsCollection);
+        when(mockDatabase.getCollection("Score")).thenReturn(mockScoreCollection);
 
         dataService = new DataService(mockMongoClient);
     }
@@ -550,8 +562,9 @@ class DataServiceTest {
         when(mockPropBetFindIterable.first()).thenReturn(propBet);
         when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", winningBetValue)))).thenReturn(mockFindIterable);
         when(mockFindIterable.first()).thenReturn(winningPropBetsSummary);
-        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", losingBetValue)))).thenReturn(mockPropBetsSummaryFindIterable);
-        when(mockPropBetsSummaryFindIterable.first()).thenReturn(losingPropBetsSummary);
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", losingBetValue)))).thenReturn(
+                mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryFindIterable1.first()).thenReturn(losingPropBetsSummary);
         when(mockUserBetsSummaryCollection.find(eq("username", winningUsername1))).thenReturn(mockUserBetsSummaryFindIterable1);
         when(mockUserBetsSummaryFindIterable1.first()).thenReturn(winningUsername1UserBetsSummary);
         when(mockUserBetsSummaryCollection.find(eq("username", winningUsername2))).thenReturn(mockUserBetsSummaryFindIterable2);
@@ -583,5 +596,417 @@ class DataServiceTest {
                                           Updates.set("amountWon", updatedAmountWon),
                                           Updates.set("netAmount", updatedAmountWon - amountOwing)));
         verify(resultsCaptor.getValue().toString());
+    }
+
+    @Test
+    void saveScore_whenCountIsZero() {
+        String team1Name = "Team 1";
+        String team1Score = "12";
+        String team2Name = "Team 2";
+        String team2Score = "10";
+        String betType = "Score";
+        String betValue = "2,0";
+        String username1 = "john_doe";
+        String username2 = "jane_doe";
+        Double amountOwing = 20.0;
+        Integer numberOfScoreBoardBetsWonForUsername1 = 1;
+        Integer numberOfScoreBoardBetsWonForUsername2 = 2;
+        Double amountScoreBoardBetsWonForUsername1 = 4.67;
+        Double amountScoreBoardBetsWonForUsername2 = 14.0;
+        Integer numberOfPropBetsWon = 1;
+        Double amountOfPropBetsWon = 1.0;
+        Double updatedAmountWonForUsername1 = amountScoreBoardBetsWonForUsername1 + amountOfPropBetsWon;
+        Double updatedAmountWonForUsername2 = amountScoreBoardBetsWonForUsername2 + amountOfPropBetsWon;
+
+        Document scoreBoardEventsTracker = new Document();
+        scoreBoardEventsTracker.append("isScoreBoardEventsTracker", true)
+                               .append("totalAmountOfBets", 84.0)
+                               .append("numberOfWinningEvents", 8)
+                               .append("totalAmountWonPerEvent", 10.5);
+
+        Document propBetsSummary = new Document();
+        propBetsSummary.append("betType", betType)
+                       .append("betValue", betValue)
+                       .append("betters", List.of(username1, username2));
+
+        Document winningPropBetsSummary1 = new Document();
+        winningPropBetsSummary1.append("betType", betType)
+                               .append("betValue", betValue)
+                               .append("betters", List.of(username1, username2))
+                               .append("count", 1);
+
+        Document winningPropBetsSummary2 = new Document();
+        winningPropBetsSummary2.append("betType", betType)
+                               .append("betValue", "2,1")
+                               .append("betters", List.of(username2))
+                               .append("count", 1);
+
+        Document username1UserBetsSummary = new Document();
+        username1UserBetsSummary.append("username", username1)
+                                .append("numberOfBetsMade", 5)
+                                .append("amountOwing", amountOwing)
+                                .append("numberOfScoreBoardBetsWon", 0)
+                                .append("amountOfScoreBoardBetsWon", 0)
+                                .append("numberOfPropBetsWon", numberOfPropBetsWon)
+                                .append("amountOfPropBetsWon", amountOfPropBetsWon)
+                                .append("numberOfBetsWon", 0)
+                                .append("amountWon", 0)
+                                .append("netAmount", -20.0);
+
+        Document username2UserBetsSummary = new Document();
+        username2UserBetsSummary.append("username", username2)
+                                .append("numberOfBetsMade", 5)
+                                .append("amountOwing", amountOwing)
+                                .append("numberOfScoreBoardBetsWon", 0)
+                                .append("amountOfScoreBoardBetsWon", 0)
+                                .append("numberOfPropBetsWon", numberOfPropBetsWon)
+                                .append("amountOfPropBetsWon", amountOfPropBetsWon)
+                                .append("numberOfBetsWon", 0)
+                                .append("amountWon", 0)
+                                .append("netAmount", -20.0);
+
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", betValue)))).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryFindIterable1.first()).thenReturn(propBetsSummary);
+        when(mockPropBetsSummaryCollection.find(eq("isScoreBoardEventsTracker", true))).thenReturn(mockPropBetsSummaryFindIterable2);
+        when(mockPropBetsSummaryFindIterable2.first()).thenReturn(scoreBoardEventsTracker);
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), exists("count")))).thenReturn(mockPropBetsSummaryFindIterable3);
+        when(mockPropBetsSummaryFindIterable3.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, true, false);
+        when(mockCursor.next()).thenReturn(winningPropBetsSummary1, winningPropBetsSummary2);
+        when(mockUserBetsSummaryCollection.find(eq("username", username1))).thenReturn(mockUserBetsSummaryFindIterable1);
+        when(mockUserBetsSummaryFindIterable1.first()).thenReturn(username1UserBetsSummary);
+        when(mockUserBetsSummaryCollection.find(eq("username", username2))).thenReturn(mockUserBetsSummaryFindIterable2);
+        when(mockUserBetsSummaryFindIterable2.first()).thenReturn(username2UserBetsSummary);
+
+        dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
+
+        ArgumentCaptor<Document> teamScoreCaptor = ArgumentCaptor.forClass(Document.class);
+        ArgumentCaptor<Document> scoreBoardEventsTrackerCaptor = ArgumentCaptor.forClass(Document.class);
+
+        Mockito.verify(mockScoreCollection, times(1)).insertOne(teamScoreCaptor.capture());
+        Mockito.verify(mockPropBetsSummaryCollection, times(1)).replaceOne(any(), scoreBoardEventsTrackerCaptor.capture());
+        Mockito.verify(mockPropBetsSummaryCollection, times(1))
+               .updateOne(and(eq("betType", betType), eq("betValue", betValue)), Updates.set("count", 1));
+        Mockito.verify(mockUserBetsSummaryCollection)
+               .updateOne(eq("username", username1),
+                          Updates.combine(Updates.set("numberOfScoreBoardBetsWon", numberOfScoreBoardBetsWonForUsername1),
+                                          Updates.set("amountOfScoreBoardBetsWon", amountScoreBoardBetsWonForUsername1),
+                                          Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername1 + numberOfPropBetsWon),
+                                          Updates.set("amountWon", updatedAmountWonForUsername1),
+                                          Updates.set("netAmount", updatedAmountWonForUsername1 - amountOwing)));
+        Mockito.verify(mockUserBetsSummaryCollection)
+               .updateOne(eq("username", username2),
+                          Updates.combine(Updates.set("numberOfScoreBoardBetsWon", numberOfScoreBoardBetsWonForUsername2),
+                                          Updates.set("amountOfScoreBoardBetsWon", amountScoreBoardBetsWonForUsername2),
+                                          Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername2 + numberOfPropBetsWon),
+                                          Updates.set("amountWon", updatedAmountWonForUsername2),
+                                          Updates.set("netAmount", updatedAmountWonForUsername2 - amountOwing)));
+
+        StringBuilder results = new StringBuilder();
+        results.append("Team Score:\n");
+        results.append(teamScoreCaptor.getValue().toString());
+        results.append("\nScoreBoard Events Tracker:\n");
+        results.append(scoreBoardEventsTrackerCaptor.getValue().toString());
+        verify(results.toString());
+    }
+
+    @Test
+    void saveScore_whenCountIsOne() {
+        String team1Name = "Team 1";
+        String team1Score = "12";
+        String team2Name = "Team 2";
+        String team2Score = "10";
+        String betType = "Score";
+        String betValue = "2,0";
+        String username1 = "john_doe";
+        String username2 = "jane_doe";
+        Double amountOwing = 20.0;
+        Integer numberOfScoreBoardBetsWonForUsername1 = 1;
+        Integer numberOfScoreBoardBetsWonForUsername2 = 2;
+        Double amountScoreBoardBetsWonForUsername1 = 9.33;
+        Double amountScoreBoardBetsWonForUsername2 = 18.66;
+        Integer numberOfPropBetsWon = 1;
+        Double amountOfPropBetsWon = 1.0;
+        Double updatedAmountWonForUsername1 = amountScoreBoardBetsWonForUsername1 + amountOfPropBetsWon;
+        Double updatedAmountWonForUsername2 = amountScoreBoardBetsWonForUsername2 + amountOfPropBetsWon;
+
+        Document scoreBoardEventsTracker = new Document();
+        scoreBoardEventsTracker.append("isScoreBoardEventsTracker", true)
+                               .append("totalAmountOfBets", 84.0)
+                               .append("numberOfWinningEvents", 8)
+                               .append("totalAmountWonPerEvent", 10.5);
+
+        Document propBetsSummary = new Document();
+        propBetsSummary.append("betType", betType)
+                       .append("betValue", betValue)
+                       .append("betters", List.of(username1, username2))
+                       .append("count", 1);
+
+        Document winningPropBetsSummary1 = new Document();
+        winningPropBetsSummary1.append("betType", betType)
+                               .append("betValue", betValue)
+                               .append("betters", List.of(username1, username2))
+                               .append("count", 2);
+
+        Document winningPropBetsSummary2 = new Document();
+        winningPropBetsSummary2.append("betType", betType)
+                               .append("betValue", "2,1")
+                               .append("betters", List.of(username2))
+                               .append("count", 1);
+
+        Document username1UserBetsSummary = new Document();
+        username1UserBetsSummary.append("username", username1)
+                                .append("numberOfBetsMade", 5)
+                                .append("amountOwing", amountOwing)
+                                .append("numberOfScoreBoardBetsWon", 0)
+                                .append("amountOfScoreBoardBetsWon", 0)
+                                .append("numberOfPropBetsWon", numberOfPropBetsWon)
+                                .append("amountOfPropBetsWon", amountOfPropBetsWon)
+                                .append("numberOfBetsWon", 0)
+                                .append("amountWon", 0)
+                                .append("netAmount", -20.0);
+
+        Document username2UserBetsSummary = new Document();
+        username2UserBetsSummary.append("username", username2)
+                                .append("numberOfBetsMade", 5)
+                                .append("amountOwing", amountOwing)
+                                .append("numberOfScoreBoardBetsWon", 0)
+                                .append("amountOfScoreBoardBetsWon", 0)
+                                .append("numberOfPropBetsWon", numberOfPropBetsWon)
+                                .append("amountOfPropBetsWon", amountOfPropBetsWon)
+                                .append("numberOfBetsWon", 0)
+                                .append("amountWon", 0)
+                                .append("netAmount", -20.0);
+
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", betValue)))).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryFindIterable1.first()).thenReturn(propBetsSummary);
+        when(mockPropBetsSummaryCollection.find(eq("isScoreBoardEventsTracker", true))).thenReturn(mockPropBetsSummaryFindIterable2);
+        when(mockPropBetsSummaryFindIterable2.first()).thenReturn(scoreBoardEventsTracker);
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), exists("count")))).thenReturn(mockPropBetsSummaryFindIterable3);
+        when(mockPropBetsSummaryFindIterable3.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, true, false);
+        when(mockCursor.next()).thenReturn(winningPropBetsSummary1, winningPropBetsSummary2);
+        when(mockUserBetsSummaryCollection.find(eq("username", username1))).thenReturn(mockUserBetsSummaryFindIterable1);
+        when(mockUserBetsSummaryFindIterable1.first()).thenReturn(username1UserBetsSummary);
+        when(mockUserBetsSummaryCollection.find(eq("username", username2))).thenReturn(mockUserBetsSummaryFindIterable2);
+        when(mockUserBetsSummaryFindIterable2.first()).thenReturn(username2UserBetsSummary);
+
+        dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
+
+        ArgumentCaptor<Document> teamScoreCaptor = ArgumentCaptor.forClass(Document.class);
+        ArgumentCaptor<Document> scoreBoardEventsTrackerCaptor = ArgumentCaptor.forClass(Document.class);
+
+        Mockito.verify(mockScoreCollection, times(1)).insertOne(teamScoreCaptor.capture());
+        Mockito.verify(mockPropBetsSummaryCollection, times(1)).replaceOne(any(), scoreBoardEventsTrackerCaptor.capture());
+        Mockito.verify(mockPropBetsSummaryCollection, times(1))
+               .updateOne(and(eq("betType", betType), eq("betValue", betValue)), Updates.set("count", 2));
+        Mockito.verify(mockUserBetsSummaryCollection)
+               .updateOne(eq("username", username1),
+                          Updates.combine(Updates.set("numberOfScoreBoardBetsWon", numberOfScoreBoardBetsWonForUsername1),
+                                          Updates.set("amountOfScoreBoardBetsWon", amountScoreBoardBetsWonForUsername1),
+                                          Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername1 + numberOfPropBetsWon),
+                                          Updates.set("amountWon", updatedAmountWonForUsername1),
+                                          Updates.set("netAmount", updatedAmountWonForUsername1 - amountOwing)));
+        Mockito.verify(mockUserBetsSummaryCollection)
+               .updateOne(eq("username", username2),
+                          Updates.combine(Updates.set("numberOfScoreBoardBetsWon", numberOfScoreBoardBetsWonForUsername2),
+                                          Updates.set("amountOfScoreBoardBetsWon", amountScoreBoardBetsWonForUsername2),
+                                          Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername2 + numberOfPropBetsWon),
+                                          Updates.set("amountWon", updatedAmountWonForUsername2),
+                                          Updates.set("netAmount", updatedAmountWonForUsername2 - amountOwing)));
+
+        StringBuilder results = new StringBuilder();
+        results.append("Team Score:\n");
+        results.append(teamScoreCaptor.getValue().toString());
+        results.append("\nScoreBoard Events Tracker:\n");
+        results.append(scoreBoardEventsTrackerCaptor.getValue().toString());
+        verify(results.toString());
+    }
+
+    @Test
+    void saveScore_whenNoEventsFound() {
+        String team1Name = "Team 1";
+        String team1Score = "12";
+        String team2Name = "Team 2";
+        String team2Score = "10";
+        String betType = "Score";
+        String betValue = "2,0";
+
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", betValue)))).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryFindIterable1.first()).thenReturn(null);
+
+        dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
+
+        ArgumentCaptor<Document> teamScoreCaptor = ArgumentCaptor.forClass(Document.class);
+
+        Mockito.verify(mockScoreCollection, times(1)).insertOne(teamScoreCaptor.capture());
+        Mockito.verifyNoInteractions(mockPropBetsCollection);
+        Mockito.verifyNoInteractions(mockUserBetsSummaryCollection);
+        verify(teamScoreCaptor.getValue().toString());
+    }
+
+    @Test
+    void saveTeamScores() {
+        dataService.saveTeamScores("Team 1", "12", "Team 2", "10");
+
+        ArgumentCaptor<Document> resultsCaptor = ArgumentCaptor.forClass(Document.class);
+
+        Mockito.verify(mockScoreCollection, times(1)).insertOne(resultsCaptor.capture());
+        verify(resultsCaptor.getValue().toString());
+    }
+
+    @Test
+    void updateScoreBoardEventsTracker() {
+        Document scoreBoardEventsTracker = new Document();
+        scoreBoardEventsTracker.append("isScoreBoardEventsTracker", true)
+                               .append("totalAmountOfBets", 84.0)
+                               .append("numberOfWinningEvents", 8)
+                               .append("totalAmountWonPerEvent", 10.5);
+
+        dataService.updateScoreBoardEventsTracker(scoreBoardEventsTracker, new Double[]{0.0});
+
+        ArgumentCaptor<Document> resultsCaptor = ArgumentCaptor.forClass(Document.class);
+
+        Mockito.verify(mockPropBetsSummaryCollection, times(1)).replaceOne(any(), resultsCaptor.capture());
+        verify(resultsCaptor.getValue().toString());
+    }
+
+    @Test
+    void updateScoreInPropBetsSummmary_whenCountDoesNotExist() {
+        String betType = "Score";
+        String betValue = "2,0";
+
+        Document propBetsSummary = new Document();
+        propBetsSummary.append("betType", betType)
+                       .append("betValue", betValue)
+                       .append("betters", List.of("john_doe"));
+
+        dataService.updateScoreInPropBetsSummmary(propBetsSummary);
+
+        Mockito.verify(mockPropBetsSummaryCollection, times(1))
+               .updateOne(and(eq("betType", betType), eq("betValue", betValue)), Updates.set("count", 1));
+    }
+
+    @Test
+    void updateScoreInPropBetsSummmary_whenCountDoesExist() {
+        String betType = "Score";
+        String betValue = "2,0";
+        Integer count = 1;
+
+        Document propBetsSummary = new Document();
+        propBetsSummary.append("betType", betType)
+                       .append("betValue", betValue)
+                       .append("betters", List.of("john_doe"))
+                       .append("count", count);
+
+        dataService.updateScoreInPropBetsSummmary(propBetsSummary);
+
+        Mockito.verify(mockPropBetsSummaryCollection, times(1))
+               .updateOne(and(eq("betType", betType), eq("betValue", betValue)), Updates.set("count", count + 1));
+    }
+
+    @Test
+    void findAllWinningScoreEvents() {
+        Map<String, Integer> winningBettersCountMap = new HashMap<>();
+        Map<String, Double> winningBettersTotalMap = new HashMap<>();
+        String betType = "Score";
+        String username1 = "john_doe";
+        String username2 = "jane_doe";
+
+        Document winningPropBetsSummary1 = new Document();
+        winningPropBetsSummary1.append("betType", betType)
+                               .append("betValue", "2,0")
+                               .append("betters", List.of(username1, username2))
+                               .append("count", 1);
+
+        Document winningPropBetsSummary2 = new Document();
+        winningPropBetsSummary2.append("betType", betType)
+                               .append("betValue", "2,1")
+                               .append("betters", List.of(username2))
+                               .append("count", 1);
+
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), exists("count")))).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, true, false);
+        when(mockCursor.next()).thenReturn(winningPropBetsSummary1, winningPropBetsSummary2);
+
+        dataService.findAllWinningScoreEvents(winningBettersCountMap, winningBettersTotalMap, new Double[]{9.33});
+
+        StringBuilder results = new StringBuilder();
+        results.append("Winning Betters Count Map:\n");
+        winningBettersCountMap.forEach((key, value) -> results.append(key).append(": ").append(value).append("\n"));
+        results.append("\nWinning Betters Total Map:\n");
+        winningBettersTotalMap.forEach((key, value) -> results.append(key).append(": ").append(value).append("\n"));
+
+        verify(results.toString());
+    }
+
+    @Test
+    void updateScoreBoardBetsInUserBetsSummary() {
+        Map<String, Integer> winningBettersCountMap = new HashMap<>();
+        String username1 = "jane_doe";
+        String username2 = "john_doe";
+        Double amountOwing = 20.0;
+        Integer numberOfScoreBoardBetsWonForUsername1 = 2;
+        Integer numberOfScoreBoardBetsWonForUsername2 = 1;
+        Double amountScoreBoardBetsWonForUsername1 = 14.0;
+        Double amountScoreBoardBetsWonForUsername2 = 4.67;
+        Integer numberOfPropBetsWon = 1;
+        Double amountOfPropBetsWon = 1.0;
+        Double updatedAmountWonForUsername1 = amountScoreBoardBetsWonForUsername1 + amountOfPropBetsWon;
+        Double updatedAmountWonForUsername2 = amountScoreBoardBetsWonForUsername2 + amountOfPropBetsWon;
+
+        winningBettersCountMap.put(username1, numberOfScoreBoardBetsWonForUsername1);
+        winningBettersCountMap.put(username2, numberOfScoreBoardBetsWonForUsername2);
+
+        Map<String, Double> winningBettersTotalMap = new HashMap<>();
+        winningBettersTotalMap.put(username1, amountScoreBoardBetsWonForUsername1);
+        winningBettersTotalMap.put(username2, amountScoreBoardBetsWonForUsername2);
+
+        Document username1UserBetsSummary = new Document();
+        username1UserBetsSummary.append("username", username1)
+                                .append("numberOfBetsMade", 5)
+                                .append("amountOwing", amountOwing)
+                                .append("numberOfScoreBoardBetsWon", 0)
+                                .append("amountOfScoreBoardBetsWon", 0)
+                                .append("numberOfPropBetsWon", numberOfPropBetsWon)
+                                .append("amountOfPropBetsWon", amountOfPropBetsWon)
+                                .append("numberOfBetsWon", 0)
+                                .append("amountWon", 0)
+                                .append("netAmount", -20.0);
+
+        Document username2UserBetsSummary = new Document();
+        username2UserBetsSummary.append("username", username2)
+                                .append("numberOfBetsMade", 5)
+                                .append("amountOwing", amountOwing)
+                                .append("numberOfScoreBoardBetsWon", 0)
+                                .append("amountOfScoreBoardBetsWon", 0)
+                                .append("numberOfPropBetsWon", numberOfPropBetsWon)
+                                .append("amountOfPropBetsWon", amountOfPropBetsWon)
+                                .append("numberOfBetsWon", 0)
+                                .append("amountWon", 0)
+                                .append("netAmount", -20.0);
+
+        when(mockUserBetsSummaryCollection.find(eq("username", username1))).thenReturn(mockUserBetsSummaryFindIterable1);
+        when(mockUserBetsSummaryFindIterable1.first()).thenReturn(username1UserBetsSummary);
+        when(mockUserBetsSummaryCollection.find(eq("username", username2))).thenReturn(mockUserBetsSummaryFindIterable2);
+        when(mockUserBetsSummaryFindIterable2.first()).thenReturn(username2UserBetsSummary);
+
+        dataService.updateScoreBoardBetsInUserBetsSummary(winningBettersCountMap, winningBettersTotalMap);
+
+        Mockito.verify(mockUserBetsSummaryCollection)
+               .updateOne(eq("username", username1),
+                          Updates.combine(Updates.set("numberOfScoreBoardBetsWon", numberOfScoreBoardBetsWonForUsername1),
+                                          Updates.set("amountOfScoreBoardBetsWon", amountScoreBoardBetsWonForUsername1),
+                                          Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername1 + numberOfPropBetsWon),
+                                          Updates.set("amountWon", updatedAmountWonForUsername1),
+                                          Updates.set("netAmount", updatedAmountWonForUsername1 - amountOwing)));
+        Mockito.verify(mockUserBetsSummaryCollection)
+               .updateOne(eq("username", username2),
+                          Updates.combine(Updates.set("numberOfScoreBoardBetsWon", numberOfScoreBoardBetsWonForUsername2),
+                                          Updates.set("amountOfScoreBoardBetsWon", amountScoreBoardBetsWonForUsername2),
+                                          Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername2 + numberOfPropBetsWon),
+                                          Updates.set("amountWon", updatedAmountWonForUsername2),
+                                          Updates.set("netAmount", updatedAmountWonForUsername2 - amountOwing)));
     }
 }

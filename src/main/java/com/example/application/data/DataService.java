@@ -16,11 +16,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.exists;
 import static com.mongodb.client.model.Filters.ne;
 
 @Service
@@ -31,6 +33,10 @@ public class DataService {
     private static final String BETTERS = "betters";
     private static final String NUMBER_OF_BETS_MADE = "numberOfBetsMade";
     private static final String AMOUNT_OWING = "amountOwing";
+    private static final String NUMBER_OF_SCOREBOARD_BETS_WON = "numberOfScoreBoardBetsWon";
+    private static final String AMOUNT_OF_SCOREBOARD_BETS_WON = "amountOfScoreBoardBetsWon";
+    private static final String NUMBER_OF_PROPBETS_WON = "numberOfPropBetsWon";
+    private static final String AMOUNT_OF_PROPBETS_WON = "amountOfPropBetsWon";
     private static final String NUMBER_OF_BETS_WON = "numberOfBetsWon";
     private static final String AMOUNT_WON = "amountWon";
     private static final String NET_AMOUNT = "netAmount";
@@ -39,12 +45,15 @@ public class DataService {
     private static final String CHOICES = "choices";
     private static final String WINNING_BET_VALUE = "winningBetValue";
     private static final String IS_WINNER = "isWinner";
+    private static final String SCORE_BET_TYPE = "Score";
+    private static final String COUNT = "count";
 
     private final MongoCollection<Document> userBetsSummaryCollection;
     private final MongoCollection<Document> propBetsSummaryCollection;
     private final MongoCollection<Document> userBetsCollection;
     private final MongoCollection<Document> propBetsCollection;
     private final MongoCollection<Document> resultsCollection;
+    private final MongoCollection<Document> scoreCollection;
 
     @Autowired
     public DataService(MongoClient mongoClient) {
@@ -54,6 +63,7 @@ public class DataService {
         userBetsSummaryCollection = database.getCollection("UserBetsSummary");
         propBetsCollection = database.getCollection("PropBets");
         resultsCollection = database.getCollection("Results");
+        scoreCollection = database.getCollection("Score");
     }
 
     public List<UserBetsSummary> getUserBetsSummary() {
@@ -378,6 +388,117 @@ public class DataService {
                                                                     Updates.set(AMOUNT_WON, updatedAmountWon.doubleValue()),
                                                                     Updates.set(NET_AMOUNT,
                                                                                 updatedAmountWon.subtract(amountOwing).doubleValue())));
+            }
+        });
+    }
+
+    public void saveScore(String team1Name, String team1Score, String team2Name, String team2Score) {
+        saveTeamScores(team1Name, team1Score, team2Name, team2Score);
+
+        String betValue = team1Score.substring(team1Score.length() - 1) + "," + team2Score.substring(team2Score.length() - 1);
+
+        Document foundPropBetsSummary = propBetsSummaryCollection.find(and(eq(BET_TYPE, SCORE_BET_TYPE), eq(BET_VALUE, betValue))).first();
+
+        if (foundPropBetsSummary != null) {
+            Document scoreBoardEventsTracker = propBetsSummaryCollection.find(eq("isScoreBoardEventsTracker", true)).first();
+            final Double[] totalAmountWonPerEvent = {0.0};
+
+            if (scoreBoardEventsTracker != null) {
+                updateScoreBoardEventsTracker(scoreBoardEventsTracker, totalAmountWonPerEvent);
+            }
+
+            updateScoreInPropBetsSummmary(foundPropBetsSummary);
+
+            Map<String, Integer> winningBettersCountMap = new HashMap<>();
+            Map<String, Double> winningBettersTotalMap = new HashMap<>();
+
+            findAllWinningScoreEvents(winningBettersCountMap, winningBettersTotalMap, totalAmountWonPerEvent);
+
+            updateScoreBoardBetsInUserBetsSummary(winningBettersCountMap, winningBettersTotalMap);
+        }
+    }
+
+    public void saveTeamScores(String team1Name, String team1Score, String team2Name, String team2Score) {
+        Document scoreDocument = new Document().append(team1Name, team1Score)
+                                               .append(team2Name, team2Score);
+
+        scoreCollection.insertOne(scoreDocument);
+    }
+
+    public void updateScoreBoardEventsTracker(Document scoreBoardEventsTracker, Double[] totalAmountWonPerEvent) {
+        Double totalAmountOfBets = scoreBoardEventsTracker.getDouble("totalAmountOfBets");
+        Integer numberOfWinningEvents = scoreBoardEventsTracker.getInteger("numberOfWinningEvents");
+
+        numberOfWinningEvents += 1;
+
+        totalAmountWonPerEvent[0] = new BigDecimal(totalAmountOfBets / numberOfWinningEvents).setScale(2,
+                                                                                                       RoundingMode.HALF_UP)
+                                                                                             .doubleValue();
+
+        scoreBoardEventsTracker.put("numberOfWinningEvents", numberOfWinningEvents);
+        scoreBoardEventsTracker.put("totalAmountWonPerEvent", totalAmountWonPerEvent[0]);
+
+        propBetsSummaryCollection.replaceOne(eq("isScoreBoardEventsTracker", true), scoreBoardEventsTracker);
+    }
+
+    public void updateScoreInPropBetsSummmary(Document foundPropBetsSummary) {
+        String betType = foundPropBetsSummary.getString(BET_TYPE);
+        String betValue = foundPropBetsSummary.getString(BET_VALUE);
+        Optional<Integer> count = Optional.ofNullable(foundPropBetsSummary.getInteger(COUNT));
+
+        if (count.isPresent()) {
+            propBetsSummaryCollection.updateOne(and(eq(BET_TYPE, betType), eq(BET_VALUE, betValue)),
+                                                Updates.set(COUNT, count.get() + 1));
+        } else {
+            propBetsSummaryCollection.updateOne(and(eq(BET_TYPE, betType), eq(BET_VALUE, betValue)),
+                                                Updates.set(COUNT, 1));
+        }
+    }
+
+    public void findAllWinningScoreEvents(Map<String, Integer> winningBettersCountMap, Map<String, Double> winningBettersTotalMap,
+                                          Double[] totalAmountWonPerEvent) {
+        MongoCursor<Document> cursor = propBetsSummaryCollection.find(and(eq(BET_TYPE, SCORE_BET_TYPE), exists(COUNT))).iterator();
+
+        try {
+            while (cursor.hasNext()) {
+                Document document = cursor.next();
+
+                List<String> winningBetters = document.getList(BETTERS, String.class);
+
+                Double amountWonPerBetter = new BigDecimal((document.getInteger(COUNT) * totalAmountWonPerEvent[0]) / winningBetters.size())
+                        .setScale(2, RoundingMode.HALF_UP)
+                        .doubleValue();
+
+                winningBetters.forEach(username -> {
+                    winningBettersCountMap.put(username, winningBettersCountMap.getOrDefault(username, 0) + 1);
+                    winningBettersTotalMap.put(username, winningBettersTotalMap.getOrDefault(username, 0.0) + amountWonPerBetter);
+                });
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public void updateScoreBoardBetsInUserBetsSummary(Map<String, Integer> winningBettersCountMap,
+                                                       Map<String, Double> winningBettersTotalMap) {
+        winningBettersCountMap.forEach((username, numberOfScoreBoardBetsWon) -> {
+            Document foundUserBetSummary = userBetsSummaryCollection.find(eq(USERNAME, username)).first();
+
+            if (foundUserBetSummary != null) {
+                Double amountOwing = foundUserBetSummary.getDouble(AMOUNT_OWING);
+                Integer numberOfPropBetsWon = foundUserBetSummary.getInteger(NUMBER_OF_PROPBETS_WON);
+                Double amountOfPropBetsWon = foundUserBetSummary.getDouble(AMOUNT_OF_PROPBETS_WON);
+                Integer numberOfBetsWon = numberOfPropBetsWon + numberOfScoreBoardBetsWon;
+                Double amountOfScoreBoardBetsWon = winningBettersTotalMap.get(username);
+                Double amountWon = amountOfPropBetsWon + amountOfScoreBoardBetsWon;
+                Double netAmount = amountWon - amountOwing;
+
+                userBetsSummaryCollection.updateOne(eq(USERNAME, username),
+                                                    Updates.combine(Updates.set(NUMBER_OF_SCOREBOARD_BETS_WON, numberOfScoreBoardBetsWon),
+                                                                    Updates.set(AMOUNT_OF_SCOREBOARD_BETS_WON, amountOfScoreBoardBetsWon),
+                                                                    Updates.set(NUMBER_OF_BETS_WON, numberOfBetsWon),
+                                                                    Updates.set(AMOUNT_WON, amountWon),
+                                                                    Updates.set(NET_AMOUNT, netAmount)));
             }
         });
     }
