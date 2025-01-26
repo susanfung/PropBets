@@ -361,22 +361,23 @@ public class DataService {
             });
         }
 
-        Double amountWonPerBetter = BigDecimal.valueOf((double) (winningBetters.size() + losingBetters.size()) * 2 / winningBetters.size())
-                                              .setScale(2, RoundingMode.HALF_UP)
-                                              .doubleValue();
+        BigDecimal totalBetters = BigDecimal.valueOf(winningBetters.size() + losingBetters.size());
+        BigDecimal amountWonPerBetter = totalBetters.multiply(BigDecimal.valueOf(2))
+                                                    .divide(BigDecimal.valueOf(winningBetters.size()), 2, RoundingMode.HALF_UP);
 
         winningBetters.forEach(username -> {
             Document foundUserBetSummary = userBetsSummaryCollection.find(eq(USERNAME, username)).first();
 
             if (foundUserBetSummary != null) {
-                Double amountOwing = foundUserBetSummary.getDouble(AMOUNT_OWING);
-                Double updatedAmountWon = foundUserBetSummary.getDouble(AMOUNT_WON) + amountWonPerBetter;
+                BigDecimal amountOwing = BigDecimal.valueOf(foundUserBetSummary.getDouble(AMOUNT_OWING));
+                BigDecimal updatedAmountWon = BigDecimal.valueOf(foundUserBetSummary.getDouble(AMOUNT_WON)).add(amountWonPerBetter);
 
                 userBetsSummaryCollection.updateOne(eq(USERNAME, username),
                                                     Updates.combine(Updates.set(NUMBER_OF_BETS_WON,
                                                                                 foundUserBetSummary.getInteger(NUMBER_OF_BETS_WON) + 1),
-                                                                    Updates.set(AMOUNT_WON, updatedAmountWon),
-                                                                    Updates.set(NET_AMOUNT, updatedAmountWon - amountOwing)));
+                                                                    Updates.set(AMOUNT_WON, updatedAmountWon.doubleValue()),
+                                                                    Updates.set(NET_AMOUNT,
+                                                                                updatedAmountWon.subtract(amountOwing).doubleValue())));
             }
         });
     }

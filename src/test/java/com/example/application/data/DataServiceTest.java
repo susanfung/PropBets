@@ -68,7 +68,13 @@ class DataServiceTest {
     private FindIterable<Document> mockPropBetsSummaryFindIterable;
 
     @Mock
-    private FindIterable<Document> mockUserBetsSummaryFindIterable;
+    private FindIterable<Document> mockUserBetsSummaryFindIterable1;
+
+    @Mock
+    private FindIterable<Document> mockUserBetsSummaryFindIterable2;
+
+    @Mock
+    private FindIterable<Document> mockUserBetsSummaryFindIterable3;
 
     @Mock
     private MongoCursor<Document> mockCursor;
@@ -490,7 +496,9 @@ class DataServiceTest {
         String question = "Will Kelce propose at the game?";
         String winningBetValue = "Yes";
         String losingBetValue = "No";
-        String winningUsername = "john_doe";
+        String winningUsername1 = "john_doe";
+        String winningUsername2 = "jack_doe";
+        String winningUsername3 = "joe_doe";
         String losingUsername = "jane_doe";
         Double amountOwing = 100.0;
         Integer numberOfBetsWon = 0;
@@ -505,7 +513,7 @@ class DataServiceTest {
         Document winningPropBetsSummary = new Document();
         winningPropBetsSummary.append("betType", betType)
                               .append("betValue", winningBetValue)
-                              .append("betters", List.of(winningUsername, "winner1", "winner2"))
+                              .append("betters", List.of(winningUsername1, winningUsername2, winningUsername3))
                               .append("question", question);
 
         Document losingPropBetsSummary = new Document();
@@ -514,13 +522,29 @@ class DataServiceTest {
                              .append("betters", List.of(losingUsername))
                              .append("question", question);
 
-        Document userBetsSummary = new Document();
-        userBetsSummary.append("username", "john_doe")
-                       .append("numberOfBetsMade", 5)
-                       .append("amountOwing", amountOwing)
-                       .append("numberOfBetsWon", numberOfBetsWon)
-                       .append("amountWon", amountWon)
-                       .append("netAmount", -100.0);
+        Document winningUsername1UserBetsSummary = new Document();
+        winningUsername1UserBetsSummary.append("username", winningUsername1)
+                                       .append("numberOfBetsMade", 5)
+                                       .append("amountOwing", amountOwing)
+                                       .append("numberOfBetsWon", numberOfBetsWon)
+                                       .append("amountWon", amountWon)
+                                       .append("netAmount", -100.0);
+
+        Document winningUsername2UserBetsSummary = new Document();
+        winningUsername2UserBetsSummary.append("username", winningUsername2)
+                                       .append("numberOfBetsMade", 5)
+                                       .append("amountOwing", amountOwing)
+                                       .append("numberOfBetsWon", numberOfBetsWon)
+                                       .append("amountWon", amountWon)
+                                       .append("netAmount", -100.0);
+
+        Document winningUsername3UserBetsSummary = new Document();
+        winningUsername3UserBetsSummary.append("username", winningUsername3)
+                                       .append("numberOfBetsMade", 5)
+                                       .append("amountOwing", amountOwing)
+                                       .append("numberOfBetsWon", numberOfBetsWon)
+                                       .append("amountWon", amountWon)
+                                       .append("netAmount", -100.0);
 
         when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockPropBetFindIterable);
         when(mockPropBetFindIterable.first()).thenReturn(propBet);
@@ -528,8 +552,12 @@ class DataServiceTest {
         when(mockFindIterable.first()).thenReturn(winningPropBetsSummary);
         when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", losingBetValue)))).thenReturn(mockPropBetsSummaryFindIterable);
         when(mockPropBetsSummaryFindIterable.first()).thenReturn(losingPropBetsSummary);
-        when(mockUserBetsSummaryCollection.find(eq("username", any()))).thenReturn(mockUserBetsSummaryFindIterable);
-        when(mockUserBetsSummaryFindIterable.first()).thenReturn(userBetsSummary);
+        when(mockUserBetsSummaryCollection.find(eq("username", winningUsername1))).thenReturn(mockUserBetsSummaryFindIterable1);
+        when(mockUserBetsSummaryFindIterable1.first()).thenReturn(winningUsername1UserBetsSummary);
+        when(mockUserBetsSummaryCollection.find(eq("username", winningUsername2))).thenReturn(mockUserBetsSummaryFindIterable2);
+        when(mockUserBetsSummaryFindIterable2.first()).thenReturn(winningUsername2UserBetsSummary);
+        when(mockUserBetsSummaryCollection.find(eq("username", winningUsername3))).thenReturn(mockUserBetsSummaryFindIterable3);
+        when(mockUserBetsSummaryFindIterable3.first()).thenReturn(winningUsername3UserBetsSummary);
 
         dataService.saveResult(betType, winningBetValue);
 
@@ -540,7 +568,17 @@ class DataServiceTest {
         Mockito.verify(mockPropBetsSummaryCollection).updateOne(and(eq("betType", betType), eq("betValue", winningBetValue)), Updates.set("isWinner", true));
         Mockito.verify(mockPropBetsSummaryCollection).updateOne(and(eq("betType", betType), eq("betValue", losingBetValue)), Updates.set("isWinner", false));
         Mockito.verify(mockUserBetsSummaryCollection)
-               .updateOne(eq("username", winningUsername),
+               .updateOne(eq("username", winningUsername1),
+                          Updates.combine(Updates.set("numberOfBetsWon", numberOfBetsWon + 1),
+                                          Updates.set("amountWon", updatedAmountWon),
+                                          Updates.set("netAmount", updatedAmountWon - amountOwing)));
+        Mockito.verify(mockUserBetsSummaryCollection)
+               .updateOne(eq("username", winningUsername2),
+                          Updates.combine(Updates.set("numberOfBetsWon", numberOfBetsWon + 1),
+                                          Updates.set("amountWon", updatedAmountWon),
+                                          Updates.set("netAmount", updatedAmountWon - amountOwing)));
+        Mockito.verify(mockUserBetsSummaryCollection)
+               .updateOne(eq("username", winningUsername3),
                           Updates.combine(Updates.set("numberOfBetsWon", numberOfBetsWon + 1),
                                           Updates.set("amountWon", updatedAmountWon),
                                           Updates.set("netAmount", updatedAmountWon - amountOwing)));
