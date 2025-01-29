@@ -64,10 +64,10 @@ class DataServiceTest {
     private MongoCollection<Document> mockScoreCollection;
 
     @Mock
-    private FindIterable<Document> mockFindIterable;
+    private FindIterable<Document> mockPropBetsFindIterable;
 
     @Mock
-    private FindIterable<Document> mockPropBetFindIterable;
+    private FindIterable<Document> mockUserBetsFindIterable;
 
     @Mock
     private FindIterable<Document> mockPropBetsSummaryFindIterable1;
@@ -86,6 +86,9 @@ class DataServiceTest {
 
     @Mock
     private FindIterable<Document> mockUserBetsSummaryFindIterable3;
+
+    @Mock
+    private FindIterable<Document> mockResultsFindIterable;
 
     @Mock
     private MongoCursor<Document> mockCursor;
@@ -117,8 +120,8 @@ class DataServiceTest {
                                    .append("amountWon", 150.0)
                                    .append("netAmount", 50.0);
 
-        when(mockUserBetsSummaryCollection.find()).thenReturn(mockFindIterable);
-        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockUserBetsSummaryCollection.find()).thenReturn(mockUserBetsSummaryFindIterable1);
+        when(mockUserBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, false);
         when(mockCursor.next()).thenReturn(mockUserBetsSummaryDocument);
 
@@ -148,8 +151,8 @@ class DataServiceTest {
                                     .append("question", question)
                                     .append("isWinner", false);
 
-        when(mockPropBetsSummaryCollection.find()).thenReturn(mockFindIterable);
-        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockPropBetsSummaryCollection.find()).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, true, false);
         when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
 
@@ -177,8 +180,8 @@ class DataServiceTest {
                                     .append("betValue", "0,0")
                                     .append("betters", List.of("jack_doe", "jill_doe"));
 
-        when(mockPropBetsSummaryCollection.find()).thenReturn(mockFindIterable);
-        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockPropBetsSummaryCollection.find()).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, true, false);
         when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
 
@@ -203,8 +206,8 @@ class DataServiceTest {
                                     .append("betValue", "0,0")
                                     .append("betters", List.of("jack_doe", "jill_doe"));
 
-        when(mockPropBetsSummaryCollection.find()).thenReturn(mockFindIterable);
-        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockPropBetsSummaryCollection.find()).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, true, false);
         when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
 
@@ -224,8 +227,8 @@ class DataServiceTest {
                           .append("betType", "Team 1 Score")
                           .append("betValue", "100");
 
-        when(mockUserBetsCollection.find()).thenReturn(mockFindIterable);
-        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockUserBetsCollection.find()).thenReturn(mockUserBetsFindIterable);
+        when(mockUserBetsFindIterable.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, false);
         when(mockCursor.next()).thenReturn(mockUserBetDocument);
 
@@ -243,8 +246,8 @@ class DataServiceTest {
                           .append("question", "Who will be the Super Bowl MVP?")
                           .append("choices", List.of("Tom Brady", "Patrick Mahomes", "Aaron Rodgers", "Josh Allen"));
 
-        when(mockPropBetsCollection.find()).thenReturn(mockFindIterable);
-        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockPropBetsCollection.find()).thenReturn(mockPropBetsFindIterable);
+        when(mockPropBetsFindIterable.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, false);
         when(mockCursor.next()).thenReturn(mockPropBetDocument);
 
@@ -264,8 +267,8 @@ class DataServiceTest {
                            .append("betType", "Team 1 Score")
                            .append("betValue", "100");
 
-        when(mockUserBetsCollection.find(eq(any()))).thenReturn(mockFindIterable);
-        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockUserBetsCollection.find(eq(any()))).thenReturn(mockUserBetsFindIterable);
+        when(mockUserBetsFindIterable.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, false);
         when(mockCursor.next()).thenReturn(mockUserBetDocument);
 
@@ -282,8 +285,8 @@ class DataServiceTest {
         mockResultsDocument.append("betType", "Team 1 Score")
                            .append("winningBetValue", "100");
 
-        when(mockResultsCollection.find()).thenReturn(mockFindIterable);
-        when(mockFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockResultsCollection.find()).thenReturn(mockResultsFindIterable);
+        when(mockResultsFindIterable.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, false);
         when(mockCursor.next()).thenReturn(mockResultsDocument);
 
@@ -296,16 +299,16 @@ class DataServiceTest {
 
     @Test
     void isPropBetNameTaken_whenPropBetNameDoesNotExist_returnFalse() {
-        when(mockPropBetsCollection.find(eq(any()))).thenReturn(mockFindIterable);
-        when(mockFindIterable.first()).thenReturn(null);
+        when(mockPropBetsCollection.find(eq(any()))).thenReturn(mockPropBetsFindIterable);
+        when(mockPropBetsFindIterable.first()).thenReturn(null);
 
         verify(dataService.isPropBetNameTaken("Super Bowl MVP"));
     }
 
     @Test
     void isPropBetNameTaken_whenPropBetNameExists_returnTrue() {
-        when(mockPropBetsCollection.find(eq(any()))).thenReturn(mockFindIterable);
-        when(mockFindIterable.first()).thenReturn(new Document());
+        when(mockPropBetsCollection.find(eq(any()))).thenReturn(mockPropBetsFindIterable);
+        when(mockPropBetsFindIterable.first()).thenReturn(new Document());
 
         verify(dataService.isPropBetNameTaken("Super Bowl MVP"));
     }
@@ -343,9 +346,9 @@ class DataServiceTest {
                  .append("betType", betType2)
                  .append("betValue", betValue2);
 
-        when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
-        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
-        when(mockFindIterable.first()).thenReturn(null);
+        when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockPropBetsFindIterable);
+        when(mockPropBetsFindIterable.first()).thenReturn(null);
 
         dataService.saveScoreBoardBets(username, Map.of(betValue1, betType1, betValue2, betType2));
 
@@ -373,9 +376,9 @@ class DataServiceTest {
                  .append("betType", betType2)
                  .append("betValue", betValue2);
 
-        when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
-        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
-        when(mockFindIterable.first()).thenReturn(null);
+        when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockPropBetsFindIterable);
+        when(mockPropBetsFindIterable.first()).thenReturn(null);
 
         dataService.savePropBets(username, Map.of(betType1, betValue1, betType2, betValue2));
 
@@ -407,10 +410,10 @@ class DataServiceTest {
                .append("question", "Will Kelce propose at the game?")
                .append("choices", List.of(betValue, "No"));
 
-        when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
-        when(mockFindIterable.first()).thenReturn(null);
-        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockPropBetFindIterable);
-        when(mockPropBetFindIterable.first()).thenReturn(propBet);
+        when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryFindIterable1.first()).thenReturn(null);
+        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockPropBetsFindIterable);
+        when(mockPropBetsFindIterable.first()).thenReturn(propBet);
 
         dataService.updatePropBetsSummary(betType, betValue, "john_doe");
 
@@ -437,10 +440,10 @@ class DataServiceTest {
                .append("question", "Will Kelce propose at the game?")
                .append("choices", List.of(betValue, "No"));
 
-        when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockFindIterable);
-        when(mockFindIterable.first()).thenReturn(mockPropBetsSummaryDocument);
-        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockPropBetFindIterable);
-        when(mockPropBetFindIterable.first()).thenReturn(propBet);
+        when(mockPropBetsSummaryCollection.find(any(Bson.class))).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryFindIterable1.first()).thenReturn(mockPropBetsSummaryDocument);
+        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockPropBetsFindIterable);
+        when(mockPropBetsFindIterable.first()).thenReturn(propBet);
 
         dataService.updatePropBetsSummary(betType, betValue, username);
 
@@ -454,8 +457,8 @@ class DataServiceTest {
 
     @Test
     void updateUserBetsSummary_whenUserDoesNotExist_addsNewUserBetsSummary() {
-        when(mockUserBetsSummaryCollection.find(eq(any()))).thenReturn(mockFindIterable);
-        when(mockFindIterable.first()).thenReturn(null);
+        when(mockUserBetsSummaryCollection.find(eq(any()))).thenReturn(mockUserBetsSummaryFindIterable1);
+        when(mockUserBetsSummaryFindIterable1.first()).thenReturn(null);
 
         dataService.updateUserBetsSummary("john_doe", 5, 5 * AMOUNT_PER_BET);
 
@@ -479,8 +482,8 @@ class DataServiceTest {
                                    .append("amountWon", 150.0)
                                    .append("netAmount", 50.0);
 
-        when(mockUserBetsSummaryCollection.find(eq(any()))).thenReturn(mockFindIterable);
-        when(mockFindIterable.first()).thenReturn(mockUserBetsSummaryDocument);
+        when(mockUserBetsSummaryCollection.find(eq(any()))).thenReturn(mockUserBetsSummaryFindIterable1);
+        when(mockUserBetsSummaryFindIterable1.first()).thenReturn(mockUserBetsSummaryDocument);
 
         dataService.updateUserBetsSummary(username, numberOfBetsMade, numberOfBetsMade * AMOUNT_PER_BET);
 
@@ -558,13 +561,14 @@ class DataServiceTest {
                                        .append("amountWon", amountWon)
                                        .append("netAmount", -100.0);
 
-        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockPropBetFindIterable);
-        when(mockPropBetFindIterable.first()).thenReturn(propBet);
-        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", winningBetValue)))).thenReturn(mockFindIterable);
-        when(mockFindIterable.first()).thenReturn(winningPropBetsSummary);
-        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", losingBetValue)))).thenReturn(
+        when(mockPropBetsCollection.find(any(Bson.class))).thenReturn(mockPropBetsFindIterable);
+        when(mockPropBetsFindIterable.first()).thenReturn(propBet);
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", winningBetValue)))).thenReturn(
                 mockPropBetsSummaryFindIterable1);
-        when(mockPropBetsSummaryFindIterable1.first()).thenReturn(losingPropBetsSummary);
+        when(mockPropBetsSummaryFindIterable1.first()).thenReturn(winningPropBetsSummary);
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", losingBetValue)))).thenReturn(
+                mockPropBetsSummaryFindIterable2);
+        when(mockPropBetsSummaryFindIterable2.first()).thenReturn(losingPropBetsSummary);
         when(mockUserBetsSummaryCollection.find(eq("username", winningUsername1))).thenReturn(mockUserBetsSummaryFindIterable1);
         when(mockUserBetsSummaryFindIterable1.first()).thenReturn(winningUsername1UserBetsSummary);
         when(mockUserBetsSummaryCollection.find(eq("username", winningUsername2))).thenReturn(mockUserBetsSummaryFindIterable2);
@@ -846,8 +850,8 @@ class DataServiceTest {
     }
 
     @Test
-    void saveTeamScores() {
-        dataService.saveTeamScores("Team 1", "12", "Team 2", "10");
+    void saveResultsToCollection() {
+        dataService.saveResultsToCollection(mockScoreCollection, "Team 1", "12", "Team 2", "10");
 
         ArgumentCaptor<Document> resultsCaptor = ArgumentCaptor.forClass(Document.class);
 
