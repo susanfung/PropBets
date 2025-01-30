@@ -351,8 +351,9 @@ public class DataService {
         }
 
         BigDecimal totalBetters = BigDecimal.valueOf(winningBetters.size() + losingBetters.size());
-        BigDecimal amountWonPerBetter = totalBetters.multiply(BigDecimal.valueOf(2))
-                                                    .divide(BigDecimal.valueOf(winningBetters.size()), 2, RoundingMode.HALF_UP);
+        Double amountWonPerBetter = totalBetters.multiply(BigDecimal.valueOf(2))
+                                                .divide(BigDecimal.valueOf(winningBetters.size()), 2, RoundingMode.HALF_UP)
+                                                .doubleValue();
 
         updateUserBetsSummaryForAllWinningBetters(winningBetters, amountWonPerBetter);
     }
@@ -383,20 +384,26 @@ public class DataService {
         });
     }
 
-    private void updateUserBetsSummaryForAllWinningBetters(List<String> winningBetters, BigDecimal amountWonPerBetter) {
+    private void updateUserBetsSummaryForAllWinningBetters(List<String> winningBetters, Double amountWonPerBetter) {
         winningBetters.forEach(username -> {
             Document foundUserBetSummary = userBetsSummaryCollection.find(eq(USERNAME, username)).first();
 
             if (foundUserBetSummary != null) {
-                BigDecimal amountOwing = BigDecimal.valueOf(foundUserBetSummary.getDouble(AMOUNT_OWING));
-                BigDecimal updatedAmountWon = BigDecimal.valueOf(foundUserBetSummary.getDouble(AMOUNT_WON)).add(amountWonPerBetter);
+                Double amountOwing = foundUserBetSummary.getDouble(AMOUNT_OWING);
+                Optional<Integer> numberOfScoreBoardBetsWon = Optional.ofNullable(foundUserBetSummary.getInteger(NUMBER_OF_SCOREBOARD_BETS_WON));
+                Optional<Double> amountOfScoreBoardBetsWon = Optional.ofNullable(foundUserBetSummary.getDouble(AMOUNT_OF_SCOREBOARD_BETS_WON));
+                Integer numberOfPropBetsWon = Optional.ofNullable(foundUserBetSummary.getInteger(NUMBER_OF_PROPBETS_WON)).orElse(0) + 1;
+                Double amountOfPropBetsWon = Optional.ofNullable(foundUserBetSummary.getDouble(AMOUNT_OF_PROPBETS_WON)).orElse(0.0) + amountWonPerBetter;
+                Integer numberOfBetsWon = numberOfScoreBoardBetsWon.orElse(0) + numberOfPropBetsWon;
+                Double amountWon = amountOfScoreBoardBetsWon.orElse(0.0) + amountOfPropBetsWon;
+                Double netAmount = amountWon - amountOwing;
 
                 userBetsSummaryCollection.updateOne(eq(USERNAME, username),
-                                                    Updates.combine(Updates.set(NUMBER_OF_BETS_WON,
-                                                                                foundUserBetSummary.getInteger(NUMBER_OF_BETS_WON) + 1),
-                                                                    Updates.set(AMOUNT_WON, updatedAmountWon.doubleValue()),
-                                                                    Updates.set(NET_AMOUNT,
-                                                                                updatedAmountWon.subtract(amountOwing).doubleValue())));
+                                                    Updates.combine(Updates.set(NUMBER_OF_PROPBETS_WON, numberOfPropBetsWon),
+                                                                    Updates.set(AMOUNT_OF_PROPBETS_WON, amountOfPropBetsWon),
+                                                                    Updates.set(NUMBER_OF_BETS_WON, numberOfBetsWon),
+                                                                    Updates.set(AMOUNT_WON, amountWon),
+                                                                    Updates.set(NET_AMOUNT, netAmount)));
             }
         });
     }
