@@ -135,8 +135,8 @@ public class ViewBets extends VerticalLayout {
         VerticalLayout userStats = new VerticalLayout();
         userStats.setSpacing(false);
         userStats.add(new Div(new Text("Number of Bets Made: " + userBetsSummary.numberOfBetsMade().toString())));
-        userStats.add(new Div(new Text("Number of Bets Won: "+ userBetsSummary.numberOfBetsWon().toString())));
         userStats.add(new Div(new Text("Amount Owing: $" + userBetsSummary.amountOwing().toString())));
+        userStats.add(new Div(new Text("Number of Bets Won: "+ userBetsSummary.numberOfBetsWon().toString())));
         userStats.add(new Div(new Text("Amount Won: $" + userBetsSummary.amountWon().toString())));
 
         String netAmount = userBetsSummary.netAmount().toString();
