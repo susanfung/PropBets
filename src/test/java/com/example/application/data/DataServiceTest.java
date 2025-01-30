@@ -619,7 +619,6 @@ class DataServiceTest {
         Double amountScoreBoardBetsWonForUsername2 = 14.0;
         Integer numberOfPropBetsWon = 1;
         Double amountOfPropBetsWon = 1.0;
-        Double updatedAmountWonForUsername1 = amountScoreBoardBetsWonForUsername1 + amountOfPropBetsWon;
         Double updatedAmountWonForUsername2 = amountScoreBoardBetsWonForUsername2 + amountOfPropBetsWon;
 
         Document scoreBoardEventsTracker = new Document();
@@ -651,8 +650,6 @@ class DataServiceTest {
                                 .append("amountOwing", amountOwing)
                                 .append("numberOfScoreBoardBetsWon", 0)
                                 .append("amountOfScoreBoardBetsWon", 0)
-                                .append("numberOfPropBetsWon", numberOfPropBetsWon)
-                                .append("amountOfPropBetsWon", amountOfPropBetsWon)
                                 .append("numberOfBetsWon", 0)
                                 .append("amountWon", 0)
                                 .append("netAmount", -20.0);
@@ -695,9 +692,9 @@ class DataServiceTest {
                .updateOne(eq("username", username1),
                           Updates.combine(Updates.set("numberOfScoreBoardBetsWon", numberOfScoreBoardBetsWonForUsername1),
                                           Updates.set("amountOfScoreBoardBetsWon", amountScoreBoardBetsWonForUsername1),
-                                          Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername1 + numberOfPropBetsWon),
-                                          Updates.set("amountWon", updatedAmountWonForUsername1),
-                                          Updates.set("netAmount", updatedAmountWonForUsername1 - amountOwing)));
+                                          Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername1),
+                                          Updates.set("amountWon", amountScoreBoardBetsWonForUsername1),
+                                          Updates.set("netAmount", amountScoreBoardBetsWonForUsername1 - amountOwing)));
         Mockito.verify(mockUserBetsSummaryCollection)
                .updateOne(eq("username", username2),
                           Updates.combine(Updates.set("numberOfScoreBoardBetsWon", numberOfScoreBoardBetsWonForUsername2),
@@ -706,12 +703,10 @@ class DataServiceTest {
                                           Updates.set("amountWon", updatedAmountWonForUsername2),
                                           Updates.set("netAmount", updatedAmountWonForUsername2 - amountOwing)));
 
-        StringBuilder results = new StringBuilder();
-        results.append("Team Score:\n");
-        results.append(teamScoreCaptor.getValue().toString());
-        results.append("\nScoreBoard Events Tracker:\n");
-        results.append(scoreBoardEventsTrackerCaptor.getValue().toString());
-        verify(results.toString());
+        String results = "Team Score:\n" + teamScoreCaptor.getValue()
+                                                          .toString() + "\nScoreBoard Events Tracker:\n" + scoreBoardEventsTrackerCaptor.getValue()
+                                                                                                                                        .toString();
+        verify(results);
     }
 
     @Test
@@ -731,7 +726,6 @@ class DataServiceTest {
         Double amountScoreBoardBetsWonForUsername2 = 18.66;
         Integer numberOfPropBetsWon = 1;
         Double amountOfPropBetsWon = 1.0;
-        Double updatedAmountWonForUsername1 = amountScoreBoardBetsWonForUsername1 + amountOfPropBetsWon;
         Double updatedAmountWonForUsername2 = amountScoreBoardBetsWonForUsername2 + amountOfPropBetsWon;
 
         Document scoreBoardEventsTracker = new Document();
@@ -764,8 +758,6 @@ class DataServiceTest {
                                 .append("amountOwing", amountOwing)
                                 .append("numberOfScoreBoardBetsWon", 0)
                                 .append("amountOfScoreBoardBetsWon", 0)
-                                .append("numberOfPropBetsWon", numberOfPropBetsWon)
-                                .append("amountOfPropBetsWon", amountOfPropBetsWon)
                                 .append("numberOfBetsWon", 0)
                                 .append("amountWon", 0)
                                 .append("netAmount", -20.0);
@@ -808,9 +800,9 @@ class DataServiceTest {
                .updateOne(eq("username", username1),
                           Updates.combine(Updates.set("numberOfScoreBoardBetsWon", numberOfScoreBoardBetsWonForUsername1),
                                           Updates.set("amountOfScoreBoardBetsWon", amountScoreBoardBetsWonForUsername1),
-                                          Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername1 + numberOfPropBetsWon),
-                                          Updates.set("amountWon", updatedAmountWonForUsername1),
-                                          Updates.set("netAmount", updatedAmountWonForUsername1 - amountOwing)));
+                                          Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername1),
+                                          Updates.set("amountWon", amountScoreBoardBetsWonForUsername1),
+                                          Updates.set("netAmount", amountScoreBoardBetsWonForUsername1 - amountOwing)));
         Mockito.verify(mockUserBetsSummaryCollection)
                .updateOne(eq("username", username2),
                           Updates.combine(Updates.set("numberOfScoreBoardBetsWon", numberOfScoreBoardBetsWonForUsername2),
@@ -819,12 +811,10 @@ class DataServiceTest {
                                           Updates.set("amountWon", updatedAmountWonForUsername2),
                                           Updates.set("netAmount", updatedAmountWonForUsername2 - amountOwing)));
 
-        StringBuilder results = new StringBuilder();
-        results.append("Team Score:\n");
-        results.append(teamScoreCaptor.getValue().toString());
-        results.append("\nScoreBoard Events Tracker:\n");
-        results.append(scoreBoardEventsTrackerCaptor.getValue().toString());
-        verify(results.toString());
+        String results = "Team Score:\n" + teamScoreCaptor.getValue()
+                                                          .toString() + "\nScoreBoard Events Tracker:\n" + scoreBoardEventsTrackerCaptor.getValue()
+                                                                                                                                        .toString();
+        verify(results);
     }
 
     @Test
@@ -957,7 +947,6 @@ class DataServiceTest {
         Double amountScoreBoardBetsWonForUsername2 = 4.67;
         Integer numberOfPropBetsWon = 1;
         Double amountOfPropBetsWon = 1.0;
-        Double updatedAmountWonForUsername1 = amountScoreBoardBetsWonForUsername1 + amountOfPropBetsWon;
         Double updatedAmountWonForUsername2 = amountScoreBoardBetsWonForUsername2 + amountOfPropBetsWon;
 
         winningBettersCountMap.put(username1, numberOfScoreBoardBetsWonForUsername1);
@@ -973,8 +962,6 @@ class DataServiceTest {
                                 .append("amountOwing", amountOwing)
                                 .append("numberOfScoreBoardBetsWon", 0)
                                 .append("amountOfScoreBoardBetsWon", 0)
-                                .append("numberOfPropBetsWon", numberOfPropBetsWon)
-                                .append("amountOfPropBetsWon", amountOfPropBetsWon)
                                 .append("numberOfBetsWon", 0)
                                 .append("amountWon", 0)
                                 .append("netAmount", -20.0);
@@ -1002,9 +989,9 @@ class DataServiceTest {
                .updateOne(eq("username", username1),
                           Updates.combine(Updates.set("numberOfScoreBoardBetsWon", numberOfScoreBoardBetsWonForUsername1),
                                           Updates.set("amountOfScoreBoardBetsWon", amountScoreBoardBetsWonForUsername1),
-                                          Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername1 + numberOfPropBetsWon),
-                                          Updates.set("amountWon", updatedAmountWonForUsername1),
-                                          Updates.set("netAmount", updatedAmountWonForUsername1 - amountOwing)));
+                                          Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername1),
+                                          Updates.set("amountWon", amountScoreBoardBetsWonForUsername1),
+                                          Updates.set("netAmount", amountScoreBoardBetsWonForUsername1 - amountOwing)));
         Mockito.verify(mockUserBetsSummaryCollection)
                .updateOne(eq("username", username2),
                           Updates.combine(Updates.set("numberOfScoreBoardBetsWon", numberOfScoreBoardBetsWonForUsername2),

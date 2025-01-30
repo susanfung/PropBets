@@ -496,11 +496,11 @@ public class DataService {
 
             if (foundUserBetSummary != null) {
                 Double amountOwing = foundUserBetSummary.getDouble(AMOUNT_OWING);
-                Integer numberOfPropBetsWon = foundUserBetSummary.getInteger(NUMBER_OF_PROPBETS_WON);
-                Double amountOfPropBetsWon = foundUserBetSummary.getDouble(AMOUNT_OF_PROPBETS_WON);
-                Integer numberOfBetsWon = numberOfPropBetsWon + numberOfScoreBoardBetsWon;
+                Optional<Integer> numberOfPropBetsWon = Optional.ofNullable(foundUserBetSummary.getInteger(NUMBER_OF_PROPBETS_WON));
+                Optional<Double> amountOfPropBetsWon = Optional.ofNullable(foundUserBetSummary.getDouble(AMOUNT_OF_PROPBETS_WON));
+                Integer numberOfBetsWon = numberOfPropBetsWon.orElse(0) + numberOfScoreBoardBetsWon;
                 Double amountOfScoreBoardBetsWon = winningBettersTotalMap.get(username);
-                Double amountWon = amountOfPropBetsWon + amountOfScoreBoardBetsWon;
+                Double amountWon = amountOfPropBetsWon.orElse(0.0) + amountOfScoreBoardBetsWon;
                 Double netAmount = amountWon - amountOwing;
 
                 userBetsSummaryCollection.updateOne(eq(USERNAME, username),
