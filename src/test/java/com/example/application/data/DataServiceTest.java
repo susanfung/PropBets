@@ -19,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -515,16 +517,18 @@ class DataServiceTest {
         String winningUsername2 = "jack_doe";
         String winningUsername3 = "joe_doe";
         String losingUsername = "jane_doe";
-        Double amountOwing = 100.0;
+        Double amountOwing = 20.0;
         Double amountWonPerBet = 2.67;
         Integer numberOfScoreBoardBetsWon = 1;
         Double amountOfScoreBoardBetsWon = 1.0;
-        Integer numberOfPropBetsWon = 0;
-        Double amountOfPropBetsWon = 0.0;
-        Double updatedAmountOfPropBetsWon = amountOfPropBetsWon + amountWonPerBet;
+        Integer numberOfPropBetsWon = 4;
+        Double amountOfPropBetsWon = 17.99;
+        Double updatedAmountOfPropBetsWon = BigDecimal.valueOf(17.99 + amountWonPerBet).setScale(2, RoundingMode.HALF_UP).doubleValue();
         Integer updatedNumberOfBetsWon = numberOfScoreBoardBetsWon + numberOfPropBetsWon + 1;
-        Double updatedAmountWon = amountOfScoreBoardBetsWon + updatedAmountOfPropBetsWon;
-        Double updatedNetAmount = updatedAmountWon - amountOwing;
+        Double updatedAmountWon = BigDecimal.valueOf(amountOfScoreBoardBetsWon + updatedAmountOfPropBetsWon)
+                                            .setScale(2, RoundingMode.HALF_UP)
+                                            .doubleValue();
+        Double updatedNetAmount = BigDecimal.valueOf(updatedAmountWon - amountOwing).setScale(2, RoundingMode.HALF_UP).doubleValue();
 
         Document propBet = new Document();
         propBet.append("name", betType)
@@ -606,7 +610,7 @@ class DataServiceTest {
                                           Updates.set("amountOfPropBetsWon", updatedAmountOfPropBetsWon),
                                           Updates.set("numberOfBetsWon", numberOfPropBetsWon + 1),
                                           Updates.set("amountWon", updatedAmountOfPropBetsWon),
-                                          Updates.set("netAmount", updatedAmountOfPropBetsWon - amountOwing)));
+                                          Updates.set("netAmount", BigDecimal.valueOf(updatedAmountOfPropBetsWon - amountOwing).setScale(2, RoundingMode.HALF_UP).doubleValue())));
         Mockito.verify(mockUserBetsSummaryCollection)
                .updateOne(eq("username", winningUsername2),
                           Updates.combine(Updates.set("numberOfPropBetsWon", numberOfPropBetsWon + 1),

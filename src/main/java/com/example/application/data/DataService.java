@@ -393,10 +393,15 @@ public class DataService {
                 Optional<Integer> numberOfScoreBoardBetsWon = Optional.ofNullable(foundUserBetSummary.getInteger(NUMBER_OF_SCOREBOARD_BETS_WON));
                 Optional<Double> amountOfScoreBoardBetsWon = Optional.ofNullable(foundUserBetSummary.getDouble(AMOUNT_OF_SCOREBOARD_BETS_WON));
                 Integer numberOfPropBetsWon = Optional.ofNullable(foundUserBetSummary.getInteger(NUMBER_OF_PROPBETS_WON)).orElse(0) + 1;
-                Double amountOfPropBetsWon = Optional.ofNullable(foundUserBetSummary.getDouble(AMOUNT_OF_PROPBETS_WON)).orElse(0.0) + amountWonPerBetter;
+                Double amountOfPropBetsWon = BigDecimal.valueOf(Optional.ofNullable(foundUserBetSummary.getDouble(AMOUNT_OF_PROPBETS_WON))
+                                                                        .orElse(0.0) + amountWonPerBetter)
+                                                       .setScale(2, RoundingMode.HALF_UP)
+                                                       .doubleValue();
                 Integer numberOfBetsWon = numberOfScoreBoardBetsWon.orElse(0) + numberOfPropBetsWon;
-                Double amountWon = amountOfScoreBoardBetsWon.orElse(0.0) + amountOfPropBetsWon;
-                Double netAmount = amountWon - amountOwing;
+                Double amountWon = BigDecimal.valueOf(amountOfScoreBoardBetsWon.orElse(0.0) + amountOfPropBetsWon)
+                                             .setScale(2, RoundingMode.HALF_UP)
+                                             .doubleValue();
+                Double netAmount = BigDecimal.valueOf(amountWon - amountOwing).setScale(2, RoundingMode.HALF_UP).doubleValue();
 
                 userBetsSummaryCollection.updateOne(eq(USERNAME, username),
                                                     Updates.combine(Updates.set(NUMBER_OF_PROPBETS_WON, numberOfPropBetsWon),
