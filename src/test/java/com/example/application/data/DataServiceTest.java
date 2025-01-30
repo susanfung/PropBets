@@ -201,7 +201,8 @@ class DataServiceTest {
         Document mockPropBetsSummaryDocument1 = new Document();
         mockPropBetsSummaryDocument1.append("betType", betType)
                                     .append("betValue", "0,1")
-                                    .append("betters", List.of("jane_doe", "john_doe"));
+                                    .append("betters", List.of("jane_doe", "john_doe"))
+                                    .append("count", 1);
 
         Document mockPropBetsSummaryDocument2 = new Document();
         mockPropBetsSummaryDocument2.append("betType", betType)
@@ -213,11 +214,10 @@ class DataServiceTest {
         when(mockCursor.hasNext()).thenReturn(true, true, false);
         when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
 
-        Map<String, String> result = dataService.getScoreBoardBetsSummary();
+        List<ScoreBoardBetsSummary> result = dataService.getScoreBoardBetsSummary();
 
-        verify(result.entrySet()
-                     .stream()
-                     .map(entry -> entry.getKey() + ":\n" + entry.getValue())
+        verify(result.stream()
+                     .map(entry -> entry.betValue() + ":\n" + entry.betters() + ":\n" + entry.count())
                      .reduce("", (s1, s2) -> s1 + s2 + "\n"));
         Mockito.verify(mockCursor, times(1)).close();
     }

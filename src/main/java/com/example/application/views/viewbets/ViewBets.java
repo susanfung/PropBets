@@ -2,6 +2,7 @@ package com.example.application.views.viewbets;
 
 import com.example.application.data.DataService;
 import com.example.application.data.PropBetsSummary;
+import com.example.application.data.ScoreBoardBetsSummary;
 import com.example.application.data.UserBetsSummary;
 import com.example.application.security.UserService;
 import com.example.application.views.MainLayout;
@@ -43,7 +44,7 @@ public class ViewBets extends VerticalLayout {
     private static final String cellWidth = "100px";
     private static final String iconSize = "24px";
 
-    private Map<String, String> scoreBoardBetsSummary;
+    private List<ScoreBoardBetsSummary> scoreBoardBetsSummary;
 
     public ViewBets(DataService dataService, UserService userService) {
         this.dataService = dataService;
@@ -202,16 +203,31 @@ public class ViewBets extends VerticalLayout {
         rows.add(rowNumber);
 
         IntStream.rangeClosed(0, 9).forEach(col -> {
-            String buttonText = scoreBoardBetsSummary.get(row + "," + col);
+            ScoreBoardBetsSummary summary = scoreBoardBetsSummary.stream()
+                                                                 .filter(s -> s.betValue().equals(row + "," + col))
+                                                                 .findFirst()
+                                                                 .orElse(null);
 
             VerticalLayout cellLayout = new VerticalLayout();
             setCellStyle(cellLayout, cellWidth, false);
             cellLayout.getStyle().set("border", "1px solid black");
 
-            if (buttonText != null) {
-                Span span = new Span(buttonText);
-                span.getStyle().set("white-space", "pre-wrap");
-                cellLayout.add(span);
+            if (summary != null) {
+                Span bettersSpan = new Span(String.join("\n", summary.betters()));
+                bettersSpan.getStyle().set("white-space", "pre-wrap");
+
+                HorizontalLayout iconsLayout = new HorizontalLayout();
+                iconsLayout.setSpacing(false);
+
+                IntStream.range(0, summary.count().orElse(0)).forEach(i -> {
+                    Image footballIcon = new Image("icons/nfl.svg", "NFL Logo");
+                    footballIcon.setWidth(iconSize);
+                    footballIcon.setHeight(iconSize);
+
+                    iconsLayout.add(footballIcon);
+                });
+
+                cellLayout.add(bettersSpan, iconsLayout);
             }
 
             rows.add(cellLayout);

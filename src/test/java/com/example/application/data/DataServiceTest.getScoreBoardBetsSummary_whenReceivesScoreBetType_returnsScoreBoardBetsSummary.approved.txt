@@ -1,6 +1,6 @@
-0,0:
-jack_doe
-jill_doe
 0,1:
-jane_doe
-john_doe
+[jane_doe, john_doe]:
+Optional[1]
+0,0:
+[jack_doe, jill_doe]:
+Optional.empty
