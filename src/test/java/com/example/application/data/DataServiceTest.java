@@ -752,7 +752,9 @@ class DataServiceTest {
         Double amountScoreBoardBetsWonForUsername2 = 18.66;
         Integer numberOfPropBetsWon = 1;
         Double amountOfPropBetsWon = 1.0;
-        Double updatedAmountWonForUsername2 = amountScoreBoardBetsWonForUsername2 + amountOfPropBetsWon;
+        Double updatedAmountWonForUsername2 = BigDecimal.valueOf(amountScoreBoardBetsWonForUsername2 + amountOfPropBetsWon)
+                                                        .setScale(2, RoundingMode.HALF_UP)
+                                                        .doubleValue();
 
         Document scoreBoardEventsTracker = new Document();
         scoreBoardEventsTracker.append("isScoreBoardEventsTracker", true)
@@ -828,14 +830,18 @@ class DataServiceTest {
                                           Updates.set("amountOfScoreBoardBetsWon", amountScoreBoardBetsWonForUsername1),
                                           Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername1),
                                           Updates.set("amountWon", amountScoreBoardBetsWonForUsername1),
-                                          Updates.set("netAmount", amountScoreBoardBetsWonForUsername1 - amountOwing)));
+                                          Updates.set("netAmount", BigDecimal.valueOf(amountScoreBoardBetsWonForUsername1 - amountOwing)
+                                                                             .setScale(2, RoundingMode.HALF_UP)
+                                                                             .doubleValue())));
         Mockito.verify(mockUserBetsSummaryCollection)
                .updateOne(eq("username", username2),
                           Updates.combine(Updates.set("numberOfScoreBoardBetsWon", numberOfScoreBoardBetsWonForUsername2),
                                           Updates.set("amountOfScoreBoardBetsWon", amountScoreBoardBetsWonForUsername2),
                                           Updates.set("numberOfBetsWon", numberOfScoreBoardBetsWonForUsername2 + numberOfPropBetsWon),
                                           Updates.set("amountWon", updatedAmountWonForUsername2),
-                                          Updates.set("netAmount", updatedAmountWonForUsername2 - amountOwing)));
+                                          Updates.set("netAmount", BigDecimal.valueOf(updatedAmountWonForUsername2 - amountOwing)
+                                                                             .setScale(2, RoundingMode.HALF_UP)
+                                                                             .doubleValue())));
 
         String results = "Team Score:\n" + teamScoreCaptor.getValue()
                                                           .toString() + "\nScoreBoard Events Tracker:\n" + scoreBoardEventsTrackerCaptor.getValue()
@@ -963,7 +969,6 @@ class DataServiceTest {
 
     @Test
     void updateScoreBoardBetsInUserBetsSummary() {
-        Map<String, Integer> winningBettersCountMap = new HashMap<>();
         String username1 = "jane_doe";
         String username2 = "john_doe";
         Double amountOwing = 20.0;
@@ -975,6 +980,7 @@ class DataServiceTest {
         Double amountOfPropBetsWon = 1.0;
         Double updatedAmountWonForUsername2 = amountScoreBoardBetsWonForUsername2 + amountOfPropBetsWon;
 
+        Map<String, Integer> winningBettersCountMap = new HashMap<>();
         winningBettersCountMap.put(username1, numberOfScoreBoardBetsWonForUsername1);
         winningBettersCountMap.put(username2, numberOfScoreBoardBetsWonForUsername2);
 

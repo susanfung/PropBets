@@ -514,8 +514,10 @@ public class DataService {
                 Optional<Double> amountOfPropBetsWon = Optional.ofNullable(foundUserBetSummary.getDouble(AMOUNT_OF_PROPBETS_WON));
                 Integer numberOfBetsWon = numberOfPropBetsWon.orElse(0) + numberOfScoreBoardBetsWon;
                 Double amountOfScoreBoardBetsWon = winningBettersTotalMap.get(username);
-                Double amountWon = amountOfPropBetsWon.orElse(0.0) + amountOfScoreBoardBetsWon;
-                Double netAmount = amountWon - amountOwing;
+                Double amountWon = BigDecimal.valueOf(amountOfPropBetsWon.orElse(0.0) + amountOfScoreBoardBetsWon)
+                                             .setScale(2, RoundingMode.HALF_UP)
+                                             .doubleValue();
+                Double netAmount = BigDecimal.valueOf(amountWon - amountOwing).setScale(2, RoundingMode.HALF_UP).doubleValue();
 
                 userBetsSummaryCollection.updateOne(eq(USERNAME, username),
                                                     Updates.combine(Updates.set(NUMBER_OF_SCOREBOARD_BETS_WON, numberOfScoreBoardBetsWon),
