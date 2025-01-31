@@ -5,6 +5,7 @@ import com.example.application.views.createnewbet.CreateNewBet;
 import com.example.application.views.placebets.PlaceBets;
 import com.example.application.views.profile.Profile;
 import com.example.application.views.saveresults.SaveResults;
+import com.example.application.views.settings.Settings;
 import com.example.application.views.viewbets.ViewBets;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -81,6 +82,11 @@ public class MainLayout extends AppLayout {
         saveResultsIcon.setWidth(iconSize);
         saveResultsIcon.setHeight(iconSize);
 
+        Image settingsIcon = new Image("icons/gear.png", "Settings");
+        settingsIcon.setWidth(iconSize);
+        settingsIcon.setHeight(iconSize);
+
+        nav.addItem(new SideNavItem("Profile", Profile.class, userIcon));
         nav.addItem(new SideNavItem("View Bets", ViewBets.class, betsIcon));
         nav.addItem(new SideNavItem("Place Bets", PlaceBets.class, placeBetsIcon));
 
@@ -88,9 +94,8 @@ public class MainLayout extends AppLayout {
         if ("admin".equals(role)) {
             nav.addItem(new SideNavItem("Create New Bet", CreateNewBet.class, createNewBetIcon));
             nav.addItem(new SideNavItem("Save Results", SaveResults.class, saveResultsIcon));
+            nav.addItem(new SideNavItem("Settings", Settings.class, settingsIcon));
         }
-
-        nav.addItem(new SideNavItem("Profile", Profile.class, userIcon));
 
         return nav;
     }
