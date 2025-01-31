@@ -423,7 +423,7 @@ public class DataService {
         Document foundPropBetsSummary = propBetsSummaryCollection.find(and(eq(BET_TYPE, SCORE_BET_TYPE), eq(BET_VALUE, betValue))).first();
 
         if (foundPropBetsSummary != null) {
-            Document scoreBoardEventsTracker = propBetsSummaryCollection.find(eq("isScoreBoardEventsTracker", true)).first();
+            Document scoreBoardEventsTracker = scoreCollection.find(eq("isScoreBoardEventsTracker", true)).first();
             final Double[] totalAmountWonPerEvent = {0.0};
 
             if (scoreBoardEventsTracker != null) {
@@ -461,7 +461,7 @@ public class DataService {
         scoreBoardEventsTracker.put("numberOfWinningEvents", numberOfWinningEvents);
         scoreBoardEventsTracker.put("totalAmountWonPerEvent", totalAmountWonPerEvent[0]);
 
-        propBetsSummaryCollection.replaceOne(eq("isScoreBoardEventsTracker", true), scoreBoardEventsTracker);
+        scoreCollection.replaceOne(eq("isScoreBoardEventsTracker", true), scoreBoardEventsTracker);
     }
 
     public void updateScoreInPropBetsSummmary(Document foundPropBetsSummary) {

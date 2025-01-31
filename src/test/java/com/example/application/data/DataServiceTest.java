@@ -78,9 +78,6 @@ class DataServiceTest {
     private FindIterable<Document> mockPropBetsSummaryFindIterable2;
 
     @Mock
-    private FindIterable<Document> mockPropBetsSummaryFindIterable3;
-
-    @Mock
     private FindIterable<Document> mockUserBetsSummaryFindIterable1;
 
     @Mock
@@ -91,6 +88,9 @@ class DataServiceTest {
 
     @Mock
     private FindIterable<Document> mockResultsFindIterable;
+
+    @Mock
+    private FindIterable<Document> mockScoreFindIterable;
 
     @Mock
     private MongoCursor<Document> mockCursor;
@@ -694,10 +694,10 @@ class DataServiceTest {
 
         when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", betValue)))).thenReturn(mockPropBetsSummaryFindIterable1);
         when(mockPropBetsSummaryFindIterable1.first()).thenReturn(propBetsSummary);
-        when(mockPropBetsSummaryCollection.find(eq("isScoreBoardEventsTracker", true))).thenReturn(mockPropBetsSummaryFindIterable2);
-        when(mockPropBetsSummaryFindIterable2.first()).thenReturn(scoreBoardEventsTracker);
-        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), exists("count")))).thenReturn(mockPropBetsSummaryFindIterable3);
-        when(mockPropBetsSummaryFindIterable3.iterator()).thenReturn(mockCursor);
+        when(mockScoreCollection.find(eq("isScoreBoardEventsTracker", true))).thenReturn(mockScoreFindIterable);
+        when(mockScoreFindIterable.first()).thenReturn(scoreBoardEventsTracker);
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), exists("count")))).thenReturn(mockPropBetsSummaryFindIterable2);
+        when(mockPropBetsSummaryFindIterable2.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, true, false);
         when(mockCursor.next()).thenReturn(winningPropBetsSummary1, winningPropBetsSummary2);
         when(mockUserBetsSummaryCollection.find(eq("username", username1))).thenReturn(mockUserBetsSummaryFindIterable1);
@@ -711,7 +711,7 @@ class DataServiceTest {
         ArgumentCaptor<Document> scoreBoardEventsTrackerCaptor = ArgumentCaptor.forClass(Document.class);
 
         Mockito.verify(mockScoreCollection, times(1)).insertOne(teamScoreCaptor.capture());
-        Mockito.verify(mockPropBetsSummaryCollection, times(1)).replaceOne(any(), scoreBoardEventsTrackerCaptor.capture());
+        Mockito.verify(mockScoreCollection, times(1)).replaceOne(any(), scoreBoardEventsTrackerCaptor.capture());
         Mockito.verify(mockPropBetsSummaryCollection, times(1))
                .updateOne(and(eq("betType", betType), eq("betValue", betValue)), Updates.set("count", 1));
         Mockito.verify(mockUserBetsSummaryCollection)
@@ -802,10 +802,10 @@ class DataServiceTest {
 
         when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", betValue)))).thenReturn(mockPropBetsSummaryFindIterable1);
         when(mockPropBetsSummaryFindIterable1.first()).thenReturn(propBetsSummary);
-        when(mockPropBetsSummaryCollection.find(eq("isScoreBoardEventsTracker", true))).thenReturn(mockPropBetsSummaryFindIterable2);
-        when(mockPropBetsSummaryFindIterable2.first()).thenReturn(scoreBoardEventsTracker);
-        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), exists("count")))).thenReturn(mockPropBetsSummaryFindIterable3);
-        when(mockPropBetsSummaryFindIterable3.iterator()).thenReturn(mockCursor);
+        when(mockScoreCollection.find(eq("isScoreBoardEventsTracker", true))).thenReturn(mockScoreFindIterable);
+        when(mockScoreFindIterable.first()).thenReturn(scoreBoardEventsTracker);
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), exists("count")))).thenReturn(mockPropBetsSummaryFindIterable2);
+        when(mockPropBetsSummaryFindIterable2.iterator()).thenReturn(mockCursor);
         when(mockCursor.hasNext()).thenReturn(true, true, false);
         when(mockCursor.next()).thenReturn(winningPropBetsSummary1, winningPropBetsSummary2);
         when(mockUserBetsSummaryCollection.find(eq("username", username1))).thenReturn(mockUserBetsSummaryFindIterable1);
@@ -819,7 +819,7 @@ class DataServiceTest {
         ArgumentCaptor<Document> scoreBoardEventsTrackerCaptor = ArgumentCaptor.forClass(Document.class);
 
         Mockito.verify(mockScoreCollection, times(1)).insertOne(teamScoreCaptor.capture());
-        Mockito.verify(mockPropBetsSummaryCollection, times(1)).replaceOne(any(), scoreBoardEventsTrackerCaptor.capture());
+        Mockito.verify(mockScoreCollection, times(1)).replaceOne(any(), scoreBoardEventsTrackerCaptor.capture());
         Mockito.verify(mockPropBetsSummaryCollection, times(1))
                .updateOne(and(eq("betType", betType), eq("betValue", betValue)), Updates.set("count", 2));
         Mockito.verify(mockUserBetsSummaryCollection)
@@ -887,7 +887,7 @@ class DataServiceTest {
 
         ArgumentCaptor<Document> resultsCaptor = ArgumentCaptor.forClass(Document.class);
 
-        Mockito.verify(mockPropBetsSummaryCollection, times(1)).replaceOne(any(), resultsCaptor.capture());
+        Mockito.verify(mockScoreCollection, times(1)).replaceOne(any(), resultsCaptor.capture());
         verify(resultsCaptor.getValue().toString());
     }
 
