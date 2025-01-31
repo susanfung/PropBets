@@ -1,7 +1,7 @@
 Winning Betters Count Map:
-jane_doe: 2
+jane_doe: 3
 john_doe: 1
 
 Winning Betters Total Map:
-jane_doe: 14.0
+jane_doe: 23.33
 john_doe: 4.67

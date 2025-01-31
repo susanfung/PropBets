@@ -746,8 +746,8 @@ class DataServiceTest {
         String username1 = "john_doe";
         String username2 = "jane_doe";
         Double amountOwing = 20.0;
-        Integer numberOfScoreBoardBetsWonForUsername1 = 1;
-        Integer numberOfScoreBoardBetsWonForUsername2 = 2;
+        Integer numberOfScoreBoardBetsWonForUsername1 = 2;
+        Integer numberOfScoreBoardBetsWonForUsername2 = 3;
         Double amountScoreBoardBetsWonForUsername1 = 9.33;
         Double amountScoreBoardBetsWonForUsername2 = 18.66;
         Integer numberOfPropBetsWon = 1;
@@ -949,7 +949,7 @@ class DataServiceTest {
         winningPropBetsSummary2.append("betType", betType)
                                .append("betValue", "2,1")
                                .append("betters", List.of(username2))
-                               .append("count", 1);
+                               .append("count", 2);
 
         when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), exists("count")))).thenReturn(mockPropBetsSummaryFindIterable1);
         when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);

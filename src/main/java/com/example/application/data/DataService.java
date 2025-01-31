@@ -494,7 +494,7 @@ public class DataService {
                                                       .doubleValue();
 
                 winningBetters.forEach(username -> {
-                    winningBettersCountMap.put(username, winningBettersCountMap.getOrDefault(username, 0) + 1);
+                    winningBettersCountMap.put(username, winningBettersCountMap.getOrDefault(username, 0) + document.getInteger(COUNT));
                     winningBettersTotalMap.put(username, winningBettersTotalMap.getOrDefault(username, 0.0) + amountWonPerBetter);
                 });
             }
