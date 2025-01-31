@@ -1037,4 +1037,46 @@ class DataServiceTest {
         Mockito.verify(mockScoreCollection, times(1)).insertOne(resultsCaptor.capture());
         verify(resultsCaptor.getValue().toString());
     }
+
+    @Test
+    void lockPropBets() {
+        String propBetType = "Proposal";
+        String propBetValue1 = "Yes";
+        String propBetValue2 = "No";
+        String question = "Will Kelce propose at the game?";
+        String scoreBetType = "Score";
+        String scoreBetValue = "1,1";
+
+        Document mockPropBetsSummaryDocument1 = new Document();
+        mockPropBetsSummaryDocument1.append("betType", propBetType)
+                                    .append("betValue", propBetValue1)
+                                    .append("betters", List.of("jane_doe", "john_doe"))
+                                    .append("question", question)
+                                    .append("isWinner", true);
+
+        Document mockPropBetsSummaryDocument2 = new Document();
+        mockPropBetsSummaryDocument2.append("betType", propBetType)
+                                    .append("betValue", propBetValue2)
+                                    .append("betters", List.of("jack_doe", "jill_doe"))
+                                    .append("question", question)
+                                    .append("isWinner", false);
+
+        Document mockPropBetsSummaryDocument3 = new Document();
+        mockPropBetsSummaryDocument3.append("betType", scoreBetType)
+                                    .append("betValue", scoreBetValue)
+                                    .append("betters", List.of("jack_doe", "jill_doe"));
+
+        when(mockPropBetsSummaryCollection.find()).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, true, true, false);
+        when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2, mockPropBetsSummaryDocument3);
+
+        dataService.lockPropBets();
+
+        Mockito.verify(mockPropBetsSummaryCollection)
+               .updateOne(and(eq("betType", propBetType), eq("betValue", propBetValue1)), Updates.set("isLocked", true));
+        Mockito.verify(mockPropBetsSummaryCollection)
+               .updateOne(and(eq("betType", propBetType), eq("betValue", propBetValue2)), Updates.set("isLocked", true));
+        Mockito.verify(mockPropBetsSummaryCollection, never()).updateOne(and(eq("betType", scoreBetType), eq("betValue", scoreBetValue)), Updates.set("isLocked", true));
+    }
 }

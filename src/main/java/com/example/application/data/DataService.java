@@ -52,6 +52,7 @@ public class DataService {
     private static final String TOTAL_AMOUNT_OF_BETS = "totalAmountOfBets";
     private static final String NUMBER_OF_WINNING_EVENTS = "numberOfWinningEvents";
     private static final String TOTAL_AMOUNT_WON_PER_EVENT = "totalAmountWonPerEvent";
+    private static final String IS_LOCKED = "isLocked";
 
     private final MongoCollection<Document> userBetsSummaryCollection;
     private final MongoCollection<Document> propBetsSummaryCollection;
@@ -547,5 +548,13 @@ public class DataService {
                                           .append(TOTAL_AMOUNT_WON_PER_EVENT, 0.0);
 
         scoreCollection.insertOne(document);
+    }
+
+    public void lockPropBets() {
+        List<PropBetsSummary> propBetsSummary = getPropBetsSummary();
+
+        propBetsSummary.forEach(
+                summary -> propBetsSummaryCollection.updateOne(and(eq(BET_TYPE, summary.betType()), eq(BET_VALUE, summary.betValue())),
+                                                               Updates.set(IS_LOCKED, true)));
     }
 }
