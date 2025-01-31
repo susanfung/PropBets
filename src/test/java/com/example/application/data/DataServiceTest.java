@@ -135,13 +135,14 @@ class DataServiceTest {
     }
 
     @Test
-    void getPropBetsSummary_whenReceivesNonScoreBetType_returnsPropBetsSummary() {
+    void getPropBetsSummary_whenReceivesScoreBetType_returnsPropBetsSummary() {
         String betType = "Proposal";
+        String betValue = "Yes";
         String question = "Will Kelce propose at the game?";
 
         Document mockPropBetsSummaryDocument1 = new Document();
         mockPropBetsSummaryDocument1.append("betType", betType)
-                                    .append("betValue", "Yes")
+                                    .append("betValue", betValue)
                                     .append("betters", List.of("jane_doe", "john_doe"))
                                     .append("question", question)
                                     .append("isWinner", true);
@@ -153,39 +154,15 @@ class DataServiceTest {
                                     .append("question", question)
                                     .append("isWinner", false);
 
-        when(mockPropBetsSummaryCollection.find()).thenReturn(mockPropBetsSummaryFindIterable1);
-        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, true, false);
-        when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
-
-        verify(dataService.getPropBetsSummary()
-                          .stream()
-                          .map(PropBetsSummary::toString)
-                          .reduce("", (s1, s2) -> s1 + s2 + "\n"));
-        Mockito.verify(mockCursor, times(1)).close();
-    }
-
-    @Test
-    void getPropBetsSummary_whenReceivesScoreBetType_returnsPropBetsSummary() {
-        String betType = "Proposal";
-        String betValue = "Yes";
-
-        Document mockPropBetsSummaryDocument1 = new Document();
-        mockPropBetsSummaryDocument1.append("betType", betType)
-                                    .append("betValue", betValue)
-                                    .append("betters", List.of("jane_doe", "john_doe"))
-                                    .append("question", "Will Kelce propose at the game?")
-                                    .append("isWinner", true);
-
-        Document mockPropBetsSummaryDocument2 = new Document();
-        mockPropBetsSummaryDocument2.append("betType", "Score")
+        Document mockPropBetsSummaryDocument3 = new Document();
+        mockPropBetsSummaryDocument3.append("betType", "Score")
                                     .append("betValue", "0,0")
                                     .append("betters", List.of("jack_doe", "jill_doe"));
 
         when(mockPropBetsSummaryCollection.find()).thenReturn(mockPropBetsSummaryFindIterable1);
         when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, true, false);
-        when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
+        when(mockCursor.hasNext()).thenReturn(true, true, true, false);
+        when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2, mockPropBetsSummaryDocument3);
 
         verify(dataService.getPropBetsSummary()
                           .stream()
