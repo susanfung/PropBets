@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.example.application.views.placebets.PlaceBets.AMOUNT_PER_BET;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;
@@ -47,6 +48,10 @@ public class DataService {
     private static final String IS_WINNER = "isWinner";
     private static final String SCORE_BET_TYPE = "Score";
     private static final String COUNT = "count";
+    private static final String IS_SCOREBOARD_EVENTS_TRACKER = "isScoreBoardEventsTracker";
+    private static final String TOTAL_AMOUNT_OF_BETS = "totalAmountOfBets";
+    private static final String NUMBER_OF_WINNING_EVENTS = "numberOfWinningEvents";
+    private static final String TOTAL_AMOUNT_WON_PER_EVENT = "totalAmountWonPerEvent";
 
     private final MongoCollection<Document> userBetsSummaryCollection;
     private final MongoCollection<Document> propBetsSummaryCollection;
@@ -353,7 +358,7 @@ public class DataService {
         }
 
         BigDecimal totalBetters = BigDecimal.valueOf(winningBetters.size() + losingBetters.size());
-        Double amountWonPerBetter = totalBetters.multiply(BigDecimal.valueOf(2))
+        Double amountWonPerBetter = totalBetters.multiply(BigDecimal.valueOf(AMOUNT_PER_BET))
                                                 .divide(BigDecimal.valueOf(winningBetters.size()), 2, RoundingMode.HALF_UP)
                                                 .doubleValue();
 
@@ -527,5 +532,20 @@ public class DataService {
                                                                     Updates.set(NET_AMOUNT, netAmount)));
             }
         });
+    }
+
+    public void createScoreBoardEventsTracker() {
+        List<String> allBetters = new ArrayList<>();
+
+        List<ScoreBoardBetsSummary> scoreBoardBetsSummary = getScoreBoardBetsSummary();
+
+        scoreBoardBetsSummary.forEach(summary -> allBetters.addAll(summary.betters()));
+
+        Document document = new Document().append(IS_SCOREBOARD_EVENTS_TRACKER, true)
+                                          .append(TOTAL_AMOUNT_OF_BETS, allBetters.size() * AMOUNT_PER_BET)
+                                          .append(NUMBER_OF_WINNING_EVENTS, 0)
+                                          .append(TOTAL_AMOUNT_WON_PER_EVENT, 0.0);
+
+        scoreCollection.insertOne(document);
     }
 }

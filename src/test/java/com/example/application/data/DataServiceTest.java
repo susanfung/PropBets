@@ -1032,4 +1032,32 @@ class DataServiceTest {
                                           Updates.set("amountWon", updatedAmountWonForUsername2),
                                           Updates.set("netAmount", updatedAmountWonForUsername2 - amountOwing)));
     }
+
+    @Test
+    void createScoreBoardEventsTracker() {
+        String betType = "Score";
+
+        Document mockPropBetsSummaryDocument1 = new Document();
+        mockPropBetsSummaryDocument1.append("betType", betType)
+                                    .append("betValue", "0,1")
+                                    .append("betters", List.of("jane_doe", "john_doe"))
+                                    .append("count", 1);
+
+        Document mockPropBetsSummaryDocument2 = new Document();
+        mockPropBetsSummaryDocument2.append("betType", betType)
+                                    .append("betValue", "0,0")
+                                    .append("betters", List.of("jane_doe", "john_doe"));
+
+        when(mockPropBetsSummaryCollection.find()).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, true, false);
+        when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
+
+        dataService.createScoreBoardEventsTracker();
+
+        ArgumentCaptor<Document> resultsCaptor = ArgumentCaptor.forClass(Document.class);
+
+        Mockito.verify(mockScoreCollection, times(1)).insertOne(resultsCaptor.capture());
+        verify(resultsCaptor.getValue().toString());
+    }
 }
