@@ -9,8 +9,10 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -28,14 +30,34 @@ import static com.example.application.utils.Utils.createPropBet;
 public class SaveResults extends VerticalLayout implements BeforeEnterObserver {
     private final DataService dataService;
 
+    private TextField team1Score;
+    private TextField team2Score;
+
     private static final Map<String, String> propBetsResults = new HashMap<>();
 
     public SaveResults(DataService dataService) {
         this.dataService = dataService;
 
         H2 scoreBoardTitle = new H2("Score Board Bets");
+
+        HorizontalLayout scoreFields = new HorizontalLayout();
+
+        team1Score = new TextField("Chiefs");
+        team2Score = new TextField("Eagles");
+
+        Button submitScore = new Button("Submit Score");
+        submitScore.addClickListener(e -> {
+            dataService.saveScore(team1Score.getLabel(), team1Score.getValue(), team2Score.getLabel(), team2Score.getValue());
+
+            Notification.show("Score saved!");
+
+            submitScore.getUI().ifPresent(ui -> ui.navigate(""));
+        });
+
+        scoreFields.add(team1Score, team2Score);
+
         Hr separator1 = new Hr();
-        add(scoreBoardTitle, separator1);
+        add(scoreBoardTitle, scoreFields, submitScore, separator1);
 
         H2 propBetsTitle = new H2("PropBets");
         add(propBetsTitle);
@@ -51,20 +73,18 @@ public class SaveResults extends VerticalLayout implements BeforeEnterObserver {
         displayResults(results);
         propBetsResults.clear();
 
-        Hr separator2 = new Hr();
-
-        Button submit = new Button("Submit");
-        submit.addClickListener(e -> {
+        Button submitPropBets = new Button("Submit PropBets");
+        submitPropBets.addClickListener(e -> {
             propBetsResults.forEach(this.dataService::saveResult);
 
             Notification.show("Results saved!");
 
             propBetsResults.clear();
 
-            submit.getUI().ifPresent(ui -> ui.navigate(""));
+            submitPropBets.getUI().ifPresent(ui -> ui.navigate(""));
         });
 
-        add(separator2, submit);
+        add(submitPropBets);
     }
 
     private void handlePropBetSelection(String betType, String winningValue) {
