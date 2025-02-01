@@ -86,14 +86,13 @@ public class Profile extends VerticalLayout {
                 Notification.show("Failed to upload file: " + e.getMessage());
             }
         });
-        Button saveButton = new Button("Save", event -> saveProfile());
+        Button saveButton = new Button("Save");
+        saveButton.addClickListener(e -> {
+            userService.updateUser(username, firstNameField.getValue(), lastNameField.getValue(), image.getData());
+
+            Notification.show("Profile updated successfully");
+        });
 
         add(usernameParagraph, nameFields, profileImage, upload, saveButton);
-    }
-
-    private void saveProfile() {
-        userService.updateUser(username, firstNameField.getValue(), lastNameField.getValue(), image.getData());
-
-        Notification.show("Profile updated successfully");
     }
 }
