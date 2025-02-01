@@ -859,6 +859,20 @@ class DataServiceTest {
     }
 
     @Test
+    void getIsScoreBoardEventsTracker() {
+        Document scoreBoardEventsTracker = new Document();
+        scoreBoardEventsTracker.append("isScoreBoardEventsTracker", true)
+                               .append("totalAmountOfBets", 84.0)
+                               .append("numberOfWinningEvents", 8)
+                               .append("totalAmountWonPerEvent", 10.5);
+
+        when(mockScoreCollection.find(eq(any()))).thenReturn(mockScoreFindIterable);
+        when(mockScoreFindIterable.first()).thenReturn(scoreBoardEventsTracker);
+
+        verify(dataService.getIsScoreBoardEventsTracker().toString());
+    }
+
+    @Test
     void updateScoreBoardEventsTracker() {
         Document scoreBoardEventsTracker = new Document();
         scoreBoardEventsTracker.append("isScoreBoardEventsTracker", true)

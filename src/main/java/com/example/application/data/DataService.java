@@ -429,7 +429,7 @@ public class DataService {
         Document foundPropBetsSummary = propBetsSummaryCollection.find(and(eq(BET_TYPE, SCORE_BET_TYPE), eq(BET_VALUE, betValue))).first();
 
         if (foundPropBetsSummary != null) {
-            Document scoreBoardEventsTracker = scoreCollection.find(eq("isScoreBoardEventsTracker", true)).first();
+            Document scoreBoardEventsTracker = getIsScoreBoardEventsTracker();
             final Double[] totalAmountWonPerEvent = {0.0};
 
             if (scoreBoardEventsTracker != null) {
@@ -452,6 +452,10 @@ public class DataService {
                                                .append(team2Name, team2Score);
 
         collection.insertOne(scoreDocument);
+    }
+
+    public Document getIsScoreBoardEventsTracker() {
+        return scoreCollection.find(eq("isScoreBoardEventsTracker", true)).first();
     }
 
     public void updateScoreBoardEventsTracker(Document scoreBoardEventsTracker, Double[] totalAmountWonPerEvent) {

@@ -1,0 +1,1 @@
+Document{{isScoreBoardEventsTracker=true, totalAmountOfBets=84.0, numberOfWinningEvents=8, totalAmountWonPerEvent=10.5}}
