@@ -17,6 +17,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
+import org.bson.Document;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,8 @@ public class PlaceBets extends VerticalLayout {
 
     private final DataService dataService;
 
+    private Boolean isScoreBoardBetsLocked = false;
+
     private final Map<String, String> scoreBoardBets = new HashMap<>();
     private final Map<String, String> propBets = new HashMap<>();
 
@@ -42,6 +45,11 @@ public class PlaceBets extends VerticalLayout {
 
     public PlaceBets(DataService dataService) {
         this.dataService = dataService;
+        Document scoreBoardEventsTracker = dataService.getIsScoreBoardEventsTracker();
+
+        if (scoreBoardEventsTracker != null) {
+            isScoreBoardBetsLocked = true;
+        }
 
         H2 scoreBoardTitle = new H2("Score Board");
 
@@ -135,6 +143,7 @@ public class PlaceBets extends VerticalLayout {
 
         IntStream.rangeClosed(0, 9).forEach(col -> {
             Button cellButton = new Button(row + "," + col);
+            cellButton.setEnabled(!isScoreBoardBetsLocked);
             cellButton.addClickListener(e -> handleScoreBoardSelection(cellButton));
             rows.add(cellButton);
         });
@@ -190,7 +199,10 @@ public class PlaceBets extends VerticalLayout {
                                    userBet.betType());
 
                 findButtonByValue(userBet.betValue()).ifPresent(button -> button.addClassName("selected"));
-                increaseBetCounter();
+
+                if (!isScoreBoardBetsLocked) {
+                    increaseBetCounter();
+                }
             } else {
                 propBets.put(userBet.betType(),
                              userBet.betValue());
