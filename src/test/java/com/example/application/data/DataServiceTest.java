@@ -1054,43 +1054,27 @@ class DataServiceTest {
 
     @Test
     void lockPropBets() {
-        String propBetType = "Proposal";
-        String propBetValue1 = "Yes";
-        String propBetValue2 = "No";
-        String question = "Will Kelce propose at the game?";
-        String scoreBetType = "Score";
-        String scoreBetValue = "1,1";
+        String propBetType1 = "Proposal";
+        String propBetType2 = "Coin Toss";
 
-        Document mockPropBetsSummaryDocument1 = new Document();
-        mockPropBetsSummaryDocument1.append("betType", propBetType)
-                                    .append("betValue", propBetValue1)
-                                    .append("betters", List.of("jane_doe", "john_doe"))
-                                    .append("question", question)
-                                    .append("isWinner", true);
+        Document mockPropBetsDocument1 = new Document();
+        mockPropBetsDocument1.append("name", propBetType1)
+                             .append("question", "Will Kelce propose at the game?")
+                             .append("choices", List.of("Yes", "No"));
 
-        Document mockPropBetsSummaryDocument2 = new Document();
-        mockPropBetsSummaryDocument2.append("betType", propBetType)
-                                    .append("betValue", propBetValue2)
-                                    .append("betters", List.of("jack_doe", "jill_doe"))
-                                    .append("question", question)
-                                    .append("isWinner", false);
+        Document mockPropBetsDocument2 = new Document();
+        mockPropBetsDocument2.append("name", propBetType2)
+                             .append("question", "What is the result of the coin toss?")
+                             .append("choices", List.of("Heads", "Tails"));
 
-        Document mockPropBetsSummaryDocument3 = new Document();
-        mockPropBetsSummaryDocument3.append("betType", scoreBetType)
-                                    .append("betValue", scoreBetValue)
-                                    .append("betters", List.of("jack_doe", "jill_doe"));
-
-        when(mockPropBetsSummaryCollection.find()).thenReturn(mockPropBetsSummaryFindIterable1);
-        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, true, true, false);
-        when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2, mockPropBetsSummaryDocument3);
+        when(mockPropBetsCollection.find()).thenReturn(mockPropBetsFindIterable);
+        when(mockPropBetsFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, true, false);
+        when(mockCursor.next()).thenReturn(mockPropBetsDocument1, mockPropBetsDocument2);
 
         dataService.lockPropBets();
 
-        Mockito.verify(mockPropBetsSummaryCollection)
-               .updateOne(and(eq("betType", propBetType), eq("betValue", propBetValue1)), Updates.set("isLocked", true));
-        Mockito.verify(mockPropBetsSummaryCollection)
-               .updateOne(and(eq("betType", propBetType), eq("betValue", propBetValue2)), Updates.set("isLocked", true));
-        Mockito.verify(mockPropBetsSummaryCollection, never()).updateOne(and(eq("betType", scoreBetType), eq("betValue", scoreBetValue)), Updates.set("isLocked", true));
+        Mockito.verify(mockPropBetsCollection).updateOne(eq("name", propBetType1), Updates.set("isLocked", true));
+        Mockito.verify(mockPropBetsCollection).updateOne(eq("name", propBetType2), Updates.set("isLocked", true));
     }
 }
