@@ -184,7 +184,8 @@ public class DataService {
 
                 PropBet propBet = new PropBet(document.getString(NAME),
                                               document.getString(QUESTION),
-                                              document.getList(CHOICES, String.class));
+                                              document.getList(CHOICES, String.class),
+                                              Optional.ofNullable(document.getBoolean(IS_LOCKED)));
 
                 propBets.add(propBet);
             }

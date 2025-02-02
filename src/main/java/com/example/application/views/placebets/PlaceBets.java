@@ -79,7 +79,12 @@ public class PlaceBets extends VerticalLayout {
         List<PropBet> propBetList = this.dataService.getPropBets();
         propBetList.forEach(propBet -> {
             RadioButtonGroup<String> bet = createPropBet(propBet.name(), propBet.question(), propBet.choices());
-            bet.addValueChangeListener(e -> handlePropBetSelection(bet.getClassName(), e.getValue()));
+            bet.setEnabled(!propBet.isLocked().orElse(false));
+            bet.addValueChangeListener(e -> {
+                if (bet.isEnabled()) {
+                    handlePropBetSelection(bet.getClassName(), e.getValue());
+                }
+            });
             add(bet);
         });
 
@@ -195,18 +200,19 @@ public class PlaceBets extends VerticalLayout {
     private void displayUserBets(List<UserBet> userBets) {
         userBets.forEach(userBet -> {
             if (userBet.betType().equals("Score")) {
-                if (!isScoreBoardBetsLocked) {
-                    scoreBoardBets.put(userBet.betValue(),
-                                       userBet.betType());
-                    increaseBetCounter();
-                }
+                findButtonByValue(userBet.betValue()).ifPresent(button -> {
+                    button.addClassName("selected");
 
-                findButtonByValue(userBet.betValue()).ifPresent(button -> button.addClassName("selected"));
+                    if (button.isEnabled()) {
+                        scoreBoardBets.put(userBet.betValue(),
+                                           userBet.betType());
+                        increaseBetCounter();
+                    }
+                });
             } else {
-                propBets.put(userBet.betType(),
-                             userBet.betValue());
-
-                Utils.findRadioButtonGroup(this, userBet.betType()).ifPresent(group -> group.setValue(userBet.betValue()));
+                Utils.findRadioButtonGroup(this, userBet.betType()).ifPresent(group -> {
+                    group.setValue(userBet.betValue());
+                });
             }
         });
     }

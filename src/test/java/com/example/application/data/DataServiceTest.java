@@ -219,11 +219,31 @@ class DataServiceTest {
     }
 
     @Test
-    void getPropBets() {
+    void getPropBets_whenIsLockedIsEmpty() {
         Document mockPropBetDocument = new Document();
         mockPropBetDocument.append("name", "Super Bowl MVP")
                           .append("question", "Who will be the Super Bowl MVP?")
                           .append("choices", List.of("Tom Brady", "Patrick Mahomes", "Aaron Rodgers", "Josh Allen"));
+
+        when(mockPropBetsCollection.find()).thenReturn(mockPropBetsFindIterable);
+        when(mockPropBetsFindIterable.iterator()).thenReturn(mockCursor);
+        when(mockCursor.hasNext()).thenReturn(true, false);
+        when(mockCursor.next()).thenReturn(mockPropBetDocument);
+
+        verify(dataService.getPropBets()
+                          .stream()
+                          .map(PropBet::toString)
+                          .reduce("", (s1, s2) -> s1 + s2 + "\n"));
+        Mockito.verify(mockCursor, times(1)).close();
+    }
+
+    @Test
+    void getPropBets_whenIsLockedIsTrue() {
+        Document mockPropBetDocument = new Document();
+        mockPropBetDocument.append("name", "Super Bowl MVP")
+                          .append("question", "Who will be the Super Bowl MVP?")
+                          .append("choices", List.of("Tom Brady", "Patrick Mahomes", "Aaron Rodgers", "Josh Allen"))
+                          .append("isLocked", true);
 
         when(mockPropBetsCollection.find()).thenReturn(mockPropBetsFindIterable);
         when(mockPropBetsFindIterable.iterator()).thenReturn(mockCursor);
