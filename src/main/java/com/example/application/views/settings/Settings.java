@@ -24,7 +24,7 @@ public class Settings extends VerticalLayout implements BeforeEnterObserver {
             dataService.createScoreBoardEventsTracker();
             dataService.lockPropBets();
 
-            Notification.show("All open bets have been turned off.");
+            Notification.show("All open bets are now closed.");
 
             lockBetsButton.getUI().ifPresent(ui -> ui.navigate(""));
         });
