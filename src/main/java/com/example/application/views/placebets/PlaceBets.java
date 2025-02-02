@@ -195,14 +195,13 @@ public class PlaceBets extends VerticalLayout {
     private void displayUserBets(List<UserBet> userBets) {
         userBets.forEach(userBet -> {
             if (userBet.betType().equals("Score")) {
-                scoreBoardBets.put(userBet.betValue(),
-                                   userBet.betType());
-
-                findButtonByValue(userBet.betValue()).ifPresent(button -> button.addClassName("selected"));
-
                 if (!isScoreBoardBetsLocked) {
+                    scoreBoardBets.put(userBet.betValue(),
+                                       userBet.betType());
                     increaseBetCounter();
                 }
+
+                findButtonByValue(userBet.betValue()).ifPresent(button -> button.addClassName("selected"));
             } else {
                 propBets.put(userBet.betType(),
                              userBet.betValue());
