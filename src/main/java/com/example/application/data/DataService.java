@@ -557,8 +557,11 @@ public class DataService {
 
     public void lockPropBets() {
         List<PropBet> propBets = getPropBets();
+        List<UserBet> userBets = getUserBets();
 
         propBets.forEach(
                 propBet -> propBetsCollection.updateOne(eq(NAME, propBet.name()), Updates.set(IS_LOCKED, true)));
+        userBets.forEach(
+                userBet -> userBetsCollection.updateOne(and(eq(USERNAME, userBet.username()), eq(BET_TYPE, userBet.betType()), eq(BET_VALUE, userBet.betValue())), Updates.set(IS_LOCKED, true)));
     }
 }

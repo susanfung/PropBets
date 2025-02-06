@@ -21,8 +21,8 @@ public class Settings extends VerticalLayout implements BeforeEnterObserver {
 
         Button lockBetsButton = new Button("Lock Bets");
         lockBetsButton.addClickListener(e -> {
-            dataService.createScoreBoardEventsTracker();
             dataService.lockPropBets();
+            dataService.createScoreBoardEventsTracker();
 
             Notification.show("All open bets are now closed.");
 

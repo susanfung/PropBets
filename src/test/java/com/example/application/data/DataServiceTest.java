@@ -93,7 +93,10 @@ class DataServiceTest {
     private FindIterable<Document> mockScoreFindIterable;
 
     @Mock
-    private MongoCursor<Document> mockCursor;
+    private MongoCursor<Document> mockCursor1;
+
+    @Mock
+    private MongoCursor<Document> mockCursor2;
 
     private DataService dataService;
 
@@ -123,15 +126,15 @@ class DataServiceTest {
                                    .append("netAmount", 50.0);
 
         when(mockUserBetsSummaryCollection.find()).thenReturn(mockUserBetsSummaryFindIterable1);
-        when(mockUserBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, false);
-        when(mockCursor.next()).thenReturn(mockUserBetsSummaryDocument);
+        when(mockUserBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, false);
+        when(mockCursor1.next()).thenReturn(mockUserBetsSummaryDocument);
 
         verify(dataService.getUserBetsSummary()
                           .stream()
                           .map(UserBetsSummary::toString)
                           .reduce("", (s1, s2) -> s1 + s2 + "\n"));
-        Mockito.verify(mockCursor, times(1)).close();
+        Mockito.verify(mockCursor1, times(1)).close();
     }
 
     @Test
@@ -160,15 +163,15 @@ class DataServiceTest {
                                     .append("betters", List.of("jack_doe", "jill_doe"));
 
         when(mockPropBetsSummaryCollection.find()).thenReturn(mockPropBetsSummaryFindIterable1);
-        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, true, true, false);
-        when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2, mockPropBetsSummaryDocument3);
+        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, true, true, false);
+        when(mockCursor1.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2, mockPropBetsSummaryDocument3);
 
         verify(dataService.getPropBetsSummary()
                           .stream()
                           .map(PropBetsSummary::toString)
                           .reduce("", (s1, s2) -> s1 + s2 + "\n"));
-        Mockito.verify(mockCursor, times(1)).close();
+        Mockito.verify(mockCursor1, times(1)).close();
     }
 
     @Test
@@ -187,16 +190,16 @@ class DataServiceTest {
                                     .append("betters", List.of("jack_doe", "jill_doe"));
 
         when(mockPropBetsSummaryCollection.find()).thenReturn(mockPropBetsSummaryFindIterable1);
-        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, true, false);
-        when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
+        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, true, false);
+        when(mockCursor1.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
 
         List<ScoreBoardBetsSummary> result = dataService.getScoreBoardBetsSummary();
 
         verify(result.stream()
                      .map(entry -> entry.betValue() + ":\n" + entry.betters() + ":\n" + entry.count())
                      .reduce("", (s1, s2) -> s1 + s2 + "\n"));
-        Mockito.verify(mockCursor, times(1)).close();
+        Mockito.verify(mockCursor1, times(1)).close();
     }
 
     @Test
@@ -207,15 +210,15 @@ class DataServiceTest {
                           .append("betValue", "100");
 
         when(mockUserBetsCollection.find()).thenReturn(mockUserBetsFindIterable);
-        when(mockUserBetsFindIterable.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, false);
-        when(mockCursor.next()).thenReturn(mockUserBetDocument);
+        when(mockUserBetsFindIterable.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, false);
+        when(mockCursor1.next()).thenReturn(mockUserBetDocument);
 
         verify(dataService.getUserBets()
                           .stream()
                           .map(UserBet::toString)
                           .reduce("", (s1, s2) -> s1 + s2 + "\n"));
-        Mockito.verify(mockCursor, times(1)).close();
+        Mockito.verify(mockCursor1, times(1)).close();
     }
 
     @Test
@@ -226,15 +229,15 @@ class DataServiceTest {
                           .append("choices", List.of("Tom Brady", "Patrick Mahomes", "Aaron Rodgers", "Josh Allen"));
 
         when(mockPropBetsCollection.find()).thenReturn(mockPropBetsFindIterable);
-        when(mockPropBetsFindIterable.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, false);
-        when(mockCursor.next()).thenReturn(mockPropBetDocument);
+        when(mockPropBetsFindIterable.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, false);
+        when(mockCursor1.next()).thenReturn(mockPropBetDocument);
 
         verify(dataService.getPropBets()
                           .stream()
                           .map(PropBet::toString)
                           .reduce("", (s1, s2) -> s1 + s2 + "\n"));
-        Mockito.verify(mockCursor, times(1)).close();
+        Mockito.verify(mockCursor1, times(1)).close();
     }
 
     @Test
@@ -246,15 +249,15 @@ class DataServiceTest {
                           .append("isLocked", true);
 
         when(mockPropBetsCollection.find()).thenReturn(mockPropBetsFindIterable);
-        when(mockPropBetsFindIterable.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, false);
-        when(mockCursor.next()).thenReturn(mockPropBetDocument);
+        when(mockPropBetsFindIterable.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, false);
+        when(mockCursor1.next()).thenReturn(mockPropBetDocument);
 
         verify(dataService.getPropBets()
                           .stream()
                           .map(PropBet::toString)
                           .reduce("", (s1, s2) -> s1 + s2 + "\n"));
-        Mockito.verify(mockCursor, times(1)).close();
+        Mockito.verify(mockCursor1, times(1)).close();
     }
 
     @Test
@@ -267,15 +270,15 @@ class DataServiceTest {
                            .append("betValue", "100");
 
         when(mockUserBetsCollection.find(eq(any()))).thenReturn(mockUserBetsFindIterable);
-        when(mockUserBetsFindIterable.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, false);
-        when(mockCursor.next()).thenReturn(mockUserBetDocument);
+        when(mockUserBetsFindIterable.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, false);
+        when(mockCursor1.next()).thenReturn(mockUserBetDocument);
 
         verify(dataService.findUserBetsByUsername(username)
                           .stream()
                           .map(UserBet::toString)
                           .reduce("", (s1, s2) -> s1 + s2 + "\n"));
-        Mockito.verify(mockCursor, times(1)).close();
+        Mockito.verify(mockCursor1, times(1)).close();
     }
 
     @Test
@@ -285,15 +288,15 @@ class DataServiceTest {
                            .append("winningBetValue", "100");
 
         when(mockResultsCollection.find()).thenReturn(mockResultsFindIterable);
-        when(mockResultsFindIterable.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, false);
-        when(mockCursor.next()).thenReturn(mockResultsDocument);
+        when(mockResultsFindIterable.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, false);
+        when(mockCursor1.next()).thenReturn(mockResultsDocument);
 
         verify(dataService.findResults()
                           .stream()
                           .map(Result::toString)
                           .reduce("", (s1, s2) -> s1 + s2 + "\n"));
-        Mockito.verify(mockCursor, times(1)).close();
+        Mockito.verify(mockCursor1, times(1)).close();
     }
 
     @Test
@@ -694,9 +697,9 @@ class DataServiceTest {
         when(mockScoreCollection.find(eq("isScoreBoardEventsTracker", true))).thenReturn(mockScoreFindIterable);
         when(mockScoreFindIterable.first()).thenReturn(scoreBoardEventsTracker);
         when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), exists("count")))).thenReturn(mockPropBetsSummaryFindIterable2);
-        when(mockPropBetsSummaryFindIterable2.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, true, false);
-        when(mockCursor.next()).thenReturn(winningPropBetsSummary1, winningPropBetsSummary2);
+        when(mockPropBetsSummaryFindIterable2.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, true, false);
+        when(mockCursor1.next()).thenReturn(winningPropBetsSummary1, winningPropBetsSummary2);
         when(mockUserBetsSummaryCollection.find(eq("username", username1))).thenReturn(mockUserBetsSummaryFindIterable1);
         when(mockUserBetsSummaryFindIterable1.first()).thenReturn(username1UserBetsSummary);
         when(mockUserBetsSummaryCollection.find(eq("username", username2))).thenReturn(mockUserBetsSummaryFindIterable2);
@@ -804,9 +807,9 @@ class DataServiceTest {
         when(mockScoreCollection.find(eq("isScoreBoardEventsTracker", true))).thenReturn(mockScoreFindIterable);
         when(mockScoreFindIterable.first()).thenReturn(scoreBoardEventsTracker);
         when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), exists("count")))).thenReturn(mockPropBetsSummaryFindIterable2);
-        when(mockPropBetsSummaryFindIterable2.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, true, false);
-        when(mockCursor.next()).thenReturn(winningPropBetsSummary1, winningPropBetsSummary2);
+        when(mockPropBetsSummaryFindIterable2.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, true, false);
+        when(mockCursor1.next()).thenReturn(winningPropBetsSummary1, winningPropBetsSummary2);
         when(mockUserBetsSummaryCollection.find(eq("username", username1))).thenReturn(mockUserBetsSummaryFindIterable1);
         when(mockUserBetsSummaryFindIterable1.first()).thenReturn(username1UserBetsSummary);
         when(mockUserBetsSummaryCollection.find(eq("username", username2))).thenReturn(mockUserBetsSummaryFindIterable2);
@@ -963,9 +966,9 @@ class DataServiceTest {
                                .append("count", 2);
 
         when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), exists("count")))).thenReturn(mockPropBetsSummaryFindIterable1);
-        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, true, false);
-        when(mockCursor.next()).thenReturn(winningPropBetsSummary1, winningPropBetsSummary2);
+        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, true, false);
+        when(mockCursor1.next()).thenReturn(winningPropBetsSummary1, winningPropBetsSummary2);
 
         dataService.findAllWinningScoreEvents(winningBettersCountMap, winningBettersTotalMap, new Double[]{9.33});
 
@@ -1060,9 +1063,9 @@ class DataServiceTest {
                                     .append("betters", List.of("jane_doe", "john_doe"));
 
         when(mockPropBetsSummaryCollection.find()).thenReturn(mockPropBetsSummaryFindIterable1);
-        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, true, false);
-        when(mockCursor.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
+        when(mockPropBetsSummaryFindIterable1.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, true, false);
+        when(mockCursor1.next()).thenReturn(mockPropBetsSummaryDocument1, mockPropBetsSummaryDocument2);
 
         dataService.createScoreBoardEventsTracker();
 
@@ -1074,27 +1077,48 @@ class DataServiceTest {
 
     @Test
     void lockPropBets() {
-        String propBetType1 = "Proposal";
-        String propBetType2 = "Coin Toss";
+        String username = "john_doe";
+        String betType1 = "Proposal";
+        String betType2 = "Coin Toss";
+        String betValue1 = "Yes";
+        String betValue2 = "Heads";
 
         Document mockPropBetsDocument1 = new Document();
-        mockPropBetsDocument1.append("name", propBetType1)
+        mockPropBetsDocument1.append("name", betType1)
                              .append("question", "Will Kelce propose at the game?")
                              .append("choices", List.of("Yes", "No"));
 
         Document mockPropBetsDocument2 = new Document();
-        mockPropBetsDocument2.append("name", propBetType2)
+        mockPropBetsDocument2.append("name", betType2)
                              .append("question", "What is the result of the coin toss?")
                              .append("choices", List.of("Heads", "Tails"));
 
+        Document mockUserBetsDocument1 = new Document();
+        mockUserBetsDocument1.append("username", username)
+                             .append("betType", betType1)
+                             .append("betValue", betValue1);
+
+        Document mockUserBetsDocument2 = new Document();
+        mockUserBetsDocument2.append("username", username)
+                             .append("betType", betType2)
+                             .append("betValue", betValue2);
+
         when(mockPropBetsCollection.find()).thenReturn(mockPropBetsFindIterable);
-        when(mockPropBetsFindIterable.iterator()).thenReturn(mockCursor);
-        when(mockCursor.hasNext()).thenReturn(true, true, false);
-        when(mockCursor.next()).thenReturn(mockPropBetsDocument1, mockPropBetsDocument2);
+        when(mockPropBetsFindIterable.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, true, false);
+        when(mockCursor1.next()).thenReturn(mockPropBetsDocument1, mockPropBetsDocument2);
+        when(mockUserBetsCollection.find()).thenReturn(mockUserBetsFindIterable);
+        when(mockUserBetsFindIterable.iterator()).thenReturn(mockCursor2);
+        when(mockCursor2.hasNext()).thenReturn(true, true, false);
+        when(mockCursor2.next()).thenReturn(mockUserBetsDocument1, mockUserBetsDocument2);
 
         dataService.lockPropBets();
 
-        Mockito.verify(mockPropBetsCollection).updateOne(eq("name", propBetType1), Updates.set("isLocked", true));
-        Mockito.verify(mockPropBetsCollection).updateOne(eq("name", propBetType2), Updates.set("isLocked", true));
+        Mockito.verify(mockPropBetsCollection).updateOne(eq("name", betType1), Updates.set("isLocked", true));
+        Mockito.verify(mockPropBetsCollection).updateOne(eq("name", betType2), Updates.set("isLocked", true));
+        Mockito.verify(mockUserBetsCollection)
+               .updateOne(and(eq("username", username), eq("betType", betType1), eq("betValue", betValue1)), Updates.set("isLocked", true));
+        Mockito.verify(mockUserBetsCollection)
+               .updateOne(and(eq("username", username), eq("betType", betType2), eq("betValue", betValue2)), Updates.set("isLocked", true));
     }
 }
