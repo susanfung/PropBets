@@ -4,8 +4,10 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +26,6 @@ import static com.example.application.views.placebets.PlaceBets.AMOUNT_PER_BET;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;
-import static com.mongodb.client.model.Filters.ne;
 
 @Service
 public class DataService {
@@ -244,16 +245,20 @@ public class DataService {
     }
 
     public void deletePreviousBets(String username) {
-        userBetsCollection.deleteMany(eq(USERNAME, username));
+        Bson isLockedFilter = Filters.not(exists(IS_LOCKED));
 
-        propBetsSummaryCollection.updateMany(eq(BETTERS, username), Updates.pull(BETTERS, username));
+        Bson filter = Filters.and(eq(USERNAME, username), isLockedFilter);
+        userBetsCollection.deleteMany(filter);
 
-        propBetsSummaryCollection.deleteMany(eq(BETTERS, Collections.emptyList()));
+        Bson updateFilter = Filters.and(eq(BETTERS, username), isLockedFilter);
+        propBetsSummaryCollection.updateMany(updateFilter, Updates.pull(BETTERS, username));
+
+        Bson deleteEmptyFilter = Filters.and(eq(BETTERS, Collections.emptyList()), isLockedFilter);
+        propBetsSummaryCollection.deleteMany(deleteEmptyFilter);
     }
 
-    public void saveScoreBoardBets(String username, Map<String, String> bets) {
-        userBetsCollection.deleteMany(and(eq(USERNAME, username), eq(BET_TYPE, "Score")));
 
+    public void saveScoreBoardBets(String username, Map<String, String> bets) {
         bets.forEach((betValue, betType) -> {
             UserBet bet = new UserBet(username, betType, betValue);
             addUserBet(bet);
@@ -262,8 +267,6 @@ public class DataService {
     }
 
     public void savePropBets(String username, Map<String, String> bets) {
-        userBetsCollection.deleteMany(and(eq(USERNAME, username), ne(BET_TYPE, "Score")));
-
         bets.forEach((betType, betValue) -> {
             UserBet bet = new UserBet(username, betType, betValue);
             addUserBet(bet);

@@ -5,6 +5,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -206,8 +207,8 @@ class DataServiceTest {
     void getUserBets() {
         Document mockUserBetDocument = new Document();
         mockUserBetDocument.append("username", "john_doe")
-                          .append("betType", "Team 1 Score")
-                          .append("betValue", "100");
+                           .append("betType", "Team 1 Score")
+                           .append("betValue", "100");
 
         when(mockUserBetsCollection.find()).thenReturn(mockUserBetsFindIterable);
         when(mockUserBetsFindIterable.iterator()).thenReturn(mockCursor1);
@@ -225,8 +226,8 @@ class DataServiceTest {
     void getPropBets_whenIsLockedIsEmpty() {
         Document mockPropBetDocument = new Document();
         mockPropBetDocument.append("name", "Super Bowl MVP")
-                          .append("question", "Who will be the Super Bowl MVP?")
-                          .append("choices", List.of("Tom Brady", "Patrick Mahomes", "Aaron Rodgers", "Josh Allen"));
+                           .append("question", "Who will be the Super Bowl MVP?")
+                           .append("choices", List.of("Tom Brady", "Patrick Mahomes", "Aaron Rodgers", "Josh Allen"));
 
         when(mockPropBetsCollection.find()).thenReturn(mockPropBetsFindIterable);
         when(mockPropBetsFindIterable.iterator()).thenReturn(mockCursor1);
@@ -244,9 +245,9 @@ class DataServiceTest {
     void getPropBets_whenIsLockedIsTrue() {
         Document mockPropBetDocument = new Document();
         mockPropBetDocument.append("name", "Super Bowl MVP")
-                          .append("question", "Who will be the Super Bowl MVP?")
-                          .append("choices", List.of("Tom Brady", "Patrick Mahomes", "Aaron Rodgers", "Josh Allen"))
-                          .append("isLocked", true);
+                           .append("question", "Who will be the Super Bowl MVP?")
+                           .append("choices", List.of("Tom Brady", "Patrick Mahomes", "Aaron Rodgers", "Josh Allen"))
+                           .append("isLocked", true);
 
         when(mockPropBetsCollection.find()).thenReturn(mockPropBetsFindIterable);
         when(mockPropBetsFindIterable.iterator()).thenReturn(mockCursor1);
@@ -318,16 +319,20 @@ class DataServiceTest {
     @Test
     void deletePreviousBets() {
         String username = "john_doe";
+        Bson isLockedFilter = Filters.not(exists("isLocked"));
+        Bson filter = Filters.and(eq("username", username), isLockedFilter);
+        Bson updateFilter = Filters.and(eq("betters", username), isLockedFilter);
+        Bson deleteEmptyFilter = Filters.and(eq("betters", Collections.emptyList()), isLockedFilter);
 
-        when(mockUserBetsCollection.deleteMany(any())).thenReturn(null);
-        when(mockPropBetsSummaryCollection.updateMany(any(), Updates.pull("betters", any()))).thenReturn(null);
-        when(mockPropBetsSummaryCollection.deleteMany(eq("betters", any()))).thenReturn(null);
+        when(mockUserBetsCollection.deleteMany(filter)).thenReturn(null);
+        when(mockPropBetsSummaryCollection.updateMany(updateFilter, Updates.pull("betters", username))).thenReturn(null);
+        when(mockPropBetsSummaryCollection.deleteMany(deleteEmptyFilter)).thenReturn(null);
 
         dataService.deletePreviousBets(username);
 
-        Mockito.verify(mockUserBetsCollection, times(1)).deleteMany(eq("username", username));
-        Mockito.verify(mockPropBetsSummaryCollection, times(1)).updateMany(eq("betters", username), Updates.pull("betters", username));
-        Mockito.verify(mockPropBetsSummaryCollection, times(1)).deleteMany(eq("betters", Collections.emptyList()));
+        Mockito.verify(mockUserBetsCollection, times(1)).deleteMany(filter);
+        Mockito.verify(mockPropBetsSummaryCollection, times(1)).updateMany(updateFilter, Updates.pull("betters", username));
+        Mockito.verify(mockPropBetsSummaryCollection, times(1)).deleteMany(deleteEmptyFilter);
     }
 
     @Test
@@ -499,7 +504,8 @@ class DataServiceTest {
 
     @Test
     void createNewPropBet() {
-        dataService.createNewPropBet("Super Bowl MVP", "Who will be the Super Bowl MVP?", "Tom Brady, Patrick Mahomes, Aaron Rodgers, Josh Allen");
+        dataService.createNewPropBet("Super Bowl MVP", "Who will be the Super Bowl MVP?",
+                                     "Tom Brady, Patrick Mahomes, Aaron Rodgers, Josh Allen");
 
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
 
@@ -601,16 +607,21 @@ class DataServiceTest {
         ArgumentCaptor<Document> resultsCaptor = ArgumentCaptor.forClass(Document.class);
 
         Mockito.verify(mockResultsCollection, times(1)).insertOne(resultsCaptor.capture());
-        Mockito.verify(mockPropBetsSummaryCollection, times(2)).updateOne(and(eq("betvalue", any()), eq("betValue", winningBetValue)), Updates.set("isWinner", any()));
-        Mockito.verify(mockPropBetsSummaryCollection).updateOne(and(eq("betType", betType), eq("betValue", winningBetValue)), Updates.set("isWinner", true));
-        Mockito.verify(mockPropBetsSummaryCollection).updateOne(and(eq("betType", betType), eq("betValue", losingBetValue)), Updates.set("isWinner", false));
+        Mockito.verify(mockPropBetsSummaryCollection, times(2))
+               .updateOne(and(eq("betvalue", any()), eq("betValue", winningBetValue)), Updates.set("isWinner", any()));
+        Mockito.verify(mockPropBetsSummaryCollection)
+               .updateOne(and(eq("betType", betType), eq("betValue", winningBetValue)), Updates.set("isWinner", true));
+        Mockito.verify(mockPropBetsSummaryCollection)
+               .updateOne(and(eq("betType", betType), eq("betValue", losingBetValue)), Updates.set("isWinner", false));
         Mockito.verify(mockUserBetsSummaryCollection)
                .updateOne(eq("username", winningUsername1),
                           Updates.combine(Updates.set("numberOfPropBetsWon", numberOfPropBetsWon + 1),
                                           Updates.set("amountOfPropBetsWon", updatedAmountOfPropBetsWon),
                                           Updates.set("numberOfBetsWon", numberOfPropBetsWon + 1),
                                           Updates.set("amountWon", updatedAmountOfPropBetsWon),
-                                          Updates.set("netAmount", BigDecimal.valueOf(updatedAmountOfPropBetsWon - amountOwing).setScale(2, RoundingMode.HALF_UP).doubleValue())));
+                                          Updates.set("netAmount", BigDecimal.valueOf(updatedAmountOfPropBetsWon - amountOwing)
+                                                                             .setScale(2, RoundingMode.HALF_UP)
+                                                                             .doubleValue())));
         Mockito.verify(mockUserBetsSummaryCollection)
                .updateOne(eq("username", winningUsername2),
                           Updates.combine(Updates.set("numberOfPropBetsWon", numberOfPropBetsWon + 1),
@@ -692,7 +703,8 @@ class DataServiceTest {
                                 .append("amountWon", 0)
                                 .append("netAmount", -20.0);
 
-        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", betValue)))).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", betValue)))).thenReturn(
+                mockPropBetsSummaryFindIterable1);
         when(mockPropBetsSummaryFindIterable1.first()).thenReturn(propBetsSummary);
         when(mockScoreCollection.find(eq("isScoreBoardEventsTracker", true))).thenReturn(mockScoreFindIterable);
         when(mockScoreFindIterable.first()).thenReturn(scoreBoardEventsTracker);
@@ -802,7 +814,8 @@ class DataServiceTest {
                                 .append("amountWon", 0)
                                 .append("netAmount", -20.0);
 
-        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", betValue)))).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", betValue)))).thenReturn(
+                mockPropBetsSummaryFindIterable1);
         when(mockPropBetsSummaryFindIterable1.first()).thenReturn(propBetsSummary);
         when(mockScoreCollection.find(eq("isScoreBoardEventsTracker", true))).thenReturn(mockScoreFindIterable);
         when(mockScoreFindIterable.first()).thenReturn(scoreBoardEventsTracker);
@@ -858,7 +871,8 @@ class DataServiceTest {
         String betType = "Score";
         String betValue = "2,0";
 
-        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", betValue)))).thenReturn(mockPropBetsSummaryFindIterable1);
+        when(mockPropBetsSummaryCollection.find(and(eq("betType", betType), eq("betValue", betValue)))).thenReturn(
+                mockPropBetsSummaryFindIterable1);
         when(mockPropBetsSummaryFindIterable1.first()).thenReturn(null);
 
         dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
