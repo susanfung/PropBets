@@ -170,8 +170,11 @@ public class PlaceBets extends VerticalLayout {
     }
 
     private void handlePropBetSelection(String betType, String betValue) {
+        if (!propBets.containsKey(betType)) {
+            increaseBetCounter();
+        }
+
         propBets.put(betType, betValue);
-        increaseBetCounter();
     }
 
     private void increaseBetCounter() {
