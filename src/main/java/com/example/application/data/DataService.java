@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.example.application.views.placebets.PlaceBets.AMOUNT_PER_BET;
+import static com.example.application.utils.Utils.AMOUNT_PER_BET;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;

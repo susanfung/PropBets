@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import static com.example.application.utils.Utils.AMOUNT_PER_BET;
 import static com.example.application.utils.Utils.TEAM_1_NAME;
 import static com.example.application.utils.Utils.TEAM_2_NAME;
 import static com.example.application.utils.Utils.createPropBet;
@@ -32,8 +33,6 @@ import static com.example.application.utils.Utils.createPropBet;
 @PageTitle("Place Bets")
 @Route(value = "placeBets", layout = MainLayout.class)
 public class PlaceBets extends VerticalLayout {
-    public static final int AMOUNT_PER_BET = 2;
-
     private final DataService dataService;
 
     private Boolean isScoreBoardBetsLocked = false;
