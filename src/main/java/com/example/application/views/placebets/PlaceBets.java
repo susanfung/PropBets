@@ -125,7 +125,7 @@ public class PlaceBets extends VerticalLayout {
             this.dataService.saveScoreBoardBets(username, scoreBoardBets);
             this.dataService.savePropBets(username, propBets);
 
-            this.dataService.updateUserBetsSummary(username, betCount);
+            this.dataService.updateUserBetsSummary(username, AMOUNT_PER_BET);
 
             Notification.show("Bet submitted!");
 
