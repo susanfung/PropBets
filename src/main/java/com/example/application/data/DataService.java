@@ -304,22 +304,25 @@ public class DataService {
         }
     }
 
-    public void updateUserBetsSummary(String username, Integer numberOfBetsMade, Integer totalBetAmount) {
+    public void updateUserBetsSummary(String username, Integer amountPerBet) {
         Document foundUser = userBetsSummaryCollection.find(eq(USERNAME, username)).first();
+        List<UserBet> userBetsList = findUserBetsByUsername(username);
+        Integer numberOfBetsMade = userBetsList.size();
+        Double amountOwing = Double.valueOf(numberOfBetsMade * amountPerBet);
 
         if (foundUser != null) {
             Double amountWon = foundUser.getDouble(AMOUNT_WON);
 
             userBetsSummaryCollection.updateOne(eq(USERNAME, username),
                                                 Updates.combine(Updates.set(NUMBER_OF_BETS_MADE, numberOfBetsMade),
-                                                                Updates.set(AMOUNT_OWING, totalBetAmount.doubleValue()),
-                                                                Updates.set(NET_AMOUNT, amountWon - totalBetAmount.doubleValue())));
+                                                                Updates.set(AMOUNT_OWING, amountOwing),
+                                                                Updates.set(NET_AMOUNT, amountWon - amountOwing)));
         } else {
             Document newUser = new Document(USERNAME, username).append(NUMBER_OF_BETS_MADE, numberOfBetsMade)
-                                                               .append(AMOUNT_OWING, totalBetAmount.doubleValue())
+                                                               .append(AMOUNT_OWING, amountOwing)
                                                                .append(NUMBER_OF_BETS_WON, 0)
                                                                .append(AMOUNT_WON, 0.0)
-                                                               .append(NET_AMOUNT, -totalBetAmount.doubleValue());
+                                                               .append(NET_AMOUNT, -amountOwing);
 
             userBetsSummaryCollection.insertOne(newUser);
         }

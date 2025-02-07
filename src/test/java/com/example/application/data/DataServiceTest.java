@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.application.views.placebets.PlaceBets.AMOUNT_PER_BET;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;
@@ -464,10 +463,26 @@ class DataServiceTest {
 
     @Test
     void updateUserBetsSummary_whenUserDoesNotExist_addsNewUserBetsSummary() {
+        String username = "john_doe";
+
+        Document mockUserBetDocument1 = new Document();
+        mockUserBetDocument1.append("username", username)
+                            .append("betType", "Team 1 Score")
+                            .append("betValue", "100");
+
+        Document mockUserBetDocument2 = new Document();
+        mockUserBetDocument2.append("username", username)
+                            .append("betType", "Proposal")
+                            .append("betValue", "Yes");
+
         when(mockUserBetsSummaryCollection.find(eq(any()))).thenReturn(mockUserBetsSummaryFindIterable1);
         when(mockUserBetsSummaryFindIterable1.first()).thenReturn(null);
+        when(mockUserBetsCollection.find(eq(any()))).thenReturn(mockUserBetsFindIterable);
+        when(mockUserBetsFindIterable.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, true, false);
+        when(mockCursor1.next()).thenReturn(mockUserBetDocument1, mockUserBetDocument2);
 
-        dataService.updateUserBetsSummary("john_doe", 5, 5 * AMOUNT_PER_BET);
+        dataService.updateUserBetsSummary(username, 2);
 
         ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
 
@@ -479,7 +494,6 @@ class DataServiceTest {
     @Test
     void updateUserBetsSummary_whenUserExists_updatesUserBetsSummary() {
         String username = "john_doe";
-        int numberOfBetsMade = 5;
 
         Document mockUserBetsSummaryDocument = new Document();
         mockUserBetsSummaryDocument.append("username", username)
@@ -489,10 +503,24 @@ class DataServiceTest {
                                    .append("amountWon", 150.0)
                                    .append("netAmount", 50.0);
 
+        Document mockUserBetDocument1 = new Document();
+        mockUserBetDocument1.append("username", username)
+                            .append("betType", "Team 1 Score")
+                            .append("betValue", "100");
+
+        Document mockUserBetDocument2 = new Document();
+        mockUserBetDocument2.append("username", username)
+                            .append("betType", "Proposal")
+                            .append("betValue", "Yes");
+
         when(mockUserBetsSummaryCollection.find(eq(any()))).thenReturn(mockUserBetsSummaryFindIterable1);
         when(mockUserBetsSummaryFindIterable1.first()).thenReturn(mockUserBetsSummaryDocument);
+        when(mockUserBetsCollection.find(eq(any()))).thenReturn(mockUserBetsFindIterable);
+        when(mockUserBetsFindIterable.iterator()).thenReturn(mockCursor1);
+        when(mockCursor1.hasNext()).thenReturn(true, true, false);
+        when(mockCursor1.next()).thenReturn(mockUserBetDocument1, mockUserBetDocument2);
 
-        dataService.updateUserBetsSummary(username, numberOfBetsMade, numberOfBetsMade * AMOUNT_PER_BET);
+        dataService.updateUserBetsSummary(username, 2);
 
         ArgumentCaptor<Bson> filterCaptor = ArgumentCaptor.forClass(Bson.class);
         ArgumentCaptor<Bson> updateCaptor = ArgumentCaptor.forClass(Bson.class);

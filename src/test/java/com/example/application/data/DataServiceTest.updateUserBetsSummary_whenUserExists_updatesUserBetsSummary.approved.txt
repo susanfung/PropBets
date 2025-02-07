@@ -1,1 +1,1 @@
-Updates{updates=[Update{fieldName='numberOfBetsMade', operator='$set', value=5}, Update{fieldName='amountOwing', operator='$set', value=10.0}, Update{fieldName='netAmount', operator='$set', value=140.0}]}
+Updates{updates=[Update{fieldName='numberOfBetsMade', operator='$set', value=2}, Update{fieldName='amountOwing', operator='$set', value=4.0}, Update{fieldName='netAmount', operator='$set', value=146.0}]}
