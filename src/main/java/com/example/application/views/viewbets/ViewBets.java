@@ -33,7 +33,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.example.application.utils.Utils.ICON_SIZE;
+import static com.example.application.utils.Utils.TEAM_1_LOGO_SOURCE;
 import static com.example.application.utils.Utils.TEAM_1_NAME;
+import static com.example.application.utils.Utils.TEAM_2_LOGO_SOURCE;
 import static com.example.application.utils.Utils.TEAM_2_NAME;
 
 @PageTitle("View Bets")
@@ -45,7 +48,6 @@ public class ViewBets extends VerticalLayout {
 
     private static final String rowNumberWidth = "75px";
     private static final String cellWidth = "100px";
-    private static final String iconSize = "24px";
 
     private List<ScoreBoardBetsSummary> scoreBoardBetsSummary;
 
@@ -85,13 +87,23 @@ public class ViewBets extends VerticalLayout {
 
         HorizontalLayout teams = new HorizontalLayout();
 
+        Image team1Icon = new Image(TEAM_1_LOGO_SOURCE, TEAM_1_NAME);
+        team1Icon.setWidth(ICON_SIZE);
+        team1Icon.setHeight(ICON_SIZE);
+
         Button team1 = new Button(TEAM_1_NAME);
         team1.setEnabled(false);
         team1.addClassName("team-1");
+        team1.setIcon(team1Icon);
+
+        Image team2Icon = new Image(TEAM_2_LOGO_SOURCE, TEAM_2_NAME);
+        team2Icon.setWidth(ICON_SIZE);
+        team2Icon.setHeight(ICON_SIZE);
 
         Button team2 = new Button(TEAM_2_NAME);
         team1.setEnabled(false);
         team2.addClassName("team-2");
+        team2.setIcon(team2Icon);
 
         teams.add(team1, team2);
 
@@ -224,8 +236,8 @@ public class ViewBets extends VerticalLayout {
 
                 IntStream.range(0, summary.count().orElse(0)).forEach(i -> {
                     Image footballIcon = new Image("icons/nfl.svg", "NFL Logo");
-                    footballIcon.setWidth(iconSize);
-                    footballIcon.setHeight(iconSize);
+                    footballIcon.setWidth(ICON_SIZE);
+                    footballIcon.setHeight(ICON_SIZE);
 
                     iconsLayout.add(footballIcon);
                 });
@@ -271,12 +283,12 @@ public class ViewBets extends VerticalLayout {
             setPropBetSummaryButtonStyle(betValueButton);
 
             Image winnerIcon = new Image("icons/success.png", "Winner");
-            winnerIcon.setWidth(iconSize);
-            winnerIcon.setHeight(iconSize);
+            winnerIcon.setWidth(ICON_SIZE);
+            winnerIcon.setHeight(ICON_SIZE);
 
             Image loserIcon = new Image("icons/loser.png", "Loser");
-            loserIcon.setWidth(iconSize);
-            loserIcon.setHeight(iconSize);
+            loserIcon.setWidth(ICON_SIZE);
+            loserIcon.setHeight(ICON_SIZE);
 
             if (summary.isWinner() != null && summary.isWinner()) {
                 betValueButton.setIcon(winnerIcon);

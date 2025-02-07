@@ -9,9 +9,13 @@ import java.util.Optional;
 
 public class Utils {
     public static final String TEAM_1_NAME = "Kansas City Chiefs";
+    public static final String TEAM_1_LOGO_SOURCE = "icons/KC.svg";
     public static final String TEAM_2_NAME = "Philadelphia Eagles";
+    public static final String TEAM_2_LOGO_SOURCE = "icons/PHI.svg";
 
     public static final int AMOUNT_PER_BET = 2;
+
+    public static final String ICON_SIZE = "24px";
 
     public static RadioButtonGroup<String> createPropBet(String name, String question, List<String> choices) {
         RadioButtonGroup<String> propBet = new RadioButtonGroup<>();
