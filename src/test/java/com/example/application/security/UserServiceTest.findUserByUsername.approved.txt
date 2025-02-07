@@ -1,1 +1,1 @@
-Document{{username=john_doe}}
+Document{{username=JohnDoe}}

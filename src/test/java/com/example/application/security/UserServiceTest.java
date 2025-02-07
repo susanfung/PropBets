@@ -83,13 +83,13 @@ class UserServiceTest {
 
     @Test
     void findUserByUsername() {
-        String username = "john_doe";
+        String username = "JohnDoe";
 
         when(mockUsersCollection.find(eq(any()))).thenReturn(mockFindIterable);
         Document mockUsersDocument = new Document();
         mockUsersDocument.append("username", username);
         when(mockFindIterable.first()).thenReturn(mockUsersDocument);
 
-        verify(userService.findUserByUsername(username).toString());
+        verify(userService.findUserByUsername(username.toLowerCase()).toString());
     }
 }

@@ -43,6 +43,6 @@ public class UserService {
     }
 
     public Document findUserByUsername(String username) {
-        return usersCollection.find(new Document("username", username)).first();
+        return usersCollection.find(new Document("username", new Document("$regex", "^" + username + "$").append("$options", "i"))).first();
     }
 }
