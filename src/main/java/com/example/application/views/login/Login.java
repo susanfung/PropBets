@@ -82,9 +82,11 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
 
             userService.saveUser(username);
 
+            Document finalUser = userService.findUserByUsername(username);
+
             getUI().ifPresent(ui -> {
-                ui.getSession().setAttribute("username", user.getString("username"));
-                ui.getSession().setAttribute("role", user.getString("role"));
+                ui.getSession().setAttribute("username", finalUser.getString("username"));
+                ui.getSession().setAttribute("role", finalUser.getString("role"));
                 ui.navigate("viewBets");
             });
         }
