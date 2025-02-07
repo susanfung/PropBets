@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class Utils {
+    public static final String TEAM_1_NAME = "Kansas City Chiefs";
+    public static final String TEAM_2_NAME = "Philadelphia Eagles";
+
     public static RadioButtonGroup<String> createPropBet(String name, String question, List<String> choices) {
         RadioButtonGroup<String> propBet = new RadioButtonGroup<>();
         propBet.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);

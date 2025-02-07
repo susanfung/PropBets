@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.application.utils.Utils.TEAM_1_NAME;
+import static com.example.application.utils.Utils.TEAM_2_NAME;
 import static com.example.application.utils.Utils.createPropBet;
 
 @PageTitle("Save Results")
@@ -42,8 +44,8 @@ public class SaveResults extends VerticalLayout implements BeforeEnterObserver {
 
         HorizontalLayout scoreFields = new HorizontalLayout();
 
-        team1Score = new TextField("Chiefs");
-        team2Score = new TextField("Eagles");
+        team1Score = new TextField(TEAM_1_NAME);
+        team2Score = new TextField(TEAM_2_NAME);
 
         Button submitScore = new Button("Submit Score");
         submitScore.addClickListener(e -> {

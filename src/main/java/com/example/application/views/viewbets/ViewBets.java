@@ -33,6 +33,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.example.application.utils.Utils.TEAM_1_NAME;
+import static com.example.application.utils.Utils.TEAM_2_NAME;
+
 @PageTitle("View Bets")
 @Route(value = "viewBets", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
@@ -82,11 +85,11 @@ public class ViewBets extends VerticalLayout {
 
         HorizontalLayout teams = new HorizontalLayout();
 
-        Button team1 = new Button("Team 1 Score");
+        Button team1 = new Button(TEAM_1_NAME);
         team1.setEnabled(false);
         team1.addClassName("team-1");
 
-        Button team2 = new Button("Team 2 Score");
+        Button team2 = new Button(TEAM_2_NAME);
         team1.setEnabled(false);
         team2.addClassName("team-2");
 
