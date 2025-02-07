@@ -1163,4 +1163,15 @@ class DataServiceTest {
         Mockito.verify(mockUserBetsCollection)
                .updateOne(and(eq("username", username), eq("betType", betType2), eq("betValue", betValue2)), Updates.set("isLocked", true));
     }
+
+    @Test
+    void deleteAllData() {
+        dataService.deleteAllData();
+
+        Mockito.verify(mockPropBetsSummaryCollection, times(1)).deleteMany(any());
+        Mockito.verify(mockResultsCollection, times(1)).deleteMany(any());
+        Mockito.verify(mockScoreCollection, times(1)).deleteMany(any());
+        Mockito.verify(mockUserBetsCollection, times(1)).deleteMany(any());
+        Mockito.verify(mockUserBetsSummaryCollection, times(1)).deleteMany(any());
+    }
 }

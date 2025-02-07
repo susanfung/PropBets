@@ -257,7 +257,6 @@ public class DataService {
         propBetsSummaryCollection.deleteMany(deleteEmptyFilter);
     }
 
-
     public void saveScoreBoardBets(String username, Map<String, String> bets) {
         bets.forEach((betValue, betType) -> {
             UserBet bet = new UserBet(username, betType, betValue);
@@ -569,5 +568,13 @@ public class DataService {
                 propBet -> propBetsCollection.updateOne(eq(NAME, propBet.name()), Updates.set(IS_LOCKED, true)));
         userBets.forEach(
                 userBet -> userBetsCollection.updateOne(and(eq(USERNAME, userBet.username()), eq(BET_TYPE, userBet.betType()), eq(BET_VALUE, userBet.betValue())), Updates.set(IS_LOCKED, true)));
+    }
+
+    public void deleteAllData() {
+        propBetsSummaryCollection.deleteMany(new Document());
+        resultsCollection.deleteMany(new Document());
+        scoreCollection.deleteMany(new Document());
+        userBetsCollection.deleteMany(new Document());
+        userBetsSummaryCollection.deleteMany(new Document());
     }
 }
