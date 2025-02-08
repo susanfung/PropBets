@@ -553,7 +553,7 @@ public class DataService {
         scoreBoardBetsSummary.forEach(summary -> allBetters.addAll(summary.betters()));
 
         Document document = new Document().append(IS_SCOREBOARD_EVENTS_TRACKER, true)
-                                          .append(TOTAL_AMOUNT_OF_BETS, allBetters.size() * AMOUNT_PER_BET)
+                                          .append(TOTAL_AMOUNT_OF_BETS, Double.valueOf(allBetters.size() * AMOUNT_PER_BET))
                                           .append(NUMBER_OF_WINNING_EVENTS, 0)
                                           .append(TOTAL_AMOUNT_WON_PER_EVENT, 0.0);
 
