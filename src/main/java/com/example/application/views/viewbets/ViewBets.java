@@ -47,7 +47,7 @@ public class ViewBets extends VerticalLayout {
     private final UserService userService;
 
     private static final String rowNumberWidth = "75px";
-    private static final String cellWidth = "100px";
+    private static final String cellWidth = "145px";
 
     private List<ScoreBoardBetsSummary> scoreBoardBetsSummary;
 
