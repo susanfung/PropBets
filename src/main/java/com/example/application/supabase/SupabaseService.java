@@ -1,16 +1,17 @@
 package com.example.application.supabase;
 
+import org.springframework.stereotype.Service;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Optional;
-import org.springframework.stereotype.Service;
+
+import static com.example.application.config.SupabaseConfig.SUPABASE_API_KEY;
+import static com.example.application.config.SupabaseConfig.SUPABASE_URL;
 
 @Service
 public class SupabaseService {
-    private static final String SUPABASE_URL = Optional.ofNullable(System.getenv("SUPABASE_URL")).orElse("");
-    private static final String SUPABASE_API_KEY = Optional.ofNullable(System.getenv("SUPABASE_API_KEY")).orElse("");
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     public String get(String table, String query) throws Exception {
