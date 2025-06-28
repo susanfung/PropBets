@@ -1,10 +1,6 @@
 package com.example.application.security;
 
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
+import com.example.application.supabase.SupabaseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,80 +12,65 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.mongodb.client.model.Filters.eq;
 import static org.approvaltests.Approvals.verify;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class UserServiceTest {
     @Mock
-    private MongoClient mockMongoClient;
-
-    @Mock
-    private MongoDatabase mockDatabase;
-
-    @Mock
-    private MongoCollection<Document> mockUsersCollection;
-
-    @Mock
-    private FindIterable<Document> mockFindIterable;
+    private SupabaseService mockSupabaseService;
 
     private UserService userService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        when(mockMongoClient.getDatabase("SuperBowl")).thenReturn(mockDatabase);
-        when(mockDatabase.getCollection("Users")).thenReturn(mockUsersCollection);
-
-        userService = new UserService(mockMongoClient);
+        userService = new UserService(mockSupabaseService);
     }
 
     @Test
-    void saveUser() {
-        userService.saveUser("john_doe");
+    void saveUser() throws Exception {
+        String username = "john_doe";
+        when(mockSupabaseService.post(eq(UserService.USER_PROFILE_TABLE), any())).thenReturn("{\"username\":\"john_doe\"}");
 
-        ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
-        Mockito.verify(mockUsersCollection).insertOne(captor.capture());
-        verify(captor.getValue().toString());
+        userService.saveUser(username);
+
+        ArgumentCaptor<String> tableCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(mockSupabaseService).post(tableCaptor.capture(), jsonCaptor.capture());
+        verify(jsonCaptor.getValue());
     }
 
     @Test
-    void updateUser() {
+    void updateUser() throws Exception {
         String username = "john_doe";
         String firstName = "John";
         String lastName = "Doe";
         byte[] profileImage = new byte[]{1, 2, 3};
 
+        when(mockSupabaseService.patch(eq(UserService.USER_PROFILE_TABLE), any(), any())).thenReturn(
+                "{\"username\":\"john_doe\",\"firstName\":\"John\",\"lastName\":\"Doe\"}");
+
         userService.updateUser(username, firstName, lastName, profileImage);
 
-        ArgumentCaptor<Document> queryCaptor = ArgumentCaptor.forClass(Document.class);
-        ArgumentCaptor<Document> updateCaptor = ArgumentCaptor.forClass(Document.class);
-        Mockito.verify(mockUsersCollection).updateOne(queryCaptor.capture(), updateCaptor.capture());
+        ArgumentCaptor<String> tableCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(mockSupabaseService).patch(tableCaptor.capture(), queryCaptor.capture(), jsonCaptor.capture());
 
-        List<String> results = new ArrayList<>();
-        results.add(queryCaptor.getValue().toString());
-        results.add(((Document) updateCaptor.getValue().get("$set")).getString("firstName"));
-        results.add(((Document) updateCaptor.getValue().get("$set")).getString("lastName"));
-
-        verify(String.join("\n", results));
+        verify(jsonCaptor.getValue());
     }
 
     @Test
-    void findUserByUsername() {
+    void findUserByUsername() throws Exception {
         String username = "JohnDoe";
+        String expectedResponse = "[{\"username\":\"JohnDoe\"}]";
+        when(mockSupabaseService.get(eq(UserService.USER_PROFILE_TABLE), any())).thenReturn(expectedResponse);
 
-        when(mockUsersCollection.find(eq(any()))).thenReturn(mockFindIterable);
-        Document mockUsersDocument = new Document();
-        mockUsersDocument.append("username", username);
-        when(mockFindIterable.first()).thenReturn(mockUsersDocument);
-
-        verify(userService.findUserByUsername(username.toLowerCase()).toString());
+        org.json.JSONObject user = userService.findUserByUsername(username.toLowerCase());
+        verify(user.toString());
     }
 }

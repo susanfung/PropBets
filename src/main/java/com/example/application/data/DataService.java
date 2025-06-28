@@ -12,6 +12,12 @@ import java.util.stream.Stream;
 
 @Service
 public class DataService {
+    public static final String TABLE_USER_BETS_SUMMARY = "user_bets_summary";
+    public static final String TABLE_PROP_BETS_SUMMARY = "propbets_summary";
+    public static final String TABLE_USER_BETS = "user_bets";
+    public static final String TABLE_PROP_BETS = "propbets";
+    public static final String TABLE_RESULTS = "results";
+
     private static final String USERNAME = "username";
     private static final String BET_TYPE = "betType";
     private static final String BET_VALUE = "betValue";
@@ -38,7 +44,7 @@ public class DataService {
     public List<UserBetsSummary> getUserBetsSummary() {
         List<UserBetsSummary> userBetsSummaries = new ArrayList<>();
         try {
-            String response = supabaseService.get("UserBetsSummary", "");
+            String response = supabaseService.get(TABLE_USER_BETS_SUMMARY, "");
             org.json.JSONArray arr = new org.json.JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
                 org.json.JSONObject obj = arr.getJSONObject(i);
@@ -61,7 +67,7 @@ public class DataService {
     public List<PropBetsSummary> getPropBetsSummary() {
         List<PropBetsSummary> propBetsSummaries = new ArrayList<>();
         try {
-            String response = supabaseService.get("PropBetsSummary", "");
+            String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, "");
             org.json.JSONArray arr = new org.json.JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
                 org.json.JSONObject obj = arr.getJSONObject(i);
@@ -86,7 +92,7 @@ public class DataService {
     public List<ScoreBoardBetsSummary> getScoreBoardBetsSummary() {
         List<ScoreBoardBetsSummary> scoreBoardBetsSummaries = new ArrayList<>();
         try {
-            String response = supabaseService.get("PropBetsSummary", "");
+            String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, "");
             org.json.JSONArray arr = new org.json.JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
                 org.json.JSONObject obj = arr.getJSONObject(i);
@@ -108,7 +114,7 @@ public class DataService {
     public List<UserBet> getUserBets() {
         List<UserBet> userBets = new ArrayList<>();
         try {
-            String response = supabaseService.get("UserBets", "");
+            String response = supabaseService.get(TABLE_USER_BETS, "");
             org.json.JSONArray arr = new org.json.JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
                 org.json.JSONObject obj = arr.getJSONObject(i);
@@ -128,7 +134,7 @@ public class DataService {
     public List<PropBet> getPropBets() {
         List<PropBet> propBets = new ArrayList<>();
         try {
-            String response = supabaseService.get("PropBets", "");
+            String response = supabaseService.get(TABLE_PROP_BETS, "");
             org.json.JSONArray arr = new org.json.JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
                 org.json.JSONObject obj = arr.getJSONObject(i);
@@ -149,7 +155,7 @@ public class DataService {
     public List<UserBet> findUserBetsByUsername(String username) {
         List<UserBet> userBets = new ArrayList<>();
         try {
-            String response = supabaseService.get("UserBets", "username=eq." + username);
+            String response = supabaseService.get(TABLE_USER_BETS, "username=eq." + username);
             org.json.JSONArray arr = new org.json.JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
                 org.json.JSONObject obj = arr.getJSONObject(i);
@@ -169,7 +175,7 @@ public class DataService {
     public List<Result> findResults() {
         List<Result> results = new ArrayList<>();
         try {
-            String response = supabaseService.get("Results", "");
+            String response = supabaseService.get(TABLE_RESULTS, "");
             org.json.JSONArray arr = new org.json.JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
                 org.json.JSONObject obj = arr.getJSONObject(i);
@@ -197,7 +203,7 @@ public class DataService {
 
     public boolean isPropBetNameTaken(String name) {
         try {
-            String response = supabaseService.get("PropBets", "name=eq." + toCamelCase(name));
+            String response = supabaseService.get(TABLE_PROP_BETS, "name=eq." + toCamelCase(name));
             org.json.JSONArray arr = new org.json.JSONArray(response);
             return arr.length() > 0;
         } catch (Exception e) {
@@ -207,7 +213,7 @@ public class DataService {
 
     public void deletePreviousBets(String username) {
         try {
-            supabaseService.delete("UserBets", "username=eq." + username);
+            supabaseService.delete(TABLE_USER_BETS, "username=eq." + username);
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete previous bets in Supabase", e);
         }
@@ -219,7 +225,7 @@ public class DataService {
             obj.put(USERNAME, userBet.username());
             obj.put(BET_TYPE, userBet.betType());
             obj.put(BET_VALUE, userBet.betValue());
-            supabaseService.post("UserBets", obj.toString());
+            supabaseService.post(TABLE_USER_BETS, obj.toString());
         } catch (Exception e) {
             throw new RuntimeException("Failed to add user bet to Supabase", e);
         }
@@ -235,7 +241,7 @@ public class DataService {
             obj.put(NAME, toCamelCase(name));
             obj.put(QUESTION, formatQuestion(question));
             obj.put(CHOICES, choicesList);
-            supabaseService.post("PropBets", obj.toString());
+            supabaseService.post(TABLE_PROP_BETS, obj.toString());
         } catch (Exception e) {
             throw new RuntimeException("Failed to create new prop bet in Supabase", e);
         }

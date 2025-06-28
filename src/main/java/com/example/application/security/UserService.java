@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
+    public static final String USER_PROFILE_TABLE = "user_profile";
     private final SupabaseService supabaseService;
 
     @Autowired
@@ -16,7 +17,7 @@ public class UserService {
     public void saveUser(String username) {
         String jsonBody = String.format("{\"username\":\"%s\",\"role\":\"user\"}", username);
         try {
-            supabaseService.post("Users", jsonBody);
+            supabaseService.post(USER_PROFILE_TABLE, jsonBody);
         } catch (Exception e) {
             throw new RuntimeException("Failed to save user to Supabase", e);
         }
@@ -25,11 +26,19 @@ public class UserService {
     public void updateUser(String username, String firstName, String lastName, byte[] profileImage) {
         try {
             org.json.JSONObject update = new org.json.JSONObject();
-            if (firstName != null) update.put("firstName", firstName);
-            if (lastName != null) update.put("lastName", lastName);
-            if (profileImage != null) update.put("profileImage", java.util.Base64.getEncoder().encodeToString(profileImage));
-            if (update.length() == 0) return;
-            supabaseService.patch("Users", "username=eq." + username, update.toString());
+            if (firstName != null) {
+                update.put("firstName", firstName);
+            }
+            if (lastName != null) {
+                update.put("lastName", lastName);
+            }
+            if (profileImage != null) {
+                update.put("profileImage", java.util.Base64.getEncoder().encodeToString(profileImage));
+            }
+            if (update.length() == 0) {
+                return;
+            }
+            supabaseService.patch(USER_PROFILE_TABLE, "username=eq." + username, update.toString());
         } catch (Exception e) {
             throw new RuntimeException("Failed to update user in Supabase", e);
         }
@@ -37,7 +46,7 @@ public class UserService {
 
     public org.json.JSONObject findUserByUsername(String username) {
         try {
-            String response = supabaseService.get("Users", "username=eq." + username);
+            String response = supabaseService.get(USER_PROFILE_TABLE, "username=eq." + username);
             org.json.JSONArray arr = new org.json.JSONArray(response);
             return arr.length() > 0 ? arr.getJSONObject(0) : null;
         } catch (Exception e) {

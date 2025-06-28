@@ -1,1 +1,1 @@
-Document{{username=john_doe, role=user}}
+{"username":"john_doe","role":"user"}
