@@ -24,10 +24,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.server.StreamResource;
-import org.bson.Document;
-import org.bson.types.Binary;
 
-import java.io.ByteArrayInputStream;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -66,7 +64,7 @@ public class ViewBets extends VerticalLayout {
 
         List<UserBetsSummary> userBetsSummaries = this.dataService.getUserBetsSummary();
         userBetsSummaries.forEach(userBetsSummary -> {
-            Document user = userService.findUserByUsername(userBetsSummary.username());
+            org.json.JSONObject user = userService.findUserByUsername(userBetsSummary.username());
             HorizontalLayout userLayout = createUserLayout(user, userBetsSummary);
             usersLayout.add(userLayout);
         });
@@ -124,23 +122,32 @@ public class ViewBets extends VerticalLayout {
         groupedSummaries.forEach(this::createPropBetsSummary);
     }
 
-    private static HorizontalLayout createUserLayout(Document user, UserBetsSummary userBetsSummary) {
+    private static HorizontalLayout createUserLayout(org.json.JSONObject user, UserBetsSummary userBetsSummary) {
         String name = userBetsSummary.username();
-        String firstName = user.getString("firstName");
-
-        if (firstName != null) {
-            name = name + " (" + firstName + ")";
+        String firstName = null;
+        try {
+            firstName = user.getString("firstName");
+        } catch (org.json.JSONException e) {
+            firstName = null;
         }
-
-        StreamResource profileImage = new StreamResource("profile-image",
-                                          () -> new ByteArrayInputStream(user.get("profileImage", Binary.class).getData()));
+        byte[] image = null;
+        if (user.has("profileImage")) {
+            String base64 = user.optString("profileImage", null);
+            image = base64 != null ? java.util.Base64.getDecoder().decode(base64) : null;
+        }
+        final byte[] finalImage = image;
 
         HorizontalLayout userLayout = new HorizontalLayout();
 
         Avatar avatar = new Avatar();
         avatar.setHeight("64px");
         avatar.setWidth("64px");
-        avatar.setImageResource(profileImage);
+
+        if (image != null) {
+            StreamResource profileImage = new StreamResource("profile-image",
+                                          () -> new java.io.ByteArrayInputStream(finalImage));
+            avatar.setImageResource(profileImage);
+        }
 
         VerticalLayout userInformation = new VerticalLayout();
         userInformation.setSpacing(false);

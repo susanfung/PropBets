@@ -12,7 +12,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.bson.Document;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PageTitle("Login")
@@ -55,15 +55,19 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
         if (username.isEmpty()) {
             usernameField.setHelperText("Please enter a username");
         } else {
-            Document user = userService.findUserByUsername(username);
+            JSONObject user = userService.findUserByUsername(username);
             if (user == null) {
                 usernameField.setHelperText("User does not exist");
                 return;
             }
 
             getUI().ifPresent(ui -> {
-                ui.getSession().setAttribute("username", user.getString("username"));
-                ui.getSession().setAttribute("role", user.getString("role"));
+                try {
+                    ui.getSession().setAttribute("username", user.getString("username"));
+                    ui.getSession().setAttribute("role", user.getString("role"));
+                } catch (org.json.JSONException e) {
+                    throw new RuntimeException("User JSON missing expected fields", e);
+                }
                 ui.navigate("viewBets");
             });
         }
@@ -74,7 +78,7 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
         if (username.isEmpty()) {
             usernameField.setHelperText("Please enter a username");
         } else {
-            Document user = userService.findUserByUsername(username);
+            JSONObject user = userService.findUserByUsername(username);
             if (user != null) {
                 usernameField.setHelperText("User already exists");
                 return;
@@ -82,11 +86,15 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
 
             userService.saveUser(username);
 
-            Document finalUser = userService.findUserByUsername(username);
+            JSONObject finalUser = userService.findUserByUsername(username);
 
             getUI().ifPresent(ui -> {
-                ui.getSession().setAttribute("username", finalUser.getString("username"));
-                ui.getSession().setAttribute("role", finalUser.getString("role"));
+                try {
+                    ui.getSession().setAttribute("username", finalUser.getString("username"));
+                    ui.getSession().setAttribute("role", finalUser.getString("role"));
+                } catch (org.json.JSONException e) {
+                    throw new RuntimeException("User JSON missing expected fields", e);
+                }
                 ui.navigate("viewBets");
             });
         }

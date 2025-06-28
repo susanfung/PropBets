@@ -15,8 +15,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinSession;
-import org.bson.Document;
-import org.bson.types.Binary;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
@@ -33,7 +32,7 @@ public class Profile extends VerticalLayout {
     private String lastName;
     private TextField firstNameField;
     private TextField lastNameField;
-    private Binary image;
+    private byte[] image;
     private Avatar profileImage;
     private Upload upload;
 
@@ -41,10 +40,23 @@ public class Profile extends VerticalLayout {
     public Profile(UserService userService) {
         this.userService = userService;
         username = (String) VaadinSession.getCurrent().getAttribute("username");
-        Document user = userService.findUserByUsername(username);
-        firstName = user.getString("firstName");
-        lastName = user.getString("lastName");
-        image = user.get("profileImage", Binary.class);
+        org.json.JSONObject user = userService.findUserByUsername(username);
+        try {
+            firstName = user.getString("firstName");
+        } catch (org.json.JSONException e) {
+            firstName = null;
+        }
+        try {
+            lastName = user.getString("lastName");
+        } catch (org.json.JSONException e) {
+            lastName = null;
+        }
+        if (user.has("profileImage")) {
+            String base64 = user.optString("profileImage", null);
+            image = base64 != null ? java.util.Base64.getDecoder().decode(base64) : null;
+        } else {
+            image = null;
+        }
 
         usernameParagraph = new Paragraph();
         usernameParagraph.getElement().setProperty("innerHTML", "<b>Username:</b> " + username);
@@ -70,7 +82,7 @@ public class Profile extends VerticalLayout {
         profileImage.setWidth("256px");
 
         if (image != null) {
-            StreamResource resource = new StreamResource("profile-image", () -> new ByteArrayInputStream(image.getData()));
+            StreamResource resource = new StreamResource("profile-image", () -> new ByteArrayInputStream(image));
             profileImage.setImageResource(resource);
         }
 
@@ -81,14 +93,14 @@ public class Profile extends VerticalLayout {
                 final byte[] uploadedImage = buffer.getInputStream().readAllBytes();
                 StreamResource resource = new StreamResource("profile-image", () -> new ByteArrayInputStream(uploadedImage));
                 profileImage.setImageResource(resource);
-                image = new Binary(uploadedImage);
+                image = uploadedImage;
             } catch (IOException e) {
                 Notification.show("Failed to upload file: " + e.getMessage());
             }
         });
         Button saveButton = new Button("Save");
         saveButton.addClickListener(e -> {
-            userService.updateUser(username, firstNameField.getValue(), lastNameField.getValue(), image.getData());
+            userService.updateUser(username, firstNameField.getValue(), lastNameField.getValue(), image);
 
             Notification.show("Profile updated successfully");
         });

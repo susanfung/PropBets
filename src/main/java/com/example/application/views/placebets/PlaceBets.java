@@ -18,7 +18,6 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
-import org.bson.Document;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,11 +49,6 @@ public class PlaceBets extends VerticalLayout {
 
     public PlaceBets(DataService dataService) {
         this.dataService = dataService;
-        Document scoreBoardEventsTracker = dataService.getIsScoreBoardEventsTracker();
-
-        if (scoreBoardEventsTracker != null) {
-            isScoreBoardBetsLocked = true;
-        }
 
         H2 scoreBoardTitle = new H2("Score Board");
 
