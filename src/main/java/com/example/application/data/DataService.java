@@ -242,7 +242,7 @@ public class DataService {
             JSONObject obj = new JSONObject();
             obj.put(NAME, toCamelCase(name));
             obj.put(QUESTION, formatQuestion(question));
-            obj.put(CHOICES, choicesList);
+            obj.put(CHOICES, new JSONArray(choicesList));
             supabaseService.post(TABLE_PROP_BETS, obj.toString());
         } catch (Exception e) {
             throw new RuntimeException("Failed to create new prop bet in Supabase", e);
