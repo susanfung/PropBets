@@ -48,14 +48,13 @@ class UserServiceTest {
     @Test
     void updateUser() throws Exception {
         String username = "john_doe";
-        String firstName = "John";
-        String lastName = "Doe";
+        String name = "John Doe";
         byte[] profileImage = new byte[]{1, 2, 3};
 
         when(mockSupabaseService.patch(eq(UserService.USER_PROFILE_TABLE), any(), any())).thenReturn(
                 "{\"username\":\"john_doe\",\"firstName\":\"John\",\"lastName\":\"Doe\"}");
 
-        userService.updateUser(username, firstName, lastName, profileImage);
+        userService.updateUser(username, name, profileImage);
 
         ArgumentCaptor<String> tableCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);

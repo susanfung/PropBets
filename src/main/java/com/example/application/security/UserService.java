@@ -25,14 +25,11 @@ public class UserService {
         }
     }
 
-    public void updateUser(String username, String firstName, String lastName, byte[] profileImage) {
+    public void updateUser(String username, String name, byte[] profileImage) {
         try {
             JSONObject update = new JSONObject();
-            if (firstName != null) {
-                update.put("firstName", firstName);
-            }
-            if (lastName != null) {
-                update.put("lastName", lastName);
+            if (name != null) {
+                update.put("name", name);
             }
             if (profileImage != null) {
                 update.put("profileImage", java.util.Base64.getEncoder().encodeToString(profileImage));

@@ -1,1 +1,1 @@
-{"firstName":"John","lastName":"Doe","profileImage":"AQID"}
+{"name":"John Doe","profileImage":"AQID"}
