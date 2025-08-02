@@ -64,4 +64,44 @@ public class SupabaseService {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         return response.body();
     }
+
+    private String buildStorageUrl(String bucket, String fileName) {
+        return SUPABASE_URL + "/storage/v1/object/" + bucket + "/" + fileName;
+    }
+
+    public String uploadFile(String bucket, String fileName, byte[] fileData, String contentType) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                                         .uri(URI.create(buildStorageUrl(bucket, fileName)))
+                                         .header("apikey", SUPABASE_API_KEY)
+                                         .header("Authorization", "Bearer " + SUPABASE_API_KEY)
+                                         .header("Content-Type", contentType)
+                                         .header("x-upsert", "true")
+                                         .POST(HttpRequest.BodyPublishers.ofByteArray(fileData))
+                                         .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200 || response.statusCode() == 201) {
+            return getPublicUrl(bucket, fileName);
+        } else {
+            throw new RuntimeException("Failed to upload file: " + response.body());
+        }
+    }
+
+    public void deleteFile(String bucket, String fileName) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                                         .uri(URI.create(buildStorageUrl(bucket, fileName)))
+                                         .header("apikey", SUPABASE_API_KEY)
+                                         .header("Authorization", "Bearer " + SUPABASE_API_KEY)
+                                         .DELETE()
+                                         .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200 && response.statusCode() != 204) {
+            throw new RuntimeException("Failed to delete file: " + response.body());
+        }
+    }
+
+    public String getPublicUrl(String bucket, String fileName) {
+        return SUPABASE_URL + "/storage/v1/object/public/" + bucket + "/" + fileName;
+    }
 }

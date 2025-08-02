@@ -43,11 +43,10 @@ public class Profile extends VerticalLayout {
         } catch (JSONException e) {
             name = null;
         }
-        if (user.has("profileImage")) {
-            String base64 = user.optString("profileImage", null);
-            image = base64 != null ? java.util.Base64.getDecoder().decode(base64) : null;
-        } else {
-            image = null;
+
+        String imageUrl = null;
+        if (user.has("image_url")) {
+            imageUrl = user.optString("image_url", null);
         }
 
         usernameParagraph = new Paragraph();
@@ -64,9 +63,8 @@ public class Profile extends VerticalLayout {
         profileImage.setHeight("256px");
         profileImage.setWidth("256px");
 
-        if (image != null) {
-            StreamResource resource = new StreamResource("profile-image", () -> new ByteArrayInputStream(image));
-            profileImage.setImageResource(resource);
+        if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+            profileImage.setImage(imageUrl);
         }
 
         MemoryBuffer buffer = new MemoryBuffer();
@@ -81,6 +79,7 @@ public class Profile extends VerticalLayout {
                 Notification.show("Failed to upload file: " + e.getMessage());
             }
         });
+
         Button saveButton = new Button("Save");
         saveButton.addClickListener(e -> {
             userService.updateUser(username, nameField.getValue(), image);
