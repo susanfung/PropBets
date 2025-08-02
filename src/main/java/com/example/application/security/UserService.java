@@ -48,7 +48,7 @@ public class UserService {
 
     public JSONObject findUserByUsername(String username) {
         try {
-            String response = supabaseService.get(USER_PROFILE_TABLE, "username=eq." + username);
+            String response = supabaseService.get(USER_PROFILE_TABLE, "username=ilike." + username);
             JSONArray arr = new JSONArray(response);
             return arr.length() > 0 ? arr.getJSONObject(0) : null;
         } catch (Exception e) {
