@@ -1,6 +1,7 @@
 package com.example.application.security;
 
 import com.example.application.supabase.SupabaseService;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,7 +71,7 @@ class UserServiceTest {
         String expectedResponse = "[{\"username\":\"JohnDoe\"}]";
         when(mockSupabaseService.get(eq(UserService.USER_PROFILE_TABLE), any())).thenReturn(expectedResponse);
 
-        org.json.JSONObject user = userService.findUserByUsername(username.toLowerCase());
+        JSONObject user = userService.findUserByUsername(username.toLowerCase());
         verify(user.toString());
     }
 }

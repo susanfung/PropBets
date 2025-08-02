@@ -12,6 +12,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -65,7 +66,7 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
                 try {
                     ui.getSession().setAttribute("username", user.getString("username"));
                     ui.getSession().setAttribute("role", user.getString("role"));
-                } catch (org.json.JSONException e) {
+                } catch (JSONException e) {
                     throw new RuntimeException("User JSON missing expected fields", e);
                 }
                 ui.navigate("viewBets");
@@ -92,7 +93,7 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
                 try {
                     ui.getSession().setAttribute("username", finalUser.getString("username"));
                     ui.getSession().setAttribute("role", finalUser.getString("role"));
-                } catch (org.json.JSONException e) {
+                } catch (JSONException e) {
                     throw new RuntimeException("User JSON missing expected fields", e);
                 }
                 ui.navigate("viewBets");

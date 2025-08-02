@@ -1,6 +1,8 @@
 package com.example.application.data;
 
 import com.example.application.supabase.SupabaseService;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,9 +47,9 @@ public class DataService {
         List<UserBetsSummary> userBetsSummaries = new ArrayList<>();
         try {
             String response = supabaseService.get(TABLE_USER_BETS_SUMMARY, "");
-            org.json.JSONArray arr = new org.json.JSONArray(response);
+            JSONArray arr = new JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
-                org.json.JSONObject obj = arr.getJSONObject(i);
+                JSONObject obj = arr.getJSONObject(i);
                 UserBetsSummary userBetsSummary = new UserBetsSummary(
                     obj.optString(USERNAME),
                     obj.optInt(NUMBER_OF_BETS_MADE),
@@ -68,9 +70,9 @@ public class DataService {
         List<PropBetsSummary> propBetsSummaries = new ArrayList<>();
         try {
             String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, "");
-            org.json.JSONArray arr = new org.json.JSONArray(response);
+            JSONArray arr = new JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
-                org.json.JSONObject obj = arr.getJSONObject(i);
+                JSONObject obj = arr.getJSONObject(i);
                 String betType = obj.optString(BET_TYPE);
                 if (!betType.equals("Score")) {
                     PropBetsSummary summary = new PropBetsSummary(
@@ -93,9 +95,9 @@ public class DataService {
         List<ScoreBoardBetsSummary> scoreBoardBetsSummaries = new ArrayList<>();
         try {
             String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, "");
-            org.json.JSONArray arr = new org.json.JSONArray(response);
+            JSONArray arr = new JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
-                org.json.JSONObject obj = arr.getJSONObject(i);
+                JSONObject obj = arr.getJSONObject(i);
                 String betType = obj.optString(BET_TYPE);
                 if (betType.equals("Score")) {
                     String betValue = obj.optString(BET_VALUE);
@@ -115,9 +117,9 @@ public class DataService {
         List<UserBet> userBets = new ArrayList<>();
         try {
             String response = supabaseService.get(TABLE_USER_BETS, "");
-            org.json.JSONArray arr = new org.json.JSONArray(response);
+            JSONArray arr = new JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
-                org.json.JSONObject obj = arr.getJSONObject(i);
+                JSONObject obj = arr.getJSONObject(i);
                 UserBet userBet = new UserBet(
                     obj.optString(USERNAME),
                     obj.optString(BET_TYPE),
@@ -135,9 +137,9 @@ public class DataService {
         List<PropBet> propBets = new ArrayList<>();
         try {
             String response = supabaseService.get(TABLE_PROP_BETS, "");
-            org.json.JSONArray arr = new org.json.JSONArray(response);
+            JSONArray arr = new JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
-                org.json.JSONObject obj = arr.getJSONObject(i);
+                JSONObject obj = arr.getJSONObject(i);
                 PropBet propBet = new PropBet(
                     obj.optString(NAME),
                     obj.optString(QUESTION),
@@ -156,9 +158,9 @@ public class DataService {
         List<UserBet> userBets = new ArrayList<>();
         try {
             String response = supabaseService.get(TABLE_USER_BETS, "username=eq." + username);
-            org.json.JSONArray arr = new org.json.JSONArray(response);
+            JSONArray arr = new JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
-                org.json.JSONObject obj = arr.getJSONObject(i);
+                JSONObject obj = arr.getJSONObject(i);
                 UserBet userBet = new UserBet(
                     obj.optString(USERNAME),
                     obj.optString(BET_TYPE),
@@ -176,9 +178,9 @@ public class DataService {
         List<Result> results = new ArrayList<>();
         try {
             String response = supabaseService.get(TABLE_RESULTS, "");
-            org.json.JSONArray arr = new org.json.JSONArray(response);
+            JSONArray arr = new JSONArray(response);
             for (int i = 0; i < arr.length(); i++) {
-                org.json.JSONObject obj = arr.getJSONObject(i);
+                JSONObject obj = arr.getJSONObject(i);
                 Result result = new Result(
                     obj.optString(BET_TYPE),
                     obj.optString(WINNING_BET_VALUE)
@@ -191,7 +193,7 @@ public class DataService {
         return results;
     }
 
-    private List<String> toStringList(org.json.JSONArray arr) {
+    private List<String> toStringList(JSONArray arr) {
         List<String> list = new ArrayList<>();
         if (arr != null) {
             for (int i = 0; i < arr.length(); i++) {
@@ -204,7 +206,7 @@ public class DataService {
     public boolean isPropBetNameTaken(String name) {
         try {
             String response = supabaseService.get(TABLE_PROP_BETS, "name=eq." + toCamelCase(name));
-            org.json.JSONArray arr = new org.json.JSONArray(response);
+            JSONArray arr = new JSONArray(response);
             return arr.length() > 0;
         } catch (Exception e) {
             throw new RuntimeException("Failed to check prop bet name in Supabase", e);
@@ -221,7 +223,7 @@ public class DataService {
 
     public void addUserBet(UserBet userBet) {
         try {
-            org.json.JSONObject obj = new org.json.JSONObject();
+            JSONObject obj = new JSONObject();
             obj.put(USERNAME, userBet.username());
             obj.put(BET_TYPE, userBet.betType());
             obj.put(BET_VALUE, userBet.betValue());
@@ -237,7 +239,7 @@ public class DataService {
                                              .map(String::trim)
                                              .map(this::toCamelCase)
                                              .toList();
-            org.json.JSONObject obj = new org.json.JSONObject();
+            JSONObject obj = new JSONObject();
             obj.put(NAME, toCamelCase(name));
             obj.put(QUESTION, formatQuestion(question));
             obj.put(CHOICES, choicesList);

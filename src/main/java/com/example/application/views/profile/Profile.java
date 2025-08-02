@@ -16,6 +16,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinSession;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
@@ -40,15 +42,15 @@ public class Profile extends VerticalLayout {
     public Profile(UserService userService) {
         this.userService = userService;
         username = (String) VaadinSession.getCurrent().getAttribute("username");
-        org.json.JSONObject user = userService.findUserByUsername(username);
+        JSONObject user = userService.findUserByUsername(username);
         try {
             firstName = user.getString("firstName");
-        } catch (org.json.JSONException e) {
+        } catch (JSONException e) {
             firstName = null;
         }
         try {
             lastName = user.getString("lastName");
-        } catch (org.json.JSONException e) {
+        } catch (JSONException e) {
             lastName = null;
         }
         if (user.has("profileImage")) {

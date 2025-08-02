@@ -24,8 +24,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.server.StreamResource;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -64,7 +65,7 @@ public class ViewBets extends VerticalLayout {
 
         List<UserBetsSummary> userBetsSummaries = this.dataService.getUserBetsSummary();
         userBetsSummaries.forEach(userBetsSummary -> {
-            org.json.JSONObject user = userService.findUserByUsername(userBetsSummary.username());
+            JSONObject user = userService.findUserByUsername(userBetsSummary.username());
             HorizontalLayout userLayout = createUserLayout(user, userBetsSummary);
             usersLayout.add(userLayout);
         });
@@ -122,12 +123,12 @@ public class ViewBets extends VerticalLayout {
         groupedSummaries.forEach(this::createPropBetsSummary);
     }
 
-    private static HorizontalLayout createUserLayout(org.json.JSONObject user, UserBetsSummary userBetsSummary) {
+    private static HorizontalLayout createUserLayout(JSONObject user, UserBetsSummary userBetsSummary) {
         String name = userBetsSummary.username();
         String firstName = null;
         try {
             firstName = user.getString("firstName");
-        } catch (org.json.JSONException e) {
+        } catch (JSONException e) {
             firstName = null;
         }
         byte[] image = null;
