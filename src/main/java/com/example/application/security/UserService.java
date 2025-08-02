@@ -5,6 +5,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class UserService {
@@ -65,7 +67,8 @@ public class UserService {
                 return;
             }
 
-            supabaseService.patch(USER_PROFILE_TABLE, "username=eq." + username, update.toString());
+            String encodedUsername = URLEncoder.encode(username, StandardCharsets.UTF_8);
+            supabaseService.patch(USER_PROFILE_TABLE, "username=eq." + encodedUsername, update.toString());
         } catch (Exception e) {
             throw new RuntimeException("Failed to update user in Supabase", e);
         }
@@ -95,7 +98,8 @@ public class UserService {
 
     public JSONObject findUserByUsername(String username) {
         try {
-            String response = supabaseService.get(USER_PROFILE_TABLE, "username=ilike." + username);
+            String encodedUsername = URLEncoder.encode(username, StandardCharsets.UTF_8);
+            String response = supabaseService.get(USER_PROFILE_TABLE, "username=ilike." + encodedUsername);
             JSONArray arr = new JSONArray(response);
 
             return arr.length() > 0 ? arr.getJSONObject(0) : null;
