@@ -52,12 +52,12 @@ public class CreateNewBet extends VerticalLayout implements BeforeEnterObserver 
                 return;
             }
 
-            if (this.dataService.isPropBetNameTaken(name.getValue())) {
+            if (dataService.isPropBetNameTaken(name.getValue())) {
                 Notification.show("Name already taken. Please choose another.");
                 return;
             }
 
-            this.dataService.createNewPropBet(name.getValue(), question.getValue(), choices.getValue());
+            dataService.createNewPropBet(name.getValue(), question.getValue(), choices.getValue());
 
             Notification.show("Bet created!");
             clearForm();

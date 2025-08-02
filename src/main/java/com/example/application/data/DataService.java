@@ -6,6 +6,8 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +23,7 @@ public class DataService {
     public static final String TABLE_RESULTS = "results";
 
     private static final String USERNAME = "username";
-    private static final String BET_TYPE = "betType";
+    private static final String BET_TYPE = "bet_type";
     private static final String BET_VALUE = "betValue";
     private static final String BETTERS = "betters";
     private static final String NUMBER_OF_BETS_MADE = "numberOfBetsMade";
@@ -29,7 +31,6 @@ public class DataService {
     private static final String NUMBER_OF_BETS_WON = "numberOfBetsWon";
     private static final String AMOUNT_WON = "amountWon";
     private static final String NET_AMOUNT = "netAmount";
-    private static final String NAME = "name";
     private static final String QUESTION = "question";
     private static final String CHOICES = "choices";
     private static final String WINNING_BET_VALUE = "winningBetValue";
@@ -141,7 +142,7 @@ public class DataService {
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
                 PropBet propBet = new PropBet(
-                    obj.optString(NAME),
+                    obj.optString(BET_TYPE),
                     obj.optString(QUESTION),
                     toStringList(obj.optJSONArray(CHOICES)),
                     obj.has(IS_LOCKED) ? Optional.of(obj.optBoolean(IS_LOCKED)) : Optional.empty()
@@ -205,8 +206,10 @@ public class DataService {
 
     public boolean isPropBetNameTaken(String name) {
         try {
-            String response = supabaseService.get(TABLE_PROP_BETS, "name=eq." + toCamelCase(name));
+            String encodedName = URLEncoder.encode(toCamelCase(name), StandardCharsets.UTF_8);
+            String response = supabaseService.get(TABLE_PROP_BETS, "bet_type=eq." + encodedName);
             JSONArray arr = new JSONArray(response);
+
             return arr.length() > 0;
         } catch (Exception e) {
             throw new RuntimeException("Failed to check prop bet name in Supabase", e);
@@ -240,7 +243,7 @@ public class DataService {
                                              .map(this::toCamelCase)
                                              .toList();
             JSONObject obj = new JSONObject();
-            obj.put(NAME, toCamelCase(name));
+            obj.put(BET_TYPE, toCamelCase(name));
             obj.put(QUESTION, formatQuestion(question));
             obj.put(CHOICES, new JSONArray(choicesList));
             supabaseService.post(TABLE_PROP_BETS, obj.toString());
