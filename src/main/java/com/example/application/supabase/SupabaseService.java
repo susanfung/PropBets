@@ -14,9 +14,13 @@ import static com.example.application.config.SupabaseConfig.SUPABASE_URL;
 public class SupabaseService {
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
+    private String buildRestUrl(String table) {
+        return SUPABASE_URL + "/rest/v1/" + table;
+    }
+
     public String get(String table, String query) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                                         .uri(URI.create(SUPABASE_URL + table + "?" + query))
+                                         .uri(URI.create(buildRestUrl(table) + "?" + query))
                                          .header("apikey", SUPABASE_API_KEY)
                                          .header("Authorization", "Bearer " + SUPABASE_API_KEY)
                                          .header("Accept", "application/json")
@@ -28,7 +32,7 @@ public class SupabaseService {
 
     public String post(String table, String jsonBody) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                                         .uri(URI.create(SUPABASE_URL + table))
+                                         .uri(URI.create(buildRestUrl(table)))
                                          .header("apikey", SUPABASE_API_KEY)
                                          .header("Authorization", "Bearer " + SUPABASE_API_KEY)
                                          .header("Content-Type", "application/json")
@@ -40,7 +44,7 @@ public class SupabaseService {
 
     public String patch(String table, String query, String jsonBody) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                                         .uri(URI.create(SUPABASE_URL + table + "?" + query))
+                                         .uri(URI.create(buildRestUrl(table) + "?" + query))
                                          .header("apikey", SUPABASE_API_KEY)
                                          .header("Authorization", "Bearer " + SUPABASE_API_KEY)
                                          .header("Content-Type", "application/json")
@@ -52,7 +56,7 @@ public class SupabaseService {
 
     public String delete(String table, String query) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                                         .uri(URI.create(SUPABASE_URL + table + "?" + query))
+                                         .uri(URI.create(buildRestUrl(table) + "?" + query))
                                          .header("apikey", SUPABASE_API_KEY)
                                          .header("Authorization", "Bearer " + SUPABASE_API_KEY)
                                          .DELETE()
