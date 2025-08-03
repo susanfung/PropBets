@@ -51,8 +51,15 @@ class UserServiceTest {
         String name = "John Doe";
         byte[] profileImage = new byte[]{1, 2, 3};
 
+        // Mock findUserByUsername call that happens inside updateUser
+        when(mockSupabaseService.get(eq(UserService.USER_PROFILE_TABLE), any())).thenReturn(
+                "[{\"username\":\"john_doe\",\"image_url\":\"old_image.jpg\"}]");
+
+        Mockito.doNothing().when(mockSupabaseService).deleteFile(any(), any());
+        when(mockSupabaseService.uploadFile(any(), any(), any(), any())).thenReturn("new_image_url.jpg");
+
         when(mockSupabaseService.patch(eq(UserService.USER_PROFILE_TABLE), any(), any())).thenReturn(
-                "{\"username\":\"john_doe\",\"firstName\":\"John\",\"lastName\":\"Doe\"}");
+                "{\"username\":\"john_doe\",\"name\":\"John Doe\"}");
 
         userService.updateUser(username, name, profileImage);
 

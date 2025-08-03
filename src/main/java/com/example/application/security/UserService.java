@@ -63,7 +63,7 @@ public class UserService {
                 update.put("image_url", imageUrl);
             }
 
-            if (update.isEmpty()) {
+            if (update.length() == 0) {
                 return;
             }
 

@@ -1,1 +1,1 @@
-{"name":"John Doe","profileImage":"AQID"}
+{"image_url":"new_image_url.jpg","name":"John Doe"}
