@@ -36,8 +36,6 @@ import static com.example.application.utils.Utils.createPropBet;
 @PageTitle("Place Bets")
 @Route(value = "placeBets", layout = MainLayout.class)
 public class PlaceBets extends VerticalLayout {
-    private final DataService dataService;
-
     private Boolean isScoreBoardBetsLocked = false;
 
     private final Map<String, String> scoreBoardBets = new HashMap<>();
@@ -48,8 +46,6 @@ public class PlaceBets extends VerticalLayout {
     private Paragraph totalAmount;
 
     public PlaceBets(DataService dataService) {
-        this.dataService = dataService;
-
         H2 scoreBoardTitle = new H2("Score Board");
 
         HorizontalLayout teams = new HorizontalLayout();
@@ -85,7 +81,7 @@ public class PlaceBets extends VerticalLayout {
         H2 propBetsTitle = new H2("PropBets");
         add(propBetsTitle);
 
-        List<PropBet> propBetList = this.dataService.getPropBets();
+        List<PropBet> propBetList = dataService.getPropBets();
         propBetList.forEach(propBet -> {
             RadioButtonGroup<String> bet = createPropBet(propBet.name(), propBet.question(), propBet.choices());
             bet.setEnabled(!propBet.isLocked().orElse(false));
@@ -108,18 +104,18 @@ public class PlaceBets extends VerticalLayout {
 
         String username = (String) VaadinSession.getCurrent().getAttribute("username");
         if (username != null && !username.isEmpty()) {
-            List<UserBet> userBets = this.dataService.findUserBetsByUsername(username);
+            List<UserBet> userBets = dataService.findUserBetsByUsername(username);
             displayUserBets(userBets);
         }
 
         Button submit = new Button("Submit");
         submit.addClickListener(e -> {
-            this.dataService.deletePreviousBets(username);
+            dataService.deletePreviousBets(username);
 
-            this.dataService.saveScoreBoardBets(username, scoreBoardBets);
-            this.dataService.savePropBets(username, propBets);
+            dataService.saveScoreBoardBets(username, scoreBoardBets);
+            dataService.savePropBets(username, propBets);
 
-            this.dataService.updateUserBetsSummary(username, AMOUNT_PER_BET);
+            dataService.updateUserBetsSummary(username, AMOUNT_PER_BET);
 
             Notification.show("Bet submitted!");
 

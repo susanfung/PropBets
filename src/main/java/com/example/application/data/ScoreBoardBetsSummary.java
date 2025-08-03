@@ -1,10 +1,10 @@
 package com.example.application.data;
 
-import java.util.List;
+import java.util.Set;
 import java.util.Optional;
 
 public record ScoreBoardBetsSummary(String betValue,
-                                    List<String> betters,
+                                    Set<String> betters,
                                     Optional<Integer> count) {
     @Override
     public String toString() {

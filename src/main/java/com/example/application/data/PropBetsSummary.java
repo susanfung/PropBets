@@ -1,10 +1,10 @@
 package com.example.application.data;
 
-import java.util.List;
+import java.util.Set;
 
 public record PropBetsSummary(String betType,
                               String betValue,
-                              List<String> betters,
+                              Set<String> betters,
                               String question,
                               Boolean isWinner) {
     @Override

@@ -25,7 +25,6 @@ import java.io.IOException;
 @PageTitle("Profile")
 @Route(value = "profile", layout = MainLayout.class)
 public class Profile extends VerticalLayout {
-
     private String username;
     private Paragraph usernameParagraph;
     private String name;
