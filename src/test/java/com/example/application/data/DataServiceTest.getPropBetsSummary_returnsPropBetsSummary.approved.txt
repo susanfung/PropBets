@@ -1,2 +1,4 @@
 com.example.application.data.PropBetsSummary[betType=Proposal,betValue=Yes,betters=[jane_doe, john_doe],question=Will Kelce propose at the game?,isWinner=true]
 com.example.application.data.PropBetsSummary[betType=Proposal,betValue=No,betters=[jack_doe, jill_doe],question=Will Kelce propose at the game?,isWinner=false]
+com.example.application.data.PropBetsSummary[betType=Coin Toss,betValue=Chiefs,betters=[jack_doe, jill_doe],question=Who wins the coin toss?,isWinner=true]
+com.example.application.data.PropBetsSummary[betType=Coin Toss,betValue=Eagles,betters=[jack_doe, jill_doe],question=Who wins the coin toss?,isWinner=false]

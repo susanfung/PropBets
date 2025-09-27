@@ -43,11 +43,12 @@ class DataServiceTest {
     }
 
     @Test
-    void getPropBetsSummary_whenReceivesScoreBetType_returnsPropBetsSummary() throws Exception {
+    void getPropBetsSummary_returnsPropBetsSummary() throws Exception {
         String response = "[" +
-                "{\"betType\":\"Proposal\",\"betValue\":\"Yes\",\"betters\":[\"jane_doe\",\"john_doe\"],\"question\":\"Will Kelce propose at the game?\",\"isWinner\":true}," +
-                "{\"betType\":\"Proposal\",\"betValue\":\"No\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"question\":\"Will Kelce propose at the game?\",\"isWinner\":false}," +
-                "{\"betType\":\"Score\",\"betValue\":\"0,0\",\"betters\":[\"jack_doe\",\"jill_doe\"]}" +
+                "{\"bet_type\":\"Proposal\",\"bet_value\":\"Yes\",\"betters\":[\"jane_doe\",\"john_doe\"],\"is_locked\":true,\"question\":\"Will Kelce propose at the game?\",\"is_winner\":true}," +
+                "{\"bet_type\":\"Proposal\",\"bet_value\":\"No\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":true,\"question\":\"Will Kelce propose at the game?\",\"is_winner\":false}," +
+                "{\"bet_type\":\"Coin Toss\",\"bet_value\":\"Chiefs\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":true,\"question\":\"Who wins the coin toss?\",\"is_winner\":true}," +
+                "{\"bet_type\":\"Coin Toss\",\"bet_value\":\"Eagles\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":true,\"question\":\"Who wins the coin toss?\",\"is_winner\":false}" +
                 "]";
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString())).thenReturn(response);
 
@@ -61,8 +62,8 @@ class DataServiceTest {
     @Test
     void getScoreBoardBetsSummary_whenReceivesScoreBetType_returnsScoreBoardBetsSummary() throws Exception {
         String response = "[" +
-                "{\"betType\":\"Score\",\"betValue\":\"0,1\",\"betters\":[\"jane_doe\",\"john_doe\"],\"count\":1}," +
-                "{\"betType\":\"Score\",\"betValue\":\"0,0\",\"betters\":[\"jack_doe\",\"jill_doe\"]}" +
+                "{\"bet_type\":\"Score\",\"bet_value\":\"0,1\",\"betters\":[\"jane_doe\",\"john_doe\"],\"count\":1}," +
+                "{\"bet_type\":\"Score\",\"bet_value\":\"0,0\",\"betters\":[\"jack_doe\",\"jill_doe\"]}" +
                 "]";
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString())).thenReturn(response);
 

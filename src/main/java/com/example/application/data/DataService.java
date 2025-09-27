@@ -38,7 +38,7 @@ public class DataService {
     private static final String QUESTION = "question";
     private static final String CHOICES = "choices";
     private static final String WINNING_BET_VALUE = "winningBetValue";
-    private static final String IS_WINNER = "isWinner";
+    private static final String IS_WINNER = "is_winner";
     private static final String IS_LOCKED = "is_locked";
     private static final String COUNT = "count";
     private static final String SCORE_BET_TYPE = "Score";
@@ -94,19 +94,16 @@ public class DataService {
 
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
-                String betType = obj.optString(BET_TYPE);
 
-                if (!betType.equals("Score")) {
-                    PropBetsSummary summary = new PropBetsSummary(
-                        betType,
+                PropBetsSummary summary = new PropBetsSummary(
+                        obj.optString(BET_TYPE),
                         obj.optString(BET_VALUE),
                         toStringSet(obj.optJSONArray(BETTERS)),
                         obj.optString(QUESTION),
                         obj.optBoolean(IS_WINNER)
-                    );
+                );
 
-                    propBetsSummaries.add(summary);
-                }
+                propBetsSummaries.add(summary);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch prop bets summary from Supabase", e);
