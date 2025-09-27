@@ -38,7 +38,7 @@ public class DataService {
     private static final String NET_AMOUNT = "net_amount";
     private static final String QUESTION = "question";
     private static final String CHOICES = "choices";
-    private static final String WINNING_BET_VALUE = "winningBetValue";
+    private static final String WINNING_BET_VALUE = "winning_bet_value";
     private static final String IS_WINNER = "is_winner";
     private static final String IS_LOCKED = "is_locked";
     private static final String COUNT = "count";

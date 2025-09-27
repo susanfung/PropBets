@@ -1,1 +1,2 @@
 com.example.application.data.Result[betType=Team 1 Score,betValue=100]
+com.example.application.data.Result[betType=Coin toss,betValue=Chiefs]

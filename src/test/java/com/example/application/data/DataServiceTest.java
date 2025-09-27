@@ -126,13 +126,15 @@ class DataServiceTest {
 
     @Test
     void findResults() throws Exception {
-        String response = "[{\"betType\":\"Team 1 Score\",\"winningBetValue\":\"100\"}]";
+        String response = "[{\"bet_type\":\"Team 1 Score\",\"winning_bet_value\":\"100\"}, {\"bet_type\":\"Coin toss\",\"winning_bet_value\":\"Chiefs\"}]";
+
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_RESULTS), Mockito.anyString())).thenReturn(response);
 
         String result = dataService.findResults()
                                    .stream()
                                    .map(Result::toString)
                                    .reduce("", (s1, s2) -> s1 + s2 + "\n");
+
         verify(result);
     }
 
