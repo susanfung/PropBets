@@ -1,0 +1,2 @@
+Existing User Update - Query: username=eq.john_doe
+Body: {"amount_owing":10,"net_amount":15,"number_of_bets_made":2}

@@ -239,4 +239,55 @@ class DataServiceTest {
 
         verify("New record body: " + bodyCaptor.getValue());
     }
+
+    @Test
+    void updateUserBetsSummary_whenUserExists_updatesExistingUser() throws Exception {
+        String username = "john_doe";
+        Integer amountPerBet = 5;
+
+        String existingUserResponse = "[{\"username\":\"john_doe\",\"number_of_bets_made\":3,\"amount_owing\":15.0,\"number_of_bets_won\":1,\"amount_won\":25.0,\"net_amount\":10.0}]";
+        String userBetsResponse = "[{\"username\":\"john_doe\",\"bet_type\":\"Coin Toss\",\"bet_value\":\"Chiefs\"},{\"username\":\"john_doe\",\"bet_type\":\"MVP\",\"bet_value\":\"Mahomes\"}]";
+
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("username=eq.john_doe")))
+               .thenReturn(existingUserResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS), Mockito.eq("username=eq.john_doe")))
+               .thenReturn(userBetsResponse);
+        Mockito.when(mockSupabaseService.patch(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString()))
+               .thenReturn(null);
+
+        dataService.updateUserBetsSummary(username, amountPerBet);
+
+        ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .patch(Mockito.eq(TABLE_USER_BETS_SUMMARY), queryCaptor.capture(), bodyCaptor.capture());
+
+        verify("Existing User Update - Query: " + queryCaptor.getValue() + "\nBody: " + bodyCaptor.getValue());
+    }
+
+    @Test
+    void updateUserBetsSummary_whenUserDoesNotExist_createsNewUser() throws Exception {
+        String username = "new_user";
+        Integer amountPerBet = 5;
+
+        String emptyUserResponse = "[]";
+        String userBetsResponse = "[{\"username\":\"new_user\",\"bet_type\":\"Coin Toss\",\"bet_value\":\"Chiefs\"},{\"username\":\"new_user\",\"bet_type\":\"MVP\",\"bet_value\":\"Mahomes\"},{\"username\":\"new_user\",\"bet_type\":\"Score\",\"bet_value\":\"1,2\"}]";
+
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("username=eq.new_user")))
+               .thenReturn(emptyUserResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS), Mockito.eq("username=eq.new_user")))
+               .thenReturn(userBetsResponse);
+        Mockito.when(mockSupabaseService.post(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString()))
+               .thenReturn(null);
+
+        dataService.updateUserBetsSummary(username, amountPerBet);
+
+        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .post(Mockito.eq(TABLE_USER_BETS_SUMMARY), bodyCaptor.capture());
+
+        verify("New User Creation - Body: " + bodyCaptor.getValue());
+    }
 }

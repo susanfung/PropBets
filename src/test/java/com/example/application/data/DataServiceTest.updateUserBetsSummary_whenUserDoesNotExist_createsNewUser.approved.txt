@@ -1,0 +1,1 @@
+New User Creation - Body: {"amount_owing":15,"number_of_bets_won":0,"amount_won":0,"net_amount":-15,"number_of_bets_made":3,"username":"new_user"}
