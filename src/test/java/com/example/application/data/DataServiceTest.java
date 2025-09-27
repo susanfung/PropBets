@@ -156,11 +156,16 @@ class DataServiceTest {
     @Test
     void deletePreviousBets() throws Exception {
         String username = "john_doe";
-        Mockito.when(mockSupabaseService.delete(Mockito.eq(TABLE_USER_BETS), Mockito.eq("username=eq." + username))).thenReturn(null);
+        String expectedDeleteQuery = "username=eq." + username + "&or=(is_locked.eq.false,is_locked.is.null)";
+        String expectedGetQuery = "betters.cs.%5B%22" + username + "%22%5D&or=(is_locked.eq.false,is_locked.is.null)";
+
+        Mockito.when(mockSupabaseService.delete(Mockito.eq(TABLE_USER_BETS), Mockito.eq(expectedDeleteQuery))).thenReturn(null);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq(expectedGetQuery))).thenReturn("[]");
 
         dataService.deletePreviousBets(username);
 
-        Mockito.verify(mockSupabaseService, Mockito.times(1)).delete(Mockito.eq(TABLE_USER_BETS), Mockito.eq("username=eq." + username));
+        Mockito.verify(mockSupabaseService, Mockito.times(1)).delete(Mockito.eq(TABLE_USER_BETS), Mockito.eq(expectedDeleteQuery));
+        Mockito.verify(mockSupabaseService, Mockito.times(1)).get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq(expectedGetQuery));
     }
 
     @Test
