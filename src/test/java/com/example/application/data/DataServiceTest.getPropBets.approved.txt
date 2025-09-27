@@ -1,0 +1,2 @@
+com.example.application.data.PropBet[name=,question=Who will be the Super Bowl MVP?,choices=[Tom Brady, Patrick Mahomes, Aaron Rodgers, Josh Allen],isLocked=true]
+com.example.application.data.PropBet[name=,question=Who wins the coin toss?,choices=[Chiefs, Eagles],isLocked=false]

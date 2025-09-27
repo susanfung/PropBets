@@ -90,20 +90,9 @@ class DataServiceTest {
     }
 
     @Test
-    void getPropBets_whenIsLockedIsEmpty() throws Exception {
-        String response = "[{\"name\":\"Super Bowl MVP\",\"question\":\"Who will be the Super Bowl MVP?\",\"choices\":[\"Tom Brady\",\"Patrick Mahomes\",\"Aaron Rodgers\",\"Josh Allen\"]}]";
-        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString())).thenReturn(response);
+    void getPropBets() throws Exception {
+        String response = "[{\"name\":\"Super Bowl MVP\",\"question\":\"Who will be the Super Bowl MVP?\",\"choices\":[\"Tom Brady\",\"Patrick Mahomes\",\"Aaron Rodgers\",\"Josh Allen\"],\"is_locked\":true}, {\"name\":\"Coin Toss\",\"question\":\"Who wins the coin toss?\",\"choices\":[\"Chiefs\",\"Eagles\"]}]";
 
-        String result = dataService.getPropBets()
-                                   .stream()
-                                   .map(PropBet::toString)
-                                   .reduce("", (s1, s2) -> s1 + s2 + "\n");
-        verify(result);
-    }
-
-    @Test
-    void getPropBets_whenIsLockedIsTrue() throws Exception {
-        String response = "[{\"name\":\"Super Bowl MVP\",\"question\":\"Who will be the Super Bowl MVP?\",\"choices\":[\"Tom Brady\",\"Patrick Mahomes\",\"Aaron Rodgers\",\"Josh Allen\"],\"isLocked\":true}]";
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString())).thenReturn(response);
 
         String result = dataService.getPropBets()

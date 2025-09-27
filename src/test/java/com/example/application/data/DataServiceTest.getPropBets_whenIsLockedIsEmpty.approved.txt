@@ -1,1 +1,0 @@
-com.example.application.data.PropBet[name=Super Bowl MVP,question=Who will be the Super Bowl MVP?,choices=[Tom Brady, Patrick Mahomes, Aaron Rodgers, Josh Allen],isLocked=false]
