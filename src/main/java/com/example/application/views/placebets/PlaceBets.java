@@ -19,6 +19,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,7 @@ import static com.example.application.utils.Utils.createPropBet;
 public class PlaceBets extends VerticalLayout {
     private Boolean isScoreBoardBetsLocked = false;
 
-    private final Map<String, String> scoreBets = new HashMap<>();
+    private final List<String> scoreBets = new ArrayList<>();
     private final Map<String, String> propBets = new HashMap<>();
 
     private int betCount = 0;
@@ -163,12 +164,12 @@ public class PlaceBets extends VerticalLayout {
 
     private void handleScoreBoardSelection(Button button) {
         String betValue = button.getText();
-        if (scoreBets.containsKey(betValue)) {
+        if (scoreBets.contains(betValue)) {
             scoreBets.remove(betValue);
             button.removeClassName("selected");
             decreaseBetCounter();
         } else {
-            scoreBets.put(betValue, "Score");
+            scoreBets.add(betValue);
             button.addClassName("selected");
             increaseBetCounter();
         }
@@ -212,8 +213,7 @@ public class PlaceBets extends VerticalLayout {
                     button.addClassName("selected");
 
                     if (button.isEnabled()) {
-                        scoreBets.put(userBet.betValue(),
-                                      userBet.betType());
+                        scoreBets.add(userBet.betValue());
                         increaseBetCounter();
                     }
                 });

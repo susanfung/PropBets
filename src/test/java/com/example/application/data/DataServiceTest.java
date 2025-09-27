@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.application.data.DataService.TABLE_PROP_BETS;
@@ -334,7 +335,7 @@ class DataServiceTest {
     @Test
     void saveScoreBets_withEmptyBets_doesNotCallAnyMethods() throws Exception {
         String username = "john_doe";
-        java.util.Map<String, String> emptyBets = new java.util.HashMap<>();
+        List<String> emptyBets = new ArrayList<>();
 
         dataService.saveScoreBets(username, emptyBets);
 
@@ -346,8 +347,7 @@ class DataServiceTest {
     @Test
     void saveScoreBets_withSingleBet_callsCorrectMethods() throws Exception {
         String username = "john_doe";
-        java.util.Map<String, String> bets = new java.util.HashMap<>();
-        bets.put("1,2", "Score");
+        List<String> bets = List.of("1,2");
 
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString()))
                .thenReturn("[]");
@@ -366,10 +366,7 @@ class DataServiceTest {
     @Test
     void saveScoreBets_withMultipleBets_callsMethodsForEachBet() throws Exception {
         String username = "jane_doe";
-        java.util.Map<String, String> bets = new java.util.HashMap<>();
-        bets.put("0,1", "Score");
-        bets.put("2,3", "Score");
-        bets.put("4,5", "Score");
+        List<String> bets = List.of("0,1", "2,3", "4,5");
 
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString()))
                .thenReturn("[]");
