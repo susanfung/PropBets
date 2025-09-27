@@ -142,8 +142,7 @@ class DataServiceTest {
     void isPropBetNameTaken_whenPropBetNameDoesNotExist_returnFalse() throws Exception {
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString())).thenReturn("[]");
 
-        boolean taken = dataService.isPropBetNameTaken("Super Bowl MVP");
-        verify(String.valueOf(taken));
+        verify(String.valueOf(dataService.isPropBetNameTaken("Super Bowl MVP")));
     }
 
     @Test
@@ -151,8 +150,7 @@ class DataServiceTest {
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString()))
                .thenReturn("[{\"name\":\"Super Bowl MVP\"}]");
 
-        boolean taken = dataService.isPropBetNameTaken("Super Bowl MVP");
-        verify(String.valueOf(taken));
+        verify(String.valueOf(dataService.isPropBetNameTaken("Super Bowl MVP")));
     }
 
     @Test

@@ -232,30 +232,6 @@ public class DataService {
         return results;
     }
 
-    private List<String> toStringList(JSONArray arr) {
-        List<String> list = new ArrayList<>();
-
-        if (arr != null) {
-            for (int i = 0; i < arr.length(); i++) {
-                list.add(arr.optString(i));
-            }
-        }
-
-        return list;
-    }
-
-    private Set<String> toStringSet(JSONArray arr) {
-        Set<String> set = new HashSet<>();
-
-        if (arr != null) {
-            for (int i = 0; i < arr.length(); i++) {
-                set.add(arr.optString(i));
-            }
-        }
-
-        return set;
-    }
-
     public boolean isPropBetNameTaken(String name) {
         try {
             String encodedName = URLEncoder.encode(toCamelCase(name), StandardCharsets.UTF_8);
@@ -824,5 +800,29 @@ public class DataService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete all data from Supabase", e);
         }
+    }
+
+    private List<String> toStringList(JSONArray arr) {
+        List<String> list = new ArrayList<>();
+
+        if (arr != null) {
+            for (int i = 0; i < arr.length(); i++) {
+                list.add(arr.optString(i));
+            }
+        }
+
+        return list;
+    }
+
+    private Set<String> toStringSet(JSONArray arr) {
+        Set<String> set = new HashSet<>();
+
+        if (arr != null) {
+            for (int i = 0; i < arr.length(); i++) {
+                set.add(arr.optString(i));
+            }
+        }
+
+        return set;
     }
 }
