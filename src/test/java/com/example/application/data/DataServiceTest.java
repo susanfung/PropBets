@@ -78,7 +78,8 @@ class DataServiceTest {
 
     @Test
     void getUserBets() throws Exception {
-        String response = "[{\"username\":\"john_doe\",\"betType\":\"Team 1 Score\",\"betValue\":\"100\"}]";
+        String response = "[{\"username\":\"john_doe\",\"bet_type\":\"Team 1 Score\",\"bet_value\":\"100\",\"is_locked\":true},{\"username\":\"jane_doe\",\"bet_type\":\"Team 2 Score\",\"bet_value\":\"75\",\"is_locked\":false}]";
+
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS), Mockito.anyString())).thenReturn(response);
 
         String result = dataService.getUserBets()
