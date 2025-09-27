@@ -329,23 +329,15 @@ public class DataService {
 
             JSONObject obj = new JSONObject();
             obj.put(BET_TYPE, toCamelCase(name));
-            obj.put(QUESTION, formatQuestion(question));
+            String string = question.substring(0, 1).toUpperCase() + question.substring(1);
+
+            obj.put(QUESTION, string.endsWith("?") ? string : string + "?");
             obj.put(CHOICES, new JSONArray(choicesList));
 
             supabaseService.post(TABLE_PROP_BETS, obj.toString());
         } catch (Exception e) {
             throw new RuntimeException("Failed to create new prop bet in Supabase", e);
         }
-    }
-
-    private String toCamelCase(String input) {
-        return Stream.of(input.split("\\s+")).filter(s -> !s.isEmpty()).map(s -> s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase()).collect(Collectors.joining(" ")).trim();
-    }
-
-    private String formatQuestion(String input) {
-        String string = input.substring(0, 1).toUpperCase() + input.substring(1);
-
-        return string.endsWith("?") ? string : string + "?";
     }
 
     public void updatePropBetsSummary(String betType, String betValue, String username) {
@@ -802,6 +794,18 @@ public class DataService {
         }
     }
 
+    private Set<String> toStringSet(JSONArray arr) {
+        Set<String> set = new HashSet<>();
+
+        if (arr != null) {
+            for (int i = 0; i < arr.length(); i++) {
+                set.add(arr.optString(i));
+            }
+        }
+
+        return set;
+    }
+
     private List<String> toStringList(JSONArray arr) {
         List<String> list = new ArrayList<>();
 
@@ -814,15 +818,7 @@ public class DataService {
         return list;
     }
 
-    private Set<String> toStringSet(JSONArray arr) {
-        Set<String> set = new HashSet<>();
-
-        if (arr != null) {
-            for (int i = 0; i < arr.length(); i++) {
-                set.add(arr.optString(i));
-            }
-        }
-
-        return set;
+    private String toCamelCase(String input) {
+        return Stream.of(input.split("\\s+")).filter(s -> !s.isEmpty()).map(s -> s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase()).collect(Collectors.joining(" ")).trim();
     }
 }

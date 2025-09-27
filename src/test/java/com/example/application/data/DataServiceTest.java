@@ -171,6 +171,7 @@ class DataServiceTest {
     @Test
     void addUserBet() throws Exception {
         UserBet userBet = new UserBet("john_doe", "Team 1 Score", "100");
+
         Mockito.when(mockSupabaseService.post(Mockito.eq(TABLE_USER_BETS), Mockito.anyString())).thenReturn(null);
 
         dataService.addUserBet(userBet);
