@@ -9,7 +9,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.example.application.data.DataService.TABLE_PROP_BETS;
 import static com.example.application.data.DataService.TABLE_PROP_BETS_SUMMARY;
@@ -379,5 +381,92 @@ class DataServiceTest {
                .post(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString());
 
         verify("Number of bets processed: " + bets.size());
+    }
+
+    @Test
+    void savePropBets_withEmptyBets_doesNotCallAnyMethods() throws Exception {
+        String username = "john_doe";
+        Map<String, String> emptyBets = new HashMap<>();
+
+        dataService.savePropBets(username, emptyBets);
+
+        Mockito.verify(mockSupabaseService, Mockito.never()).post(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.never()).get(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.never()).patch(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    void savePropBets_withSingleBet_callsCorrectMethods() throws Exception {
+        String username = "john_doe";
+        Map<String, String> bets = Map.of("Coin Toss", "Chiefs");
+
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString()))
+               .thenReturn("[]");
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString()))
+               .thenReturn("[{\"bet_type\":\"Coin Toss\",\"question\":\"Who wins the coin toss?\"}]");
+
+        dataService.savePropBets(username, bets);
+
+        ArgumentCaptor<String> userBetCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> propBetsSummaryCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .post(Mockito.eq(TABLE_USER_BETS), userBetCaptor.capture());
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .post(Mockito.eq(TABLE_PROP_BETS_SUMMARY), propBetsSummaryCaptor.capture());
+
+        verify("User bet posted: " + userBetCaptor.getValue() + "\nProp bets summary posted: " + propBetsSummaryCaptor.getValue());
+    }
+
+    @Test
+    void savePropBets_withMultipleBets_callsMethodsForEachBet() throws Exception {
+        String username = "jane_doe";
+        Map<String, String> bets = Map.of(
+            "Coin Toss", "Chiefs",
+            "MVP", "Mahomes",
+            "First Touchdown", "Kelce"
+        );
+
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString()))
+               .thenReturn("[]");
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString()))
+               .thenReturn("[{\"bet_type\":\"Coin Toss\",\"question\":\"Who wins the coin toss?\"}]")
+               .thenReturn("[{\"bet_type\":\"MVP\",\"question\":\"Who will be MVP?\"}]")
+               .thenReturn("[{\"bet_type\":\"First Touchdown\",\"question\":\"Who scores first?\"}]");
+
+        dataService.savePropBets(username, bets);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(3))
+               .post(Mockito.eq(TABLE_USER_BETS), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.times(3))
+               .post(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString());
+
+        verify("Number of prop bets processed: " + bets.size());
+    }
+
+    @Test
+    void savePropBets_withExistingPropBetsSummary_updatesExistingRecord() throws Exception {
+        String username = "new_user";
+        Map<String, String> bets = Map.of("Coin Toss", "Chiefs");
+
+        String existingResponse = "[{\"bet_type\":\"Coin Toss\",\"bet_value\":\"Chiefs\",\"betters\":[\"existing_user\"],\"question\":\"Who wins the coin toss?\"}]";
+
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString()))
+               .thenReturn(existingResponse);
+        Mockito.when(mockSupabaseService.patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString()))
+               .thenReturn(null);
+
+        dataService.savePropBets(username, bets);
+
+        ArgumentCaptor<String> userBetCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .post(Mockito.eq(TABLE_USER_BETS), userBetCaptor.capture());
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), queryCaptor.capture(), bodyCaptor.capture());
+
+        verify("User bet: " + userBetCaptor.getValue() + "\nQuery: " + queryCaptor.getValue() + "\nUpdate body: " + bodyCaptor.getValue());
     }
 }

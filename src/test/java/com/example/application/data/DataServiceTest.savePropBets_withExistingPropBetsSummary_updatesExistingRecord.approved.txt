@@ -1,0 +1,3 @@
+User bet: {"bet_type":"Coin Toss","bet_value":"Chiefs","username":"new_user"}
+Query: bet_type=eq.Coin+Toss&bet_value=eq.Chiefs
+Update body: {"betters":["existing_user","new_user"]}

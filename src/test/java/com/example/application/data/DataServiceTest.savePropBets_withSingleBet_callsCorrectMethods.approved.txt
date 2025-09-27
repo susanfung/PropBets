@@ -1,0 +1,2 @@
+User bet posted: {"bet_type":"Coin Toss","bet_value":"Chiefs","username":"john_doe"}
+Prop bets summary posted: {"bet_type":"Coin Toss","question":"Who wins the coin toss?","bet_value":"Chiefs","betters":["john_doe"]}
