@@ -30,11 +30,11 @@ public class DataService {
     private static final String BET_TYPE = "bet_type";
     private static final String BET_VALUE = "bet_value";
     private static final String BETTERS = "betters";
-    private static final String NUMBER_OF_BETS_MADE = "numberOfBetsMade";
-    private static final String AMOUNT_OWING = "amountOwing";
-    private static final String NUMBER_OF_BETS_WON = "numberOfBetsWon";
-    private static final String AMOUNT_WON = "amountWon";
-    private static final String NET_AMOUNT = "netAmount";
+    private static final String NUMBER_OF_BETS_MADE = "number_of_bets_made";
+    private static final String AMOUNT_OWING = "amount_owing";
+    private static final String NUMBER_OF_BETS_WON = "number_of_bets_won";
+    private static final String AMOUNT_WON = "amount_won";
+    private static final String NET_AMOUNT = "net_amount";
     private static final String QUESTION = "question";
     private static final String CHOICES = "choices";
     private static final String WINNING_BET_VALUE = "winningBetValue";

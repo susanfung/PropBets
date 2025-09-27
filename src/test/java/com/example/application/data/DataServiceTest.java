@@ -31,13 +31,14 @@ class DataServiceTest {
 
     @Test
     void getUserBetsSummary() throws Exception {
-        String response = "[{\"username\":\"john_doe\",\"numberOfBetsMade\":5,\"amountOwing\":100.0,\"numberOfBetsWon\":3,\"amountWon\":150.0,\"netAmount\":50.0}]";
+        String response = "[{\"username\":\"john_doe\",\"number_of_bets_made\":5,\"amount_owing\":100.0,\"number_of_bets_won\":3,\"amount_won\":150.0,\"net_amount\":50.0,\"amount_of_scoreboard_bets_won\":36.99,\"number_of_scoreboard_bets_won\":4,\"amount_of_propbets_won\":2.4,\"number_of_propbets_won\":1}]";
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString())).thenReturn(response);
 
         String result = dataService.getUserBetsSummary()
                                    .stream()
                                    .map(UserBetsSummary::toString)
                                    .reduce("", (s1, s2) -> s1 + s2 + "\n");
+
         verify(result);
     }
 
