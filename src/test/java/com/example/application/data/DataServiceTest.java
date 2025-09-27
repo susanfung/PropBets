@@ -33,6 +33,7 @@ class DataServiceTest {
     @Test
     void getUserBetsSummary() throws Exception {
         String response = "[{\"username\":\"john_doe\",\"number_of_bets_made\":5,\"amount_owing\":100.0,\"number_of_bets_won\":3,\"amount_won\":150.0,\"net_amount\":50.0,\"amount_of_scoreboard_bets_won\":36.99,\"number_of_scoreboard_bets_won\":4,\"amount_of_propbets_won\":2.4,\"number_of_propbets_won\":1}]";
+
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString())).thenReturn(response);
 
         String result = dataService.getUserBetsSummary()
@@ -51,12 +52,14 @@ class DataServiceTest {
                 "{\"bet_type\":\"Coin Toss\",\"bet_value\":\"Chiefs\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":true,\"question\":\"Who wins the coin toss?\",\"is_winner\":true}," +
                 "{\"bet_type\":\"Coin Toss\",\"bet_value\":\"Eagles\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":true,\"question\":\"Who wins the coin toss?\",\"is_winner\":false}" +
                 "]";
+
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString())).thenReturn(response);
 
         String result = dataService.getPropBetsSummary()
                                    .stream()
                                    .map(PropBetsSummary::toString)
                                    .reduce("", (s1, s2) -> s1 + s2 + "\n");
+
         verify(result);
     }
 
@@ -66,6 +69,7 @@ class DataServiceTest {
                 "{\"bet_value\":\"0,1\",\"betters\":[\"jane_doe\",\"john_doe\"],\"is_locked\":true,\"count\":1}," +
                 "{\"bet_value\":\"0,0\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":true}" +
                 "]";
+
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString())).thenReturn(response);
 
         List<ScoreBoardBetsSummary> resultList = dataService.getScoreBetsSummary();
@@ -73,6 +77,7 @@ class DataServiceTest {
         String result = resultList.stream()
                                   .map(entry -> entry.betValue() + ":\n" + entry.betters() + ":\n" + entry.count())
                                   .reduce("", (s1, s2) -> s1 + s2 + "\n");
+
         verify(result);
     }
 
@@ -86,6 +91,7 @@ class DataServiceTest {
                                    .stream()
                                    .map(UserBet::toString)
                                    .reduce("", (s1, s2) -> s1 + s2 + "\n");
+
         verify(result);
     }
 
@@ -99,19 +105,22 @@ class DataServiceTest {
                                    .stream()
                                    .map(PropBet::toString)
                                    .reduce("", (s1, s2) -> s1 + s2 + "\n");
+
         verify(result);
     }
 
     @Test
     void findUserBetsByUsername() throws Exception {
         String username = "john_doe";
-        String response = "[{\"username\":\"john_doe\",\"betType\":\"Team 1 Score\",\"betValue\":\"100\"}]";
+        String response = "[{\"username\":\"john_doe\",\"bet_type\":\"Team 1 Score\",\"bet_value\":\"100\",\"is_locked\":true}, {\"username\":\"john_doe\",\"bet_type\":\"Team 2 Score\",\"bet_value\":\"50\",\"is_locked\":true}]";
+
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS), Mockito.eq("username=eq." + username))).thenReturn(response);
 
         String result = dataService.findUserBetsByUsername(username)
                                    .stream()
                                    .map(UserBet::toString)
                                    .reduce("", (s1, s2) -> s1 + s2 + "\n");
+
         verify(result);
     }
 
