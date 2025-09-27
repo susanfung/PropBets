@@ -11,10 +11,8 @@ import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,11 +61,13 @@ public class DataService {
 
     public List<UserBetsSummary> getUserBetsSummary() {
         List<UserBetsSummary> userBetsSummaries = new ArrayList<>();
+
         try {
-            String response = supabaseService.get(TABLE_USER_BETS_SUMMARY, "");
-            JSONArray arr = new JSONArray(response);
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_USER_BETS_SUMMARY, ""));
+
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
+
                 UserBetsSummary userBetsSummary = new UserBetsSummary(
                     obj.optString(USERNAME),
                     obj.optInt(NUMBER_OF_BETS_MADE),
@@ -76,22 +76,26 @@ public class DataService {
                     obj.optDouble(AMOUNT_WON),
                     obj.optDouble(NET_AMOUNT)
                 );
+
                 userBetsSummaries.add(userBetsSummary);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch user bets summary from Supabase", e);
         }
+
         return userBetsSummaries;
     }
 
     public List<PropBetsSummary> getPropBetsSummary() {
         List<PropBetsSummary> propBetsSummaries = new ArrayList<>();
+
         try {
-            String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, "");
-            JSONArray arr = new JSONArray(response);
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_PROP_BETS_SUMMARY, ""));
+
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
                 String betType = obj.optString(BET_TYPE);
+
                 if (!betType.equals("Score")) {
                     PropBetsSummary summary = new PropBetsSummary(
                         betType,
@@ -100,23 +104,27 @@ public class DataService {
                         obj.optString(QUESTION),
                         obj.optBoolean(IS_WINNER)
                     );
+
                     propBetsSummaries.add(summary);
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch prop bets summary from Supabase", e);
         }
+
         return propBetsSummaries;
     }
 
     public List<ScoreBoardBetsSummary> getScoreBoardBetsSummary() {
         List<ScoreBoardBetsSummary> scoreBoardBetsSummaries = new ArrayList<>();
+
         try {
-            String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, "");
-            JSONArray arr = new JSONArray(response);
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_PROP_BETS_SUMMARY, ""));
+
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
                 String betType = obj.optString(BET_TYPE);
+
                 if (betType.equals("Score")) {
                     String betValue = obj.optString(BET_VALUE);
                     Set<String> betters = toStringSet(obj.optJSONArray(BETTERS));
@@ -128,86 +136,103 @@ public class DataService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch scoreboard bets summary from Supabase", e);
         }
+
         return scoreBoardBetsSummaries;
     }
 
     public List<UserBet> getUserBets() {
         List<UserBet> userBets = new ArrayList<>();
+
         try {
-            String response = supabaseService.get(TABLE_USER_BETS, "");
-            JSONArray arr = new JSONArray(response);
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_USER_BETS, ""));
+
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
+
                 UserBet userBet = new UserBet(
                     obj.optString(USERNAME),
                     obj.optString(BET_TYPE),
                     obj.optString(BET_VALUE)
                 );
+
                 userBets.add(userBet);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch user bets from Supabase", e);
         }
+
         return userBets;
     }
 
     public List<PropBet> getPropBets() {
         List<PropBet> propBets = new ArrayList<>();
+
         try {
-            String response = supabaseService.get(TABLE_PROP_BETS, "");
-            JSONArray arr = new JSONArray(response);
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_PROP_BETS, ""));
+
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
+
                 PropBet propBet = new PropBet(
                     obj.optString(BET_TYPE),
                     obj.optString(QUESTION),
                     toStringList(obj.optJSONArray(CHOICES)),
                     obj.has(IS_LOCKED) ? Optional.of(obj.optBoolean(IS_LOCKED)) : Optional.empty()
                 );
+
                 propBets.add(propBet);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch prop bets from Supabase", e);
         }
+
         return propBets;
     }
 
     public List<UserBet> findUserBetsByUsername(String username) {
         List<UserBet> userBets = new ArrayList<>();
+
         try {
-            String response = supabaseService.get(TABLE_USER_BETS, "username=eq." + username);
-            JSONArray arr = new JSONArray(response);
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_USER_BETS, "username=eq." + username));
+
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
+
                 UserBet userBet = new UserBet(
                     obj.optString(USERNAME),
                     obj.optString(BET_TYPE),
                     obj.optString(BET_VALUE)
                 );
+
                 userBets.add(userBet);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch user bets by username from Supabase", e);
         }
+
         return userBets;
     }
 
     public List<Result> findResults() {
         List<Result> results = new ArrayList<>();
+
         try {
-            String response = supabaseService.get(TABLE_RESULTS, "");
-            JSONArray arr = new JSONArray(response);
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_RESULTS, ""));
+
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
+
                 Result result = new Result(
                     obj.optString(BET_TYPE),
                     obj.optString(WINNING_BET_VALUE)
                 );
+
                 results.add(result);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch results from Supabase", e);
         }
+
         return results;
     }
 
@@ -251,13 +276,13 @@ public class DataService {
         try {
             String deleteUserBetsQuery = "username=eq." + URLEncoder.encode(username, StandardCharsets.UTF_8) +
                                        "&or=(is_locked.eq.false,is_locked.is.null)";
+
             supabaseService.delete(TABLE_USER_BETS, deleteUserBetsQuery);
 
             String bettersJsonFilter = "[\"" + username + "\"]";
             String getPropBetsQuery = "betters.cs." + URLEncoder.encode(bettersJsonFilter, StandardCharsets.UTF_8) +
                                     "&or=(is_locked.eq.false,is_locked.is.null)";
-            String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, getPropBetsQuery);
-            JSONArray propBetsSummaries = new JSONArray(response);
+            JSONArray propBetsSummaries = new JSONArray(supabaseService.get(TABLE_PROP_BETS_SUMMARY, getPropBetsQuery));
 
             for (int i = 0; i < propBetsSummaries.length(); i++) {
                 JSONObject propBetSummary = propBetsSummaries.getJSONObject(i);
@@ -316,6 +341,7 @@ public class DataService {
             obj.put(USERNAME, userBet.username());
             obj.put(BET_TYPE, userBet.betType());
             obj.put(BET_VALUE, userBet.betValue());
+
             supabaseService.post(TABLE_USER_BETS, obj.toString());
         } catch (Exception e) {
             throw new RuntimeException("Failed to add user bet to Supabase", e);
@@ -328,10 +354,12 @@ public class DataService {
                                              .map(String::trim)
                                              .map(this::toCamelCase)
                                              .toList();
+
             JSONObject obj = new JSONObject();
             obj.put(BET_TYPE, toCamelCase(name));
             obj.put(QUESTION, formatQuestion(question));
             obj.put(CHOICES, new JSONArray(choicesList));
+
             supabaseService.post(TABLE_PROP_BETS, obj.toString());
         } catch (Exception e) {
             throw new RuntimeException("Failed to create new prop bet in Supabase", e);
@@ -344,6 +372,7 @@ public class DataService {
 
     private String formatQuestion(String input) {
         String string = input.substring(0, 1).toUpperCase() + input.substring(1);
+
         return string.endsWith("?") ? string : string + "?";
     }
 
@@ -351,8 +380,7 @@ public class DataService {
         try {
             String query = "bet_type=eq." + URLEncoder.encode(betType, StandardCharsets.UTF_8) +
                           "&bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
-            String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, query);
-            JSONArray arr = new JSONArray(response);
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_PROP_BETS_SUMMARY, query));
 
             if (arr.length() > 0) {
                 JSONObject existingRecord = arr.getJSONObject(0);
@@ -376,6 +404,7 @@ public class DataService {
                 if (propBetArr.length() > 0) {
                     JSONObject propBet = propBetArr.getJSONObject(0);
                     String question = propBet.optString(QUESTION);
+
                     if (!question.isEmpty()) {
                         newRecord.put(QUESTION, question);
                     }
@@ -391,8 +420,7 @@ public class DataService {
     public void updateUserBetsSummary(String username, Integer amountPerBet) {
         try {
             String query = "username=eq." + URLEncoder.encode(username, StandardCharsets.UTF_8);
-            String response = supabaseService.get(TABLE_USER_BETS_SUMMARY, query);
-            JSONArray arr = new JSONArray(response);
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_USER_BETS_SUMMARY, query));
 
             List<UserBet> userBetsList = findUserBetsByUsername(username);
             Integer numberOfBetsMade = userBetsList.size();
@@ -427,6 +455,7 @@ public class DataService {
     public void saveScoreBoardBets(String username, java.util.Map<String, String> bets) {
         bets.forEach((betValue, betType) -> {
             UserBet bet = new UserBet(username, betType, betValue);
+
             addUserBet(bet);
             updatePropBetsSummary(betType, betValue, username);
         });
@@ -435,6 +464,7 @@ public class DataService {
     public void savePropBets(String username, java.util.Map<String, String> bets) {
         bets.forEach((betType, betValue) -> {
             UserBet bet = new UserBet(username, betType, betValue);
+
             addUserBet(bet);
             updatePropBetsSummary(betType, betValue, username);
         });
@@ -456,6 +486,7 @@ public class DataService {
 
             if (propBetsArray.length() > 0) {
                 JSONObject foundPropBet = propBetsArray.getJSONObject(0);
+
                 updatePropBetsSummaryWithResults(betType, winningBetValue, foundPropBet, winningBetters, losingBetters);
             }
 
@@ -491,6 +522,7 @@ public class DataService {
                     Set<String> betters = toStringSet(foundPropBetsSummary.optJSONArray(BETTERS));
 
                     JSONObject updateObj = new JSONObject();
+
                     if (betValue.equals(winningBetValue)) {
                         winningBetters.addAll(betters);
                         updateObj.put(IS_WINNER, true);
@@ -511,8 +543,7 @@ public class DataService {
         try {
             for (String username : winningBetters) {
                 String userSummaryQuery = "username=eq." + URLEncoder.encode(username, StandardCharsets.UTF_8);
-                String userSummaryResponse = supabaseService.get(TABLE_USER_BETS_SUMMARY, userSummaryQuery);
-                JSONArray userSummaryArray = new JSONArray(userSummaryResponse);
+                JSONArray userSummaryArray = new JSONArray(supabaseService.get(TABLE_USER_BETS_SUMMARY, userSummaryQuery));
 
                 if (userSummaryArray.length() > 0) {
                     JSONObject foundUserBetSummary = userSummaryArray.getJSONObject(0);
