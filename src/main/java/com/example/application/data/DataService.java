@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 public class DataService {
     public static final String TABLE_USER_BETS_SUMMARY = "user_bets_summary";
     public static final String TABLE_PROP_BETS_SUMMARY = "propbets_summary";
+    public static final String TABLE_SCORE_BETS_SUMMARY = "scorebets_summary";
     public static final String TABLE_USER_BETS = "user_bets";
     public static final String TABLE_PROP_BETS = "propbets";
     public static final String TABLE_RESULTS = "results";
@@ -112,23 +113,21 @@ public class DataService {
         return propBetsSummaries;
     }
 
-    public List<ScoreBoardBetsSummary> getScoreBoardBetsSummary() {
+    public List<ScoreBoardBetsSummary> getScoreBetsSummary() {
         List<ScoreBoardBetsSummary> scoreBoardBetsSummaries = new ArrayList<>();
 
         try {
-            JSONArray arr = new JSONArray(supabaseService.get(TABLE_PROP_BETS_SUMMARY, ""));
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_SCORE_BETS_SUMMARY, ""));
 
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
-                String betType = obj.optString(BET_TYPE);
 
-                if (betType.equals("Score")) {
-                    String betValue = obj.optString(BET_VALUE);
-                    Set<String> betters = toStringSet(obj.optJSONArray(BETTERS));
-                    Optional<Integer> count = obj.has("count") ? Optional.of(obj.optInt("count")) : Optional.empty();
-                    ScoreBoardBetsSummary summary = new ScoreBoardBetsSummary(betValue, betters, count);
-                    scoreBoardBetsSummaries.add(summary);
-                }
+                String betValue = obj.optString(BET_VALUE);
+                Set<String> betters = toStringSet(obj.optJSONArray(BETTERS));
+                Optional<Integer> count = obj.has(COUNT) ? Optional.of(obj.optInt(COUNT)) : Optional.empty();
+                ScoreBoardBetsSummary summary = new ScoreBoardBetsSummary(betValue, betters, count);
+
+                scoreBoardBetsSummaries.add(summary);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch scoreboard bets summary from Supabase", e);
@@ -740,7 +739,7 @@ public class DataService {
     public void createScoreBoardEventsTracker() {
         try {
             List<String> allBetters = new ArrayList<>();
-            List<ScoreBoardBetsSummary> scoreBoardBetsSummary = getScoreBoardBetsSummary();
+            List<ScoreBoardBetsSummary> scoreBoardBetsSummary = getScoreBetsSummary();
 
             scoreBoardBetsSummary.forEach(summary -> allBetters.addAll(summary.betters()));
 
@@ -779,7 +778,7 @@ public class DataService {
         try {
             List<PropBet> propBets = getPropBets();
             List<PropBetsSummary> propBetsSummary = getPropBetsSummary();
-            List<ScoreBoardBetsSummary> scoreBoardBetsSummary = getScoreBoardBetsSummary();
+            List<ScoreBoardBetsSummary> scoreBoardBetsSummary = getScoreBetsSummary();
             List<UserBet> userBets = getUserBets();
 
             JSONObject updateObj = new JSONObject();

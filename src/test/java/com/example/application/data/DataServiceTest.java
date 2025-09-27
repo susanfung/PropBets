@@ -13,6 +13,7 @@ import java.util.List;
 import static com.example.application.data.DataService.TABLE_PROP_BETS;
 import static com.example.application.data.DataService.TABLE_PROP_BETS_SUMMARY;
 import static com.example.application.data.DataService.TABLE_RESULTS;
+import static com.example.application.data.DataService.TABLE_SCORE_BETS_SUMMARY;
 import static com.example.application.data.DataService.TABLE_USER_BETS;
 import static com.example.application.data.DataService.TABLE_USER_BETS_SUMMARY;
 import static org.approvaltests.Approvals.verify;
@@ -60,14 +61,14 @@ class DataServiceTest {
     }
 
     @Test
-    void getScoreBoardBetsSummary_whenReceivesScoreBetType_returnsScoreBoardBetsSummary() throws Exception {
+    void getScoreBetsSummary_returnsScoreBetsSummary() throws Exception {
         String response = "[" +
-                "{\"bet_type\":\"Score\",\"bet_value\":\"0,1\",\"betters\":[\"jane_doe\",\"john_doe\"],\"count\":1}," +
-                "{\"bet_type\":\"Score\",\"bet_value\":\"0,0\",\"betters\":[\"jack_doe\",\"jill_doe\"]}" +
+                "{\"bet_value\":\"0,1\",\"betters\":[\"jane_doe\",\"john_doe\"],\"is_locked\":true,\"count\":1}," +
+                "{\"bet_value\":\"0,0\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":true}" +
                 "]";
-        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString())).thenReturn(response);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString())).thenReturn(response);
 
-        List<ScoreBoardBetsSummary> resultList = dataService.getScoreBoardBetsSummary();
+        List<ScoreBoardBetsSummary> resultList = dataService.getScoreBetsSummary();
 
         String result = resultList.stream()
                                   .map(entry -> entry.betValue() + ":\n" + entry.betters() + ":\n" + entry.count())

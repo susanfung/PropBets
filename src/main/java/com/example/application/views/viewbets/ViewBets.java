@@ -109,7 +109,7 @@ public class ViewBets extends VerticalLayout {
         HorizontalLayout columnNamesForScoreBoard = createColumnNamesForScoreBoard();
         add(navigationLayout, scoreBoardTitle, teams, columnNamesForScoreBoard);
 
-        scoreBoardBetsSummary = this.dataService.getScoreBoardBetsSummary();
+        scoreBoardBetsSummary = this.dataService.getScoreBetsSummary();
 
         IntStream.rangeClosed(0, 9).forEach(row -> {
             HorizontalLayout rowsForScoreBoard = createRowsForScoreBoard(row);
