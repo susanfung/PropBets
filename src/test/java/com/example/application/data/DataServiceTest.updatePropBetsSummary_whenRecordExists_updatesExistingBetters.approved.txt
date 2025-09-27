@@ -1,0 +1,2 @@
+Query: bet_type=eq.Coin+Toss&bet_value=eq.Chiefs
+Body: {"betters":["another_user","existing_user","new_user"]}

@@ -1,0 +1,1 @@
+New record body: {"bet_type":"New Bet","question":"What is the new bet about?","bet_value":"Option A","betters":["test_user"]}

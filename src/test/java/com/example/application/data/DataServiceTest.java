@@ -190,4 +190,53 @@ class DataServiceTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(mockSupabaseService, Mockito.times(1)).post(Mockito.eq(TABLE_PROP_BETS), captor.capture());
     }
+
+    @Test
+    void updatePropBetsSummary_whenRecordExists_updatesExistingBetters() throws Exception {
+        String betType = "Coin Toss";
+        String betValue = "Chiefs";
+        String username = "new_user";
+
+        String existingResponse = "[{\"bet_type\":\"Coin Toss\",\"bet_value\":\"Chiefs\",\"betters\":[\"existing_user\",\"another_user\"],\"is_locked\":true,\"question\":\"Who wins the coin toss?\"}]";
+
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString()))
+               .thenReturn(existingResponse);
+        Mockito.when(mockSupabaseService.patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString()))
+               .thenReturn(null);
+
+        dataService.updatePropBetsSummary(betType, betValue, username);
+
+        ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), queryCaptor.capture(), bodyCaptor.capture());
+
+        verify("Query: " + queryCaptor.getValue() + "\nBody: " + bodyCaptor.getValue());
+    }
+
+    @Test
+    void updatePropBetsSummary_whenNoRecordExists_createsNewRecord() throws Exception {
+        String betType = "New Bet";
+        String betValue = "Option A";
+        String username = "test_user";
+
+        String emptyResponse = "[]";
+        String propBetResponse = "[{\"bet_type\":\"New Bet\",\"question\":\"What is the new bet about?\"}]";
+
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString()))
+               .thenReturn(emptyResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString()))
+               .thenReturn(propBetResponse);
+        Mockito.when(mockSupabaseService.post(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString()))
+               .thenReturn(null);
+
+        dataService.updatePropBetsSummary(betType, betValue, username);
+
+        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .post(Mockito.eq(TABLE_PROP_BETS_SUMMARY), bodyCaptor.capture());
+
+        verify("New record body: " + bodyCaptor.getValue());
+    }
 }
