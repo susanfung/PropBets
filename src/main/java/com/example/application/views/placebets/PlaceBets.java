@@ -38,7 +38,7 @@ import static com.example.application.utils.Utils.createPropBet;
 public class PlaceBets extends VerticalLayout {
     private Boolean isScoreBoardBetsLocked = false;
 
-    private final Map<String, String> scoreBoardBets = new HashMap<>();
+    private final Map<String, String> scoreBets = new HashMap<>();
     private final Map<String, String> propBets = new HashMap<>();
 
     private int betCount = 0;
@@ -112,14 +112,14 @@ public class PlaceBets extends VerticalLayout {
         submit.addClickListener(e -> {
             dataService.deletePreviousBets(username);
 
-            dataService.saveScoreBoardBets(username, scoreBoardBets);
+            dataService.saveScoreBets(username, scoreBets);
             dataService.savePropBets(username, propBets);
 
             dataService.updateUserBetsSummary(username, AMOUNT_PER_BET);
 
             Notification.show("Bet submitted!");
 
-            scoreBoardBets.clear();
+            scoreBets.clear();
             propBets.clear();
 
             submit.getUI().ifPresent(ui -> ui.navigate(""));
@@ -163,12 +163,12 @@ public class PlaceBets extends VerticalLayout {
 
     private void handleScoreBoardSelection(Button button) {
         String betValue = button.getText();
-        if (scoreBoardBets.containsKey(betValue)) {
-            scoreBoardBets.remove(betValue);
+        if (scoreBets.containsKey(betValue)) {
+            scoreBets.remove(betValue);
             button.removeClassName("selected");
             decreaseBetCounter();
         } else {
-            scoreBoardBets.put(betValue, "Score");
+            scoreBets.put(betValue, "Score");
             button.addClassName("selected");
             increaseBetCounter();
         }
@@ -212,8 +212,8 @@ public class PlaceBets extends VerticalLayout {
                     button.addClassName("selected");
 
                     if (button.isEnabled()) {
-                        scoreBoardBets.put(userBet.betValue(),
-                                           userBet.betType());
+                        scoreBets.put(userBet.betValue(),
+                                      userBet.betType());
                         increaseBetCounter();
                     }
                 });

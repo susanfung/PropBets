@@ -416,7 +416,7 @@ public class DataService {
         }
     }
 
-    public void saveScoreBoardBets(String username, java.util.Map<String, String> bets) {
+    public void saveScoreBets(String username, java.util.Map<String, String> bets) {
         bets.forEach((betValue, betType) -> {
             UserBet bet = new UserBet(username, betType, betValue);
 
