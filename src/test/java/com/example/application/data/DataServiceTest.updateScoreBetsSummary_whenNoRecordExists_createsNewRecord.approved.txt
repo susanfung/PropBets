@@ -1,0 +1,1 @@
+New record body: {"bet_value":"1,2","betters":["test_user"]}

@@ -113,8 +113,8 @@ public class DataService {
         return propBetsSummaries;
     }
 
-    public List<ScoreBoardBetsSummary> getScoreBetsSummary() {
-        List<ScoreBoardBetsSummary> scoreBoardBetsSummaries = new ArrayList<>();
+    public List<ScoreBetsSummary> getScoreBetsSummary() {
+        List<ScoreBetsSummary> scoreBoardBetsSummaries = new ArrayList<>();
 
         try {
             JSONArray arr = new JSONArray(supabaseService.get(TABLE_SCORE_BETS_SUMMARY, ""));
@@ -125,7 +125,7 @@ public class DataService {
                 String betValue = obj.optString(BET_VALUE);
                 Set<String> betters = toStringSet(obj.optJSONArray(BETTERS));
                 Optional<Integer> count = obj.has(COUNT) ? Optional.of(obj.optInt(COUNT)) : Optional.empty();
-                ScoreBoardBetsSummary summary = new ScoreBoardBetsSummary(betValue, betters, count);
+                ScoreBetsSummary summary = new ScoreBetsSummary(betValue, betters, count);
 
                 scoreBoardBetsSummaries.add(summary);
             }
@@ -381,6 +381,32 @@ public class DataService {
         }
     }
 
+    public void updateScoreBetsSummary(String betValue, String username) {
+        try {
+            String query = "bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_SCORE_BETS_SUMMARY, query));
+
+            if (arr.length() > 0) {
+                JSONObject existingRecord = arr.getJSONObject(0);
+                Set<String> betters = toStringSet(existingRecord.optJSONArray(BETTERS));
+                betters.add(username);
+
+                JSONObject updateObj = new JSONObject();
+                updateObj.put(BETTERS, new JSONArray(betters.stream().sorted().collect(Collectors.toList())));
+
+                supabaseService.patch(TABLE_SCORE_BETS_SUMMARY, query, updateObj.toString());
+            } else {
+                JSONObject newRecord = new JSONObject();
+                newRecord.put(BET_VALUE, betValue);
+                newRecord.put(BETTERS, new JSONArray(List.of(username)));
+
+                supabaseService.post(TABLE_SCORE_BETS_SUMMARY, newRecord.toString());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update score bets summary in Supabase", e);
+        }
+    }
+
     public void updateUserBetsSummary(String username, Integer amountPerBet) {
         try {
             String query = "username=eq." + URLEncoder.encode(username, StandardCharsets.UTF_8);
@@ -545,7 +571,7 @@ public class DataService {
 
         String betValue = team1Score.substring(team1Score.length() - 1) + "," + team2Score.substring(team2Score.length() - 1);
 
-        ScoreBoardBetsSummary foundPropBetsSummary = getScoreBoardBetsSummaryByBetValue(betValue);
+        ScoreBetsSummary foundPropBetsSummary = getScoreBoardBetsSummaryByBetValue(betValue);
 
         if (foundPropBetsSummary != null) {
             JSONObject scoreBoardEventsTracker = getScoreBoardEventsTracker();
@@ -707,9 +733,9 @@ public class DataService {
     public void createScoreBoardEventsTracker() {
         try {
             List<String> allBetters = new ArrayList<>();
-            List<ScoreBoardBetsSummary> scoreBoardBetsSummary = getScoreBetsSummary();
+            List<ScoreBetsSummary> scoreBetsSummary = getScoreBetsSummary();
 
-            scoreBoardBetsSummary.forEach(summary -> allBetters.addAll(summary.betters()));
+            scoreBetsSummary.forEach(summary -> allBetters.addAll(summary.betters()));
 
             JSONObject document = new JSONObject();
             document.put(IS_SCOREBOARD_EVENTS_TRACKER, true);
@@ -723,7 +749,7 @@ public class DataService {
         }
     }
 
-    private ScoreBoardBetsSummary getScoreBoardBetsSummaryByBetValue(String betValue) {
+    private ScoreBetsSummary getScoreBoardBetsSummaryByBetValue(String betValue) {
         try {
             String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
                           "&bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
@@ -734,7 +760,7 @@ public class DataService {
                 JSONObject obj = arr.getJSONObject(0);
                 Set<String> betters = toStringSet(obj.optJSONArray(BETTERS));
                 Optional<Integer> count = obj.has(COUNT) ? Optional.of(obj.optInt(COUNT)) : Optional.empty();
-                return new ScoreBoardBetsSummary(betValue, betters, count);
+                return new ScoreBetsSummary(betValue, betters, count);
             }
             return null;
         } catch (Exception e) {
@@ -746,7 +772,7 @@ public class DataService {
         try {
             List<PropBet> propBets = getPropBets();
             List<PropBetsSummary> propBetsSummary = getPropBetsSummary();
-            List<ScoreBoardBetsSummary> scoreBoardBetsSummary = getScoreBetsSummary();
+            List<ScoreBetsSummary> scoreBetsSummary = getScoreBetsSummary();
             List<UserBet> userBets = getUserBets();
 
             JSONObject updateObj = new JSONObject();
@@ -763,7 +789,7 @@ public class DataService {
                 supabaseService.patch(TABLE_PROP_BETS_SUMMARY, query, updateObj.toString());
             }
 
-            for (ScoreBoardBetsSummary summary : scoreBoardBetsSummary) {
+            for (ScoreBetsSummary summary : scoreBetsSummary) {
                 String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
                         "&bet_value=eq." + URLEncoder.encode(summary.betValue(), StandardCharsets.UTF_8);
                 supabaseService.patch(TABLE_PROP_BETS_SUMMARY, query, updateObj.toString());

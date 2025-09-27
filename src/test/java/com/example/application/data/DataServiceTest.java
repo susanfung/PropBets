@@ -72,7 +72,7 @@ class DataServiceTest {
 
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString())).thenReturn(response);
 
-        List<ScoreBoardBetsSummary> resultList = dataService.getScoreBetsSummary();
+        List<ScoreBetsSummary> resultList = dataService.getScoreBetsSummary();
 
         String result = resultList.stream()
                                   .map(entry -> entry.betValue() + ":\n" + entry.betters() + ":\n" + entry.count())
@@ -236,6 +236,46 @@ class DataServiceTest {
         ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(mockSupabaseService, Mockito.times(1))
                .post(Mockito.eq(TABLE_PROP_BETS_SUMMARY), bodyCaptor.capture());
+
+        verify("New record body: " + bodyCaptor.getValue());
+    }
+
+    @Test
+    void updateScoreBetsSummary_whenRecordExists_updatesExistingBetters() throws Exception {
+        String betValue = "1,2";
+        String username = "new_user";
+
+        String existingResponse = "[{\"bet_value\":\"1,2\",\"betters\":[\"existing_user\",\"another_user\"],\"is_locked\":true,\"count\":\"0\"}]";
+
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString()))
+               .thenReturn(existingResponse);
+        Mockito.when(mockSupabaseService.patch(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString()))
+               .thenReturn(null);
+
+        dataService.updateScoreBetsSummary(betValue, username);
+
+        ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .patch(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), queryCaptor.capture(), bodyCaptor.capture());
+
+        verify("Query: " + queryCaptor.getValue() + "\nBody: " + bodyCaptor.getValue());
+    }
+
+    @Test
+    void updateScoreBetsSummary_whenNoRecordExists_createsNewRecord() throws Exception {
+        String betValue = "1,2";
+        String username = "test_user";
+
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString()))
+               .thenReturn("[]");
+
+        dataService.updateScoreBetsSummary(betValue, username);
+
+        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .post(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), bodyCaptor.capture());
 
         verify("New record body: " + bodyCaptor.getValue());
     }

@@ -2,7 +2,7 @@ package com.example.application.views.viewbets;
 
 import com.example.application.data.DataService;
 import com.example.application.data.PropBetsSummary;
-import com.example.application.data.ScoreBoardBetsSummary;
+import com.example.application.data.ScoreBetsSummary;
 import com.example.application.data.UserBetsSummary;
 import com.example.application.security.UserService;
 import com.example.application.views.MainLayout;
@@ -48,7 +48,7 @@ public class ViewBets extends VerticalLayout {
     private static final String rowNumberWidth = "75px";
     private static final String cellWidth = "145px";
 
-    private List<ScoreBoardBetsSummary> scoreBoardBetsSummary;
+    private List<ScoreBetsSummary> scoreBetsSummary;
 
     public ViewBets(DataService dataService, UserService userService) {
         this.dataService = dataService;
@@ -109,7 +109,7 @@ public class ViewBets extends VerticalLayout {
         HorizontalLayout columnNamesForScoreBoard = createColumnNamesForScoreBoard();
         add(navigationLayout, scoreBoardTitle, teams, columnNamesForScoreBoard);
 
-        scoreBoardBetsSummary = this.dataService.getScoreBetsSummary();
+        scoreBetsSummary = this.dataService.getScoreBetsSummary();
 
         IntStream.rangeClosed(0, 9).forEach(row -> {
             HorizontalLayout rowsForScoreBoard = createRowsForScoreBoard(row);
@@ -226,10 +226,10 @@ public class ViewBets extends VerticalLayout {
         rows.add(rowNumber);
 
         IntStream.rangeClosed(0, 9).forEach(col -> {
-            ScoreBoardBetsSummary summary = scoreBoardBetsSummary.stream()
-                                                                 .filter(s -> s.betValue().equals(row + "," + col))
-                                                                 .findFirst()
-                                                                 .orElse(null);
+            ScoreBetsSummary summary = scoreBetsSummary.stream()
+                                                       .filter(s -> s.betValue().equals(row + "," + col))
+                                                       .findFirst()
+                                                       .orElse(null);
 
             VerticalLayout cellLayout = new VerticalLayout();
             setCellStyle(cellLayout, cellWidth, false);

@@ -1,0 +1,2 @@
+Query: bet_value=eq.1%2C2
+Body: {"betters":["another_user","existing_user","new_user"]}
