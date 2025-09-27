@@ -44,7 +44,7 @@ class DataServiceTest {
     }
 
     @Test
-    void getPropBetsSummary_returnsPropBetsSummary() throws Exception {
+    void getPropBetsSummary() throws Exception {
         String response = "[" +
                 "{\"bet_type\":\"Proposal\",\"bet_value\":\"Yes\",\"betters\":[\"jane_doe\",\"john_doe\"],\"is_locked\":true,\"question\":\"Will Kelce propose at the game?\",\"is_winner\":true}," +
                 "{\"bet_type\":\"Proposal\",\"bet_value\":\"No\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":true,\"question\":\"Will Kelce propose at the game?\",\"is_winner\":false}," +
@@ -61,7 +61,7 @@ class DataServiceTest {
     }
 
     @Test
-    void getScoreBetsSummary_returnsScoreBetsSummary() throws Exception {
+    void getScoreBetsSummary() throws Exception {
         String response = "[" +
                 "{\"bet_value\":\"0,1\",\"betters\":[\"jane_doe\",\"john_doe\"],\"is_locked\":true,\"count\":1}," +
                 "{\"bet_value\":\"0,0\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":true}" +
