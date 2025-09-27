@@ -447,7 +447,7 @@ public class DataService {
             UserBet bet = new UserBet(username, betType, betValue);
 
             addUserBet(bet);
-            updatePropBetsSummary(betType, betValue, username);
+            updateScoreBetsSummary(betValue, username);
         });
     }
 

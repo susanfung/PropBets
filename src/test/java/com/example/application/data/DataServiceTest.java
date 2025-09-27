@@ -349,20 +349,16 @@ class DataServiceTest {
         java.util.Map<String, String> bets = new java.util.HashMap<>();
         bets.put("1,2", "Score");
 
-        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString()))
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString()))
                .thenReturn("[]");
-        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString()))
-               .thenReturn("[{\"bet_type\":\"Score\",\"question\":\"What will be the final score?\"}]");
-        Mockito.when(mockSupabaseService.post(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
 
         dataService.saveScoreBets(username, bets);
 
         ArgumentCaptor<String> userBetCaptor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(mockSupabaseService, Mockito.times(1))
                .post(Mockito.eq(TABLE_USER_BETS), userBetCaptor.capture());
-
         Mockito.verify(mockSupabaseService, Mockito.times(1))
-               .post(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString());
+               .post(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString());
 
         verify("User bet posted: " + userBetCaptor.getValue());
     }
@@ -375,18 +371,15 @@ class DataServiceTest {
         bets.put("2,3", "Score");
         bets.put("4,5", "Score");
 
-        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString()))
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString()))
                .thenReturn("[]");
-        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString()))
-               .thenReturn("[{\"bet_type\":\"Score\",\"question\":\"What will be the final score?\"}]");
-        Mockito.when(mockSupabaseService.post(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
 
         dataService.saveScoreBets(username, bets);
 
         Mockito.verify(mockSupabaseService, Mockito.times(3))
                .post(Mockito.eq(TABLE_USER_BETS), Mockito.anyString());
         Mockito.verify(mockSupabaseService, Mockito.times(3))
-               .post(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString());
+               .post(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString());
 
         verify("Number of bets processed: " + bets.size());
     }
