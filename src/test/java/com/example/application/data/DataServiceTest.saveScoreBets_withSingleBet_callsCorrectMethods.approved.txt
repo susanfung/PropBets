@@ -1,0 +1,1 @@
+User bet posted: {"bet_type":"Score","bet_value":"1,2","username":"john_doe"}

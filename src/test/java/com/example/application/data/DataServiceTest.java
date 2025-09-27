@@ -290,4 +290,64 @@ class DataServiceTest {
 
         verify("New User Creation - Body: " + bodyCaptor.getValue());
     }
+
+    @Test
+    void saveScoreBets_withEmptyBets_doesNotCallAnyMethods() throws Exception {
+        String username = "john_doe";
+        java.util.Map<String, String> emptyBets = new java.util.HashMap<>();
+
+        dataService.saveScoreBets(username, emptyBets);
+
+        Mockito.verify(mockSupabaseService, Mockito.never()).post(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.never()).get(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.never()).patch(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    void saveScoreBets_withSingleBet_callsCorrectMethods() throws Exception {
+        String username = "john_doe";
+        java.util.Map<String, String> bets = new java.util.HashMap<>();
+        bets.put("1,2", "Score");
+
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString()))
+               .thenReturn("[]");
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString()))
+               .thenReturn("[{\"bet_type\":\"Score\",\"question\":\"What will be the final score?\"}]");
+        Mockito.when(mockSupabaseService.post(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+
+        dataService.saveScoreBets(username, bets);
+
+        ArgumentCaptor<String> userBetCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .post(Mockito.eq(TABLE_USER_BETS), userBetCaptor.capture());
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .post(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString());
+
+        verify("User bet posted: " + userBetCaptor.getValue());
+    }
+
+    @Test
+    void saveScoreBets_withMultipleBets_callsMethodsForEachBet() throws Exception {
+        String username = "jane_doe";
+        java.util.Map<String, String> bets = new java.util.HashMap<>();
+        bets.put("0,1", "Score");
+        bets.put("2,3", "Score");
+        bets.put("4,5", "Score");
+
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString()))
+               .thenReturn("[]");
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString()))
+               .thenReturn("[{\"bet_type\":\"Score\",\"question\":\"What will be the final score?\"}]");
+        Mockito.when(mockSupabaseService.post(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+
+        dataService.saveScoreBets(username, bets);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(3))
+               .post(Mockito.eq(TABLE_USER_BETS), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.times(3))
+               .post(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString());
+
+        verify("Number of bets processed: " + bets.size());
+    }
 }

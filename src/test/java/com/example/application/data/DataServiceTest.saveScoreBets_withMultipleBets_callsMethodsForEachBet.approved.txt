@@ -1,0 +1,1 @@
+Number of bets processed: 3
