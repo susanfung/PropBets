@@ -1,0 +1,3 @@
+Winner updates:
+First winner: {"numberOfPropBetsWon":1,"number_of_bets_won":1,"amountOfPropBetsWon":15,"amount_won":15,"net_amount":-5}
+Second winner: {"numberOfPropBetsWon":1,"number_of_bets_won":1,"amountOfPropBetsWon":15,"amount_won":15,"net_amount":0}

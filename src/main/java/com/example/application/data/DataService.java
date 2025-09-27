@@ -468,19 +468,19 @@ public class DataService {
             supabaseService.post(TABLE_RESULTS, resultObj.toString());
 
             String propBetQuery = "bet_type=eq." + URLEncoder.encode(betType, StandardCharsets.UTF_8);
-            String propBetResponse = supabaseService.get(TABLE_PROP_BETS, propBetQuery);
-            JSONArray propBetsArray = new JSONArray(propBetResponse);
+            JSONArray propBetsResponse = new JSONArray(supabaseService.get(TABLE_PROP_BETS, propBetQuery));
 
             List<String> winningBetters = new ArrayList<>();
             List<String> losingBetters = new ArrayList<>();
 
-            if (propBetsArray.length() > 0) {
-                JSONObject foundPropBet = propBetsArray.getJSONObject(0);
+            if (propBetsResponse.length() > 0) {
+                JSONObject foundPropBet = propBetsResponse.getJSONObject(0);
 
                 updatePropBetsSummaryWithResults(betType, winningBetValue, foundPropBet, winningBetters, losingBetters);
             }
 
             BigDecimal totalBetters = BigDecimal.valueOf(winningBetters.size() + losingBetters.size());
+
             if (winningBetters.size() > 0) {
                 Double amountWonPerBetter = totalBetters.multiply(BigDecimal.valueOf(AMOUNT_PER_BET))
                                                         .divide(BigDecimal.valueOf(winningBetters.size()), 2, RoundingMode.HALF_UP)
@@ -501,29 +501,37 @@ public class DataService {
         try {
             List<String> betValues = toStringList(foundPropBet.optJSONArray(CHOICES));
 
-            for (String betValue : betValues) {
-                String summaryQuery = "bet_type=eq." + URLEncoder.encode(betType, StandardCharsets.UTF_8) +
-                                    "&bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
-                String summaryResponse = supabaseService.get(TABLE_PROP_BETS_SUMMARY, summaryQuery);
-                JSONArray summaryArray = new JSONArray(summaryResponse);
+            betValues.stream()
+                .forEach(betValue -> {
+                    try {
+                        String summaryQuery = "bet_type=eq." + URLEncoder.encode(betType, StandardCharsets.UTF_8) +
+                                            "&bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
+                        String summaryResponse = supabaseService.get(TABLE_PROP_BETS_SUMMARY, summaryQuery);
 
-                if (summaryArray.length() > 0) {
-                    JSONObject foundPropBetsSummary = summaryArray.getJSONObject(0);
-                    Set<String> betters = toStringSet(foundPropBetsSummary.optJSONArray(BETTERS));
+                        if (summaryResponse != null) {
+                            JSONArray summaryArray = new JSONArray(summaryResponse);
 
-                    JSONObject updateObj = new JSONObject();
+                            if (summaryArray.length() > 0) {
+                                JSONObject foundPropBetsSummary = summaryArray.getJSONObject(0);
+                                Set<String> betters = toStringSet(foundPropBetsSummary.optJSONArray(BETTERS));
 
-                    if (betValue.equals(winningBetValue)) {
-                        winningBetters.addAll(betters);
-                        updateObj.put(IS_WINNER, true);
-                    } else {
-                        losingBetters.addAll(betters);
-                        updateObj.put(IS_WINNER, false);
+                                JSONObject updateObj = new JSONObject();
+
+                                if (betValue.equals(winningBetValue)) {
+                                    winningBetters.addAll(betters);
+                                    updateObj.put(IS_WINNER, true);
+                                } else {
+                                    losingBetters.addAll(betters);
+                                    updateObj.put(IS_WINNER, false);
+                                }
+
+                                supabaseService.patch(TABLE_PROP_BETS_SUMMARY, summaryQuery, updateObj.toString());
+                            }
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to process bet value: " + betValue, e);
                     }
-
-                    supabaseService.patch(TABLE_PROP_BETS_SUMMARY, summaryQuery, updateObj.toString());
-                }
-            }
+                });
         } catch (Exception e) {
             throw new RuntimeException("Failed to update prop bets summary with results", e);
         }

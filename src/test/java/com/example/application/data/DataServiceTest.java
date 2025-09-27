@@ -469,4 +469,114 @@ class DataServiceTest {
 
         verify("User bet: " + userBetCaptor.getValue() + "\nQuery: " + queryCaptor.getValue() + "\nUpdate body: " + bodyCaptor.getValue());
     }
+
+    @Test
+    void saveResult_withWinningBetters_savesResultAndUpdatesWinners() throws Exception {
+        String betType = "Coin Toss";
+        String winningBetValue = "Chiefs";
+        String propBetResponse = "[{\"bet_type\":\"Coin Toss\",\"question\":\"Who wins the coin toss?\",\"choices\":[\"Chiefs\",\"Eagles\"]}]";
+        String winningSummaryResponse = "[{\"bet_type\":\"Coin Toss\",\"bet_value\":\"Chiefs\",\"betters\":[\"user1\",\"user2\"],\"question\":\"Who wins the coin toss?\"}]";
+        String losingSummaryResponse = "[{\"bet_type\":\"Coin Toss\",\"bet_value\":\"Eagles\",\"betters\":[\"user3\",\"user4\"],\"question\":\"Who wins the coin toss?\"}]";
+        String user1Summary = "[{\"username\":\"user1\",\"amount_owing\":15.0,\"number_of_propbets_won\":0,\"amount_of_propbets_won\":0.0,\"number_of_scoreboard_bets_won\":1,\"amount_of_scoreboard_bets_won\":10.0}]";
+        String user2Summary = "[{\"username\":\"user2\",\"amount_owing\":10.0,\"number_of_propbets_won\":1,\"amount_of_propbets_won\":5.0,\"number_of_scoreboard_bets_won\":0,\"amount_of_scoreboard_bets_won\":0.0}]";
+
+        Mockito.when(mockSupabaseService.post(Mockito.eq(TABLE_RESULTS), Mockito.anyString()))
+               .thenReturn(null);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString()))
+               .thenReturn(propBetResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.contains("bet_value=eq.Chiefs")))
+               .thenReturn(winningSummaryResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.contains("bet_value=eq.Eagles")))
+               .thenReturn(losingSummaryResponse);
+        Mockito.when(mockSupabaseService.patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString()))
+               .thenReturn(null);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("username=eq.user1")))
+               .thenReturn(user1Summary);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("username=eq.user2")))
+               .thenReturn(user2Summary);
+        Mockito.when(mockSupabaseService.patch(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString()))
+               .thenReturn(null);
+
+        dataService.saveResult(betType, winningBetValue);
+
+        ArgumentCaptor<String> resultCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .post(Mockito.eq(TABLE_RESULTS), resultCaptor.capture());
+        Mockito.verify(mockSupabaseService, Mockito.times(2))
+               .patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.times(2))
+               .patch(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString());
+
+        verify("Result saved: " + resultCaptor.getValue());
+    }
+
+    @Test
+    void saveResult_withNoWinningBetters_updatesOnlyPropBetsSummary() throws Exception {
+        String betType = "MVP";
+        String winningBetValue = "Mahomes";
+        String propBetResponse = "[{\"bet_type\":\"MVP\",\"question\":\"Who will be MVP?\",\"choices\":[\"Mahomes\",\"Brady\"]}]";
+        String losingSummaryResponse = "[{\"bet_type\":\"MVP\",\"bet_value\":\"Brady\",\"betters\":[\"user1\"],\"question\":\"Who will be MVP?\"}]";
+
+        Mockito.when(mockSupabaseService.post(Mockito.eq(TABLE_RESULTS), Mockito.anyString()))
+               .thenReturn(null);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString()))
+               .thenReturn(propBetResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.contains("bet_value=eq.Mahomes")))
+               .thenReturn("[]");
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.contains("bet_value=eq.Brady")))
+               .thenReturn(losingSummaryResponse);
+        Mockito.when(mockSupabaseService.patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString()))
+               .thenReturn(null);
+
+        dataService.saveResult(betType, winningBetValue);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .post(Mockito.eq(TABLE_RESULTS), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.never())
+               .patch(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    void saveResult_calculatesCorrectAmountWonPerBetter() throws Exception {
+        String betType = "First Score";
+        String winningBetValue = "Touchdown";
+        String propBetResponse = "[{\"bet_type\":\"First Score\",\"question\":\"How will first points be scored?\",\"choices\":[\"Touchdown\",\"Field Goal\",\"Safety\"]}]";
+        String winningSummaryResponse = "[{\"bet_type\":\"First Score\",\"bet_value\":\"Touchdown\",\"betters\":[\"winner1\",\"winner2\"]}]";
+        String losing1SummaryResponse = "[{\"bet_type\":\"First Score\",\"bet_value\":\"Field Goal\",\"betters\":[\"loser1\",\"loser2\",\"loser3\"]}]";
+        String losing2SummaryResponse = "[{\"bet_type\":\"First Score\",\"bet_value\":\"Safety\",\"betters\":[\"loser4\"]}]";
+        String winner1Summary = "[{\"username\":\"winner1\",\"amount_owing\":20.0,\"number_of_propbets_won\":0,\"amount_of_propbets_won\":0.0,\"number_of_scoreboard_bets_won\":0,\"amount_of_scoreboard_bets_won\":0.0}]";
+        String winner2Summary = "[{\"username\":\"winner2\",\"amount_owing\":15.0,\"number_of_propbets_won\":1,\"amount_of_propbets_won\":10.0,\"number_of_scoreboard_bets_won\":2,\"amount_of_scoreboard_bets_won\":25.0}]";
+
+        Mockito.when(mockSupabaseService.post(Mockito.eq(TABLE_RESULTS), Mockito.anyString()))
+               .thenReturn(null);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString()))
+               .thenReturn(propBetResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.argThat(query -> query.contains("bet_type=eq.First+Score") && query.contains("bet_value=eq.Touchdown"))))
+               .thenReturn(winningSummaryResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.argThat(query -> query.contains("bet_type=eq.First+Score") && query.contains("bet_value=eq.Field+Goal"))))
+               .thenReturn(losing1SummaryResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.argThat(query -> query.contains("bet_type=eq.First+Score") && query.contains("bet_value=eq.Safety"))))
+               .thenReturn(losing2SummaryResponse);
+        Mockito.when(mockSupabaseService.patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString()))
+               .thenReturn(null);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("username=eq.winner1")))
+               .thenReturn(winner1Summary);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("username=eq.winner2")))
+               .thenReturn(winner2Summary);
+        Mockito.when(mockSupabaseService.patch(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString()))
+               .thenReturn(null);
+
+        dataService.saveResult(betType, winningBetValue);
+
+        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(2))
+               .patch(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString(), bodyCaptor.capture());
+
+        List<String> capturedBodies = bodyCaptor.getAllValues();
+        verify("Winner updates:\nFirst winner: " + capturedBodies.get(0) + "\nSecond winner: " + capturedBodies.get(1));
+    }
 }
