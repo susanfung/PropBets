@@ -23,7 +23,6 @@ import com.vaadin.flow.dom.ElementFactory;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import com.vaadin.flow.server.StreamResource;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -125,25 +124,14 @@ public class ViewBets extends VerticalLayout {
     private static HorizontalLayout createUserLayout(JSONObject user, UserBetsSummary userBetsSummary) {
         String username = userBetsSummary.username();
         String name = user.optString("name", null);
-
-        byte[] image = null;
-        if (user.has("profileImage")) {
-            String base64 = user.optString("profileImage", null);
-            image = base64 != null ? java.util.Base64.getDecoder().decode(base64) : null;
-        }
-        final byte[] finalImage = image;
+        String image = user.has("image_url") ? user.optString("image_url", null) : null;
 
         HorizontalLayout userLayout = new HorizontalLayout();
 
         Avatar avatar = new Avatar();
         avatar.setHeight("64px");
         avatar.setWidth("64px");
-
-        if (image != null) {
-            StreamResource profileImage = new StreamResource("profile-image",
-                                          () -> new java.io.ByteArrayInputStream(finalImage));
-            avatar.setImageResource(profileImage);
-        }
+        avatar.setImage(image);
 
         VerticalLayout userInformation = new VerticalLayout();
         userInformation.setSpacing(false);
