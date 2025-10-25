@@ -51,7 +51,6 @@ class UserServiceTest {
         String name = "John Doe";
         byte[] profileImage = new byte[]{1, 2, 3};
 
-        // Mock findUserByUsername call that happens inside updateUser
         when(mockSupabaseService.get(eq(UserService.USER_PROFILE_TABLE), any())).thenReturn(
                 "[{\"username\":\"john_doe\",\"image_url\":\"old_image.jpg\"}]");
 
