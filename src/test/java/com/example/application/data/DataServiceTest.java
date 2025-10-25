@@ -774,4 +774,103 @@ class DataServiceTest {
             verify("Exception message: " + e.getMessage());
         }
     }
+
+    @Test
+    void lockPropBets_locksAllBetsAndSummaries() throws Exception {
+        String propBetsResponse = "[" +
+                "{\"name\":\"Coin Toss\",\"question\":\"Who wins the coin toss?\",\"choices\":[\"Chiefs\",\"Eagles\"]}," +
+                "{\"name\":\"MVP\",\"question\":\"Who will be MVP?\",\"choices\":[\"Mahomes\",\"Brady\"]}" +
+                "]";
+        String propBetsSummaryResponse = "[" +
+                "{\"bet_type\":\"Coin Toss\",\"bet_value\":\"Chiefs\",\"betters\":[\"user1\",\"user2\"]}," +
+                "{\"bet_type\":\"MVP\",\"bet_value\":\"Mahomes\",\"betters\":[\"user3\"]}" +
+                "]";
+        String scoreBetsSummaryResponse = "[" +
+                "{\"bet_value\":\"1,2\",\"betters\":[\"user1\",\"user4\"]}," +
+                "{\"bet_value\":\"3,4\",\"betters\":[\"user2\"]}" +
+                "]";
+        String userBetsResponse = "[" +
+                "{\"username\":\"user1\",\"bet_type\":\"Coin Toss\",\"bet_value\":\"Chiefs\"}," +
+                "{\"username\":\"user2\",\"bet_type\":\"MVP\",\"bet_value\":\"Mahomes\"}," +
+                "{\"username\":\"user3\",\"bet_type\":\"Score\",\"bet_value\":\"1,2\"}" +
+                "]";
+
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString()))
+                .thenReturn(propBetsResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString()))
+                .thenReturn(propBetsSummaryResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString()))
+                .thenReturn(scoreBetsSummaryResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS), Mockito.anyString()))
+                .thenReturn(userBetsResponse);
+        Mockito.when(mockSupabaseService.patch(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(null);
+
+        dataService.lockPropBets();
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .get(Mockito.eq(TABLE_USER_BETS), Mockito.anyString());
+
+        ArgumentCaptor<String> tableCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(9))
+                .patch(tableCaptor.capture(), queryCaptor.capture(), bodyCaptor.capture());
+
+        List<String> tables = tableCaptor.getAllValues();
+        List<String> queries = queryCaptor.getAllValues();
+        List<String> bodies = bodyCaptor.getAllValues();
+
+        verify("PropBets patches:\n" +
+               "Table: " + tables.get(0) + ", Query: " + queries.get(0) + ", Body: " + bodies.get(0) + "\n" +
+               "Table: " + tables.get(1) + ", Query: " + queries.get(1) + ", Body: " + bodies.get(1) + "\n" +
+               "PropBetsSummary patches:\n" +
+               "Table: " + tables.get(2) + ", Query: " + queries.get(2) + ", Body: " + bodies.get(2) + "\n" +
+               "Table: " + tables.get(3) + ", Query: " + queries.get(3) + ", Body: " + bodies.get(3) + "\n" +
+               "ScoreBetsSummary patches:\n" +
+               "Table: " + tables.get(4) + ", Query: " + queries.get(4) + ", Body: " + bodies.get(4) + "\n" +
+               "Table: " + tables.get(5) + ", Query: " + queries.get(5) + ", Body: " + bodies.get(5) + "\n" +
+               "UserBets patches:\n" +
+               "Table: " + tables.get(6) + ", Query: " + queries.get(6) + ", Body: " + bodies.get(6) + "\n" +
+               "Table: " + tables.get(7) + ", Query: " + queries.get(7) + ", Body: " + bodies.get(7) + "\n" +
+               "Table: " + tables.get(8) + ", Query: " + queries.get(8) + ", Body: " + bodies.get(8));
+    }
+
+    @Test
+    void lockPropBets_withSpecialCharactersInBetNames_encodesQueriesCorrectly() throws Exception {
+        String propBetsResponse = "[{\"name\":\"Team A vs Team B\",\"question\":\"Who wins?\",\"choices\":[\"Team A\",\"Team B\"]}]";
+        String propBetsSummaryResponse = "[{\"bet_type\":\"Team A vs Team B\",\"bet_value\":\"Team A\",\"betters\":[\"user1\"]}]";
+        String userBetsResponse = "[{\"username\":\"user@test.com\",\"bet_type\":\"Team A vs Team B\",\"bet_value\":\"Team A\"}]";
+
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString()))
+                .thenReturn(propBetsResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString()))
+                .thenReturn(propBetsSummaryResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString()))
+                .thenReturn("[]");
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS), Mockito.anyString()))
+                .thenReturn(userBetsResponse);
+
+        Mockito.when(mockSupabaseService.patch(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(null);
+
+        dataService.lockPropBets();
+
+        ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(mockSupabaseService, Mockito.times(3))
+                .patch(Mockito.anyString(), queryCaptor.capture(), Mockito.anyString());
+
+        List<String> queries = queryCaptor.getAllValues();
+        verify("Encoded queries:\n" +
+               "PropBet query: " + queries.get(0) + "\n" +
+               "PropBetsSummary query: " + queries.get(1) + "\n" +
+               "UserBet query: " + queries.get(2));
+    }
 }

@@ -1,0 +1,13 @@
+PropBets patches:
+Table: propbets, Query: bet_type=eq., Body: {"is_locked":true}
+Table: propbets, Query: bet_type=eq., Body: {"is_locked":true}
+PropBetsSummary patches:
+Table: propbets_summary, Query: bet_type=eq.Coin+Toss&bet_value=eq.Chiefs, Body: {"is_locked":true}
+Table: propbets_summary, Query: bet_type=eq.MVP&bet_value=eq.Mahomes, Body: {"is_locked":true}
+ScoreBetsSummary patches:
+Table: propbets_summary, Query: bet_type=eq.Score&bet_value=eq.1%2C2, Body: {"is_locked":true}
+Table: propbets_summary, Query: bet_type=eq.Score&bet_value=eq.3%2C4, Body: {"is_locked":true}
+UserBets patches:
+Table: user_bets, Query: username=eq.user1&bet_type=eq.Coin+Toss&bet_value=eq.Chiefs, Body: {"is_locked":true}
+Table: user_bets, Query: username=eq.user2&bet_type=eq.MVP&bet_value=eq.Mahomes, Body: {"is_locked":true}
+Table: user_bets, Query: username=eq.user3&bet_type=eq.Score&bet_value=eq.1%2C2, Body: {"is_locked":true}

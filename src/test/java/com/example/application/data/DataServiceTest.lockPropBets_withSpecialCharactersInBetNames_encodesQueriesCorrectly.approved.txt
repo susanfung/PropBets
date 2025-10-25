@@ -1,0 +1,4 @@
+Encoded queries:
+PropBet query: bet_type=eq.
+PropBetsSummary query: bet_type=eq.Team+A+vs+Team+B&bet_value=eq.Team+A
+UserBet query: username=eq.user%40test.com&bet_type=eq.Team+A+vs+Team+B&bet_value=eq.Team+A
