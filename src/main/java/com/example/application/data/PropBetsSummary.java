@@ -6,9 +6,10 @@ public record PropBetsSummary(String betType,
                               String betValue,
                               Set<String> betters,
                               String question,
-                              Boolean isWinner) {
+                              Boolean isWinner,
+                              Boolean isLocked) {
     @Override
     public String toString() {
-        return getClass().getName() + "[betType=" + betType + ",betValue=" + betValue + ",betters=" + betters + ",question=" + question + ",isWinner=" + isWinner + "]";
+        return getClass().getName() + "[betType=" + betType + ",betValue=" + betValue + ",betters=" + betters + ",question=" + question + ",isWinner=" + isWinner + ",isLocked=" + isLocked + "]";
     }
 }

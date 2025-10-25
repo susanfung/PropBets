@@ -103,7 +103,8 @@ public class DataService {
                         obj.optString(BET_VALUE),
                         toStringSet(obj.optJSONArray(BETTERS)),
                         obj.optString(QUESTION),
-                        obj.optBoolean(IS_WINNER)
+                        obj.optBoolean(IS_WINNER),
+                        obj.optBoolean(IS_LOCKED)
                 );
 
                 propBetsSummaries.add(summary);

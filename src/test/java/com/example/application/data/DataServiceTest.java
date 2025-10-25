@@ -53,9 +53,9 @@ class DataServiceTest {
     void getPropBetsSummary() throws Exception {
         String response = "[" +
                 "{\"bet_type\":\"Proposal\",\"bet_value\":\"Yes\",\"betters\":[\"jane_doe\",\"john_doe\"],\"is_locked\":true,\"question\":\"Will Kelce propose at the game?\",\"is_winner\":true}," +
-                "{\"bet_type\":\"Proposal\",\"bet_value\":\"No\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":true,\"question\":\"Will Kelce propose at the game?\",\"is_winner\":false}," +
+                "{\"bet_type\":\"Proposal\",\"bet_value\":\"No\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":false,\"question\":\"Will Kelce propose at the game?\",\"is_winner\":false}," +
                 "{\"bet_type\":\"Coin Toss\",\"bet_value\":\"Chiefs\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":true,\"question\":\"Who wins the coin toss?\",\"is_winner\":true}," +
-                "{\"bet_type\":\"Coin Toss\",\"bet_value\":\"Eagles\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":true,\"question\":\"Who wins the coin toss?\",\"is_winner\":false}" +
+                "{\"bet_type\":\"Coin Toss\",\"bet_value\":\"Eagles\",\"betters\":[\"jack_doe\",\"jill_doe\"],\"is_locked\":false,\"question\":\"Who wins the coin toss?\",\"is_winner\":false}" +
                 "]";
 
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString())).thenReturn(response);
