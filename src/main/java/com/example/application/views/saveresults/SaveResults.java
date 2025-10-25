@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import static com.example.application.utils.Utils.TEAM_1_NAME;
+import static com.example.application.utils.Utils.TEAM_1_TABLE_NAME;
 import static com.example.application.utils.Utils.TEAM_2_NAME;
+import static com.example.application.utils.Utils.TEAM_2_TABLE_NAME;
 import static com.example.application.utils.Utils.createPropBet;
 
 @PageTitle("Save Results")
@@ -49,7 +51,7 @@ public class SaveResults extends VerticalLayout implements BeforeEnterObserver {
 
         Button submitScore = new Button("Submit Score");
         submitScore.addClickListener(e -> {
-            dataService.saveScore(team1Score.getLabel(), team1Score.getValue(), team2Score.getLabel(), team2Score.getValue());
+            dataService.saveScore(TEAM_1_TABLE_NAME, team1Score.getValue(), TEAM_2_TABLE_NAME, team2Score.getValue());
 
             Notification.show("Score saved!");
 
