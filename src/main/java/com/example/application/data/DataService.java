@@ -26,6 +26,8 @@ public class DataService {
     public static final String TABLE_USER_BETS = "user_bets";
     public static final String TABLE_PROP_BETS = "propbets";
     public static final String TABLE_RESULTS = "results";
+    public static final String TABLE_SCORE = "score";
+    public static final String TABLE_SCOREBOARD_EVENTS_TRACKER = "scoreboard_events_tracker";
 
     private static final String USERNAME = "username";
     private static final String BET_TYPE = "bet_type";
@@ -43,7 +45,7 @@ public class DataService {
     private static final String IS_LOCKED = "is_locked";
     private static final String COUNT = "count";
     private static final String SCORE_BET_TYPE = "Score";
-    private static final String IS_SCOREBOARD_EVENTS_TRACKER = "isScoreBoardEventsTracker";
+
     private static final String TOTAL_AMOUNT_OF_BETS = "totalAmountOfBets";
     private static final String NUMBER_OF_WINNING_EVENTS = "numberOfWinningEvents";
     private static final String TOTAL_AMOUNT_WON_PER_EVENT = "totalAmountWonPerEvent";
@@ -600,34 +602,55 @@ public class DataService {
         }
     }
 
-    public void saveResultsToTable(String team1Name, String team1Score, String team2Name, String team2Score) {
+    private void saveResultsToTable(String team1Name, String team1Score, String team2Name, String team2Score) {
         try {
             JSONObject scoreDocument = new JSONObject();
             scoreDocument.put(team1Name, team1Score);
             scoreDocument.put(team2Name, team2Score);
 
-            supabaseService.post(TABLE_RESULTS, scoreDocument.toString());
+            supabaseService.post(TABLE_SCORE, scoreDocument.toString());
         } catch (Exception e) {
             throw new RuntimeException("Failed to save results to Supabase", e);
         }
     }
 
-    public JSONObject getScoreBoardEventsTracker() {
+    private ScoreBetsSummary getScoreBoardBetsSummaryByBetValue(String betValue) {
         try {
-            String response = supabaseService.get(TABLE_RESULTS, IS_SCOREBOARD_EVENTS_TRACKER + "=eq.true");
+            String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
+                    "&bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
+            String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, query);
+            JSONArray arr = new JSONArray(response);
+
+            if (arr.length() > 0) {
+                JSONObject obj = arr.getJSONObject(0);
+                Set<String> betters = toStringSet(obj.optJSONArray(BETTERS));
+                Optional<Integer> count = obj.has(COUNT) ? Optional.of(obj.optInt(COUNT)) : Optional.empty();
+                return new ScoreBetsSummary(betValue, betters, count);
+            }
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get scoreboard bets summary by bet value from Supabase", e);
+        }
+    }
+
+    private JSONObject getScoreBoardEventsTracker() {
+        try {
+            String response = supabaseService.get(TABLE_SCOREBOARD_EVENTS_TRACKER, "");
             JSONArray arr = new JSONArray(response);
 
             if (arr.length() > 0) {
                 return arr.getJSONObject(0);
             }
+
             return null;
         } catch (Exception e) {
             throw new RuntimeException("Failed to get scoreboard events tracker from Supabase", e);
         }
     }
 
-    public void updateScoreBoardEventsTracker(JSONObject scoreBoardEventsTracker, Double[] totalAmountWonPerEvent) {
+    private void updateScoreBoardEventsTracker(JSONObject scoreBoardEventsTracker, Double[] totalAmountWonPerEvent) {
         try {
+            int id = scoreBoardEventsTracker.getInt("id");
             Double totalAmountOfBets = scoreBoardEventsTracker.getDouble(TOTAL_AMOUNT_OF_BETS);
             Integer numberOfWinningEvents = scoreBoardEventsTracker.getInt(NUMBER_OF_WINNING_EVENTS);
 
@@ -641,40 +664,19 @@ public class DataService {
             updateObj.put(NUMBER_OF_WINNING_EVENTS, numberOfWinningEvents);
             updateObj.put(TOTAL_AMOUNT_WON_PER_EVENT, totalAmountWonPerEvent[0]);
 
-            String query = IS_SCOREBOARD_EVENTS_TRACKER + "=eq.true";
-            supabaseService.patch(TABLE_RESULTS, query, updateObj.toString());
+            String query = "id=eq." + id;
+            supabaseService.patch(TABLE_SCOREBOARD_EVENTS_TRACKER, query, updateObj.toString());
         } catch (Exception e) {
             throw new RuntimeException("Failed to update scoreboard events tracker in Supabase", e);
         }
     }
 
-    public void updateScoreInPropBetsSummary(String betValue) {
+    private void findAllWinningScoreEvents(java.util.Map<String, Integer> winningBettersCountMap,
+                                           java.util.Map<String, Double> winningBettersTotalMap,
+                                           Double[] totalAmountWonPerEvent) {
         try {
             String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
-                          "&bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
-            String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, query);
-            JSONArray arr = new JSONArray(response);
-
-            if (arr.length() > 0) {
-                JSONObject foundPropBetsSummary = arr.getJSONObject(0);
-                Integer count = foundPropBetsSummary.optInt(COUNT, 0);
-
-                JSONObject updateObj = new JSONObject();
-                updateObj.put(COUNT, count + 1);
-
-                supabaseService.patch(TABLE_PROP_BETS_SUMMARY, query, updateObj.toString());
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to update score in prop bets summary in Supabase", e);
-        }
-    }
-
-    public void findAllWinningScoreEvents(java.util.Map<String, Integer> winningBettersCountMap,
-                                          java.util.Map<String, Double> winningBettersTotalMap,
-                                          Double[] totalAmountWonPerEvent) {
-        try {
-            String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
-                          "&count=not.is.null";
+                    "&count=not.is.null";
             String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, query);
             JSONArray arr = new JSONArray(response);
 
@@ -698,7 +700,28 @@ public class DataService {
         }
     }
 
-    public void updateScoreBoardBetsInUserBetsSummary(java.util.Map<String, Integer> winningBettersCountMap,
+    private void updateScoreInPropBetsSummary(String betValue) {
+        try {
+            String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
+                          "&bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
+            String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, query);
+            JSONArray arr = new JSONArray(response);
+
+            if (arr.length() > 0) {
+                JSONObject foundPropBetsSummary = arr.getJSONObject(0);
+                Integer count = foundPropBetsSummary.optInt(COUNT, 0);
+
+                JSONObject updateObj = new JSONObject();
+                updateObj.put(COUNT, count + 1);
+
+                supabaseService.patch(TABLE_PROP_BETS_SUMMARY, query, updateObj.toString());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update score in prop bets summary in Supabase", e);
+        }
+    }
+
+    private void updateScoreBoardBetsInUserBetsSummary(java.util.Map<String, Integer> winningBettersCountMap,
                                                        java.util.Map<String, Double> winningBettersTotalMap) {
         try {
             winningBettersCountMap.forEach((username, numberOfScoreBoardBetsWon) -> {
@@ -746,33 +769,13 @@ public class DataService {
             scoreBetsSummary.forEach(summary -> allBetters.addAll(summary.betters()));
 
             JSONObject document = new JSONObject();
-            document.put(IS_SCOREBOARD_EVENTS_TRACKER, true);
             document.put(TOTAL_AMOUNT_OF_BETS, Double.valueOf(allBetters.size() * AMOUNT_PER_BET));
             document.put(NUMBER_OF_WINNING_EVENTS, 0);
             document.put(TOTAL_AMOUNT_WON_PER_EVENT, 0.0);
 
-            supabaseService.post(TABLE_RESULTS, document.toString());
+            supabaseService.post(TABLE_SCOREBOARD_EVENTS_TRACKER, document.toString());
         } catch (Exception e) {
             throw new RuntimeException("Failed to create scoreboard events tracker in Supabase", e);
-        }
-    }
-
-    private ScoreBetsSummary getScoreBoardBetsSummaryByBetValue(String betValue) {
-        try {
-            String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
-                          "&bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
-            String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, query);
-            JSONArray arr = new JSONArray(response);
-
-            if (arr.length() > 0) {
-                JSONObject obj = arr.getJSONObject(0);
-                Set<String> betters = toStringSet(obj.optJSONArray(BETTERS));
-                Optional<Integer> count = obj.has(COUNT) ? Optional.of(obj.optInt(COUNT)) : Optional.empty();
-                return new ScoreBetsSummary(betValue, betters, count);
-            }
-            return null;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to get scoreboard bets summary by bet value from Supabase", e);
         }
     }
 
