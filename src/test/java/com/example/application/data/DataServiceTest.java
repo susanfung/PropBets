@@ -17,6 +17,7 @@ import static com.example.application.data.DataService.TABLE_PROP_BETS;
 import static com.example.application.data.DataService.TABLE_PROP_BETS_SUMMARY;
 import static com.example.application.data.DataService.TABLE_RESULTS;
 import static com.example.application.data.DataService.TABLE_SCORE_BETS_SUMMARY;
+import static com.example.application.data.DataService.TABLE_SCOREBOARD_EVENTS_TRACKER;
 import static com.example.application.data.DataService.TABLE_USER_BETS;
 import static com.example.application.data.DataService.TABLE_USER_BETS_SUMMARY;
 import static org.approvaltests.Approvals.verify;
@@ -578,5 +579,199 @@ class DataServiceTest {
 
         List<String> capturedBodies = bodyCaptor.getAllValues();
         verify("Winner updates:\nFirst winner: " + capturedBodies.get(0) + "\nSecond winner: " + capturedBodies.get(1));
+    }
+
+    @Test
+    void saveScore_whenScoreBetsSummaryExists_savesResultsAndUpdatesAllTables() throws Exception {
+        String team1Name = "Chiefs";
+        String team1Score = "21";
+        String team2Name = "Eagles";
+        String team2Score = "14";
+        String scoreBetsSummaryResponse = "[{\"bet_value\":\"1,4\",\"betters\":[\"john_doe\",\"jane_doe\"],\"count\":2}]";
+        String scoreboardEventsTrackerResponse = "[{\"id\":1,\"totalAmountOfBets\":100.0,\"numberOfWinningEvents\":2,\"totalAmountWonPerEvent\":25.0}]";
+        String winningScoreEventsResponse = "[{\"betters\":[\"john_doe\",\"jane_doe\"],\"count\":2}]";
+        String johnUserBetsSummaryResponse = "[{\"username\":\"john_doe\",\"amount_owing\":50.0,\"numberOfPropBetsWon\":1,\"amountOfPropBetsWon\":10.0}]";
+        String janeUserBetsSummaryResponse = "[{\"username\":\"jane_doe\",\"amount_owing\":40.0,\"numberOfPropBetsWon\":2,\"amountOfPropBetsWon\":15.0}]";
+
+        Mockito.when(mockSupabaseService.get(
+                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
+                Mockito.eq("bet_type=eq.Score&bet_value=eq.1%2C4")
+        )).thenReturn(scoreBetsSummaryResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("")))
+                .thenReturn(scoreboardEventsTrackerResponse);
+        Mockito.when(mockSupabaseService.get(
+                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
+                Mockito.eq("bet_type=eq.Score&count=not.is.null")
+        )).thenReturn(winningScoreEventsResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("username=eq.john_doe")))
+                .thenReturn(johnUserBetsSummaryResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("username=eq.jane_doe")))
+                .thenReturn(janeUserBetsSummaryResponse);
+        Mockito.when(mockSupabaseService.post(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+        Mockito.when(mockSupabaseService.patch(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+
+        dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
+
+        ArgumentCaptor<String> scoreCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> trackerUpdateCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> propBetsUpdateCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> userBetsUpdateCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .post(Mockito.eq(DataService.TABLE_SCORE), scoreCaptor.capture());
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .patch(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("id=eq.1"), trackerUpdateCaptor.capture());
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq("bet_type=eq.Score&bet_value=eq.1%2C4"), propBetsUpdateCaptor.capture());
+        Mockito.verify(mockSupabaseService, Mockito.times(2))
+                .patch(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString(), userBetsUpdateCaptor.capture());
+
+        verify("Score saved: " + scoreCaptor.getValue() + "\n" +
+               "Tracker update: " + trackerUpdateCaptor.getValue() + "\n" +
+               "PropBets update: " + propBetsUpdateCaptor.getValue() + "\n" +
+               "UserBets updates: " + String.join(", ", userBetsUpdateCaptor.getAllValues()));
+    }
+
+    @Test
+    void saveScore_whenNoScoreBetsSummaryExists_onlySavesResultsToTable() throws Exception {
+        String team1Name = "Chiefs";
+        String team1Score = "28";
+        String team2Name = "Eagles";
+        String team2Score = "21";
+
+        Mockito.when(mockSupabaseService.get(
+                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
+                Mockito.eq("bet_type=eq.Score&bet_value=eq.8%2C1")
+        )).thenReturn("[]");
+        Mockito.when(mockSupabaseService.post(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+
+        dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
+
+        ArgumentCaptor<String> scoreCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .post(Mockito.eq(DataService.TABLE_SCORE), scoreCaptor.capture());
+        Mockito.verify(mockSupabaseService, Mockito.never())
+                .patch(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.never())
+                .patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.never())
+                .patch(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString());
+
+        verify("Score saved: " + scoreCaptor.getValue());
+    }
+
+    @Test
+    void saveScore_whenScoreboardEventsTrackerDoesNotExist_createsNewScoreboardEventsTrackerAndUpdatesAllTables() throws Exception {
+        String team1Name = "Chiefs";
+        String team1Score = "17";
+        String team2Name = "Eagles";
+        String team2Score = "10";
+        String scoreBetsSummaryResponse = "[{\"bet_value\":\"7,0\",\"betters\":[\"user1\",\"user2\"],\"count\":1}]";
+        String winningScoreEventsResponse = "[{\"betters\":[\"user1\",\"user2\"],\"count\":1}]";
+        String user1BetsSummaryResponse = "[{\"username\":\"user1\",\"amount_owing\":25.0,\"numberOfPropBetsWon\":0,\"amountOfPropBetsWon\":0.0}]";
+        String user2BetsSummaryResponse = "[{\"username\":\"user2\",\"amount_owing\":30.0,\"numberOfPropBetsWon\":1,\"amountOfPropBetsWon\":5.0}]";
+
+        Mockito.when(mockSupabaseService.get(
+                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
+                Mockito.eq("bet_type=eq.Score&bet_value=eq.7%2C0")
+        )).thenReturn(scoreBetsSummaryResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("")))
+                .thenReturn("[]");
+        Mockito.when(mockSupabaseService.get(
+                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
+                Mockito.eq("bet_type=eq.Score&count=not.is.null")
+        )).thenReturn(winningScoreEventsResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("username=eq.user1")))
+                .thenReturn(user1BetsSummaryResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("username=eq.user2")))
+                .thenReturn(user2BetsSummaryResponse);
+        Mockito.when(mockSupabaseService.post(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+        Mockito.when(mockSupabaseService.patch(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+
+        dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
+
+        ArgumentCaptor<String> scoreCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> propBetsUpdateCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> userBetsUpdateCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .post(Mockito.eq(DataService.TABLE_SCORE), scoreCaptor.capture());
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq("bet_type=eq.Score&bet_value=eq.7%2C0"), propBetsUpdateCaptor.capture());
+        Mockito.verify(mockSupabaseService, Mockito.times(2))
+                .patch(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString(), userBetsUpdateCaptor.capture());
+        Mockito.verify(mockSupabaseService, Mockito.never())
+                .patch(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.anyString(), Mockito.anyString());
+
+        verify("Score saved: " + scoreCaptor.getValue() + "\n" +
+               "PropBets count update: " + propBetsUpdateCaptor.getValue() + "\n" +
+               "User bets updates (with 0.0 amounts due to missing tracker): " + String.join(", ", userBetsUpdateCaptor.getAllValues()));
+    }
+
+    @Test
+    void saveScore_withSingleDigitScores_extractsCorrectBetValue() throws Exception {
+        String team1Name = "Chiefs";
+        String team1Score = "3";
+        String team2Name = "Eagles";
+        String team2Score = "7";
+        String scoreBetsSummaryResponse = "[{\"bet_value\":\"3,7\",\"betters\":[\"test_user\"],\"count\":1}]";
+
+        Mockito.when(mockSupabaseService.get(
+                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
+                Mockito.eq("bet_type=eq.Score&bet_value=eq.3%2C7")
+        )).thenReturn(scoreBetsSummaryResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("")))
+                .thenReturn("[]");
+        Mockito.when(mockSupabaseService.get(
+                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
+                Mockito.eq("bet_type=eq.Score&count=not.is.null")
+        )).thenReturn(scoreBetsSummaryResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString()))
+                .thenReturn("[{\"username\":\"test_user\",\"amount_owing\":5.0,\"numberOfPropBetsWon\":0,\"amountOfPropBetsWon\":0.0}]");
+        Mockito.when(mockSupabaseService.post(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+        Mockito.when(mockSupabaseService.patch(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+
+        dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(2))
+                .get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq("bet_type=eq.Score&bet_value=eq.3%2C7"));
+    }
+
+    @Test
+    void saveScore_withMultipleDigitScores_extractsLastDigitCorrectly() throws Exception {
+        String team1Name = "Team1";
+        String team1Score = "142";
+        String team2Name = "Team2";
+        String team2Score = "035";
+
+        Mockito.when(mockSupabaseService.get(Mockito.anyString(), Mockito.anyString())).thenReturn("[]");
+        Mockito.when(mockSupabaseService.post(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+
+        dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
+
+        ArgumentCaptor<String> scoreCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .post(Mockito.eq(DataService.TABLE_SCORE), scoreCaptor.capture());
+
+        verify("Score document: " + scoreCaptor.getValue());
+    }
+
+    @Test
+    void saveScore_whenSupabaseServiceThrowsException_propagatesRuntimeException() throws Exception {
+        String team1Name = "Chiefs";
+        String team1Score = "21";
+        String team2Name = "Eagles";
+        String team2Score = "14";
+
+        Mockito.when(mockSupabaseService.post(Mockito.eq(DataService.TABLE_SCORE), Mockito.anyString()))
+                .thenThrow(new RuntimeException("Database connection failed"));
+
+        try {
+            dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
+            verify("Expected RuntimeException was not thrown");
+        } catch (RuntimeException e) {
+            verify("Exception message: " + e.getMessage());
+        }
     }
 }

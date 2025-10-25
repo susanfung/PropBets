@@ -1,0 +1,3 @@
+Score saved: {"Chiefs":"17","Eagles":"10"}
+PropBets count update: {"count":2}
+User bets updates (with 0.0 amounts due to missing tracker): {"amountOfScoreBoardBetsWon":0,"number_of_bets_won":1,"amount_won":0,"net_amount":-25,"numberOfScoreBoardBetsWon":1}, {"amountOfScoreBoardBetsWon":0,"number_of_bets_won":2,"amount_won":5,"net_amount":-25,"numberOfScoreBoardBetsWon":1}
