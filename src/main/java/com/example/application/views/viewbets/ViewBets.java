@@ -24,7 +24,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.server.StreamResource;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -124,13 +123,9 @@ public class ViewBets extends VerticalLayout {
     }
 
     private static HorizontalLayout createUserLayout(JSONObject user, UserBetsSummary userBetsSummary) {
-        String name = userBetsSummary.username();
-        String firstName = null;
-        try {
-            firstName = user.getString("firstName");
-        } catch (JSONException e) {
-            firstName = null;
-        }
+        String username = userBetsSummary.username();
+        String name = user.optString("name", null);
+
         byte[] image = null;
         if (user.has("profileImage")) {
             String base64 = user.optString("profileImage", null);
@@ -154,7 +149,9 @@ public class ViewBets extends VerticalLayout {
         userInformation.setSpacing(false);
         userInformation.setPadding(false);
         userInformation.setWidth("250px");
-        userInformation.getElement().appendChild(ElementFactory.createStrong(name));
+
+        String displayText = name != null ? username + " (" + name + ")" : username;
+        userInformation.getElement().appendChild(ElementFactory.createStrong(displayText));
 
         VerticalLayout userStats = new VerticalLayout();
         userStats.setSpacing(false);
