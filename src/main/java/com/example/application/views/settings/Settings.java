@@ -28,17 +28,7 @@ public class Settings extends VerticalLayout implements BeforeEnterObserver {
             lockBetsButton.getUI().ifPresent(ui -> ui.navigate(""));
         });
 
-        Button deleteAllDataButton = new Button("Delete all data");
-        deleteAllDataButton.setEnabled(false);
-        deleteAllDataButton.addClickListener(e -> {
-            dataService.deleteAllData();
-
-            Notification.show("All data has been deleted");
-
-            deleteAllDataButton.getUI().ifPresent(ui -> ui.navigate(""));
-        });
-
-        add(lockBetsButton, deleteAllDataButton);
+        add(lockBetsButton);
     }
 
     public void beforeEnter(BeforeEnterEvent event) {

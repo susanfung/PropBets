@@ -789,22 +789,6 @@ public class DataService {
         }
     }
 
-    public void deleteAllData() {
-        try {
-            supabaseService.delete(TABLE_USER_BETS_SUMMARY, "id=gte.0");
-            supabaseService.delete(TABLE_PROP_BETS_SUMMARY, "id=gte.0");
-            supabaseService.delete(TABLE_SCORE_BETS_SUMMARY, "id=gte.0");
-            supabaseService.delete(TABLE_USER_BETS, "id=gte.0");
-            supabaseService.delete(TABLE_PROP_BETS, "id=gte.0");
-            supabaseService.delete(TABLE_RESULTS, "id=gte.0");
-            supabaseService.delete(TABLE_SCORE, "id=gte.0");
-            supabaseService.delete(TABLE_SCOREBOARD_EVENTS_TRACKER, "id=gte.0");
-
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to delete all data from Supabase", e);
-        }
-    }
-
     private Set<String> toStringSet(JSONArray arr) {
         Set<String> set = new HashSet<>();
 

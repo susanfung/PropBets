@@ -874,47 +874,4 @@ class DataServiceTest {
                "PropBetsSummary query: " + queries.get(1) + "\n" +
                "UserBet query: " + queries.get(2));
     }
-
-    @Test
-    void deleteAllData_deletesFromAllTables() throws Exception {
-        Mockito.when(mockSupabaseService.delete(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
-
-        dataService.deleteAllData();
-
-        Mockito.verify(mockSupabaseService, Mockito.times(1))
-               .delete(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("id=gte.0"));
-        Mockito.verify(mockSupabaseService, Mockito.times(1))
-               .delete(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq("id=gte.0"));
-        Mockito.verify(mockSupabaseService, Mockito.times(1))
-               .delete(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.eq("id=gte.0"));
-        Mockito.verify(mockSupabaseService, Mockito.times(1))
-               .delete(Mockito.eq(TABLE_USER_BETS), Mockito.eq("id=gte.0"));
-        Mockito.verify(mockSupabaseService, Mockito.times(1))
-               .delete(Mockito.eq(TABLE_PROP_BETS), Mockito.eq("id=gte.0"));
-        Mockito.verify(mockSupabaseService, Mockito.times(1))
-               .delete(Mockito.eq(TABLE_RESULTS), Mockito.eq("id=gte.0"));
-        Mockito.verify(mockSupabaseService, Mockito.times(1))
-               .delete(Mockito.eq(TABLE_SCORE), Mockito.eq("id=gte.0"));
-        Mockito.verify(mockSupabaseService, Mockito.times(1))
-               .delete(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("id=gte.0"));
-
-        Mockito.verify(mockSupabaseService, Mockito.times(8))
-               .delete(Mockito.anyString(), Mockito.eq("id=gte.0"));
-    }
-
-    @Test
-    void deleteAllData_whenSupabaseServiceThrowsException_propagatesRuntimeException() throws Exception {
-        String expectedExceptionMessage = "Database connection failed";
-
-        Mockito.when(mockSupabaseService.delete(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString()))
-               .thenThrow(new Exception(expectedExceptionMessage));
-
-        try {
-            dataService.deleteAllData();
-            verify("Expected RuntimeException was not thrown");
-        } catch (RuntimeException e) {
-            verify("Exception caught - Message: " + e.getMessage() +
-                   "\nExpected to contain: Failed to delete all data from Supabase");
-        }
-    }
 }
