@@ -1,0 +1,2 @@
+Exception caught - Message: Failed to delete all data from Supabase
+Expected to contain: Failed to delete all data from Supabase

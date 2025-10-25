@@ -16,8 +16,9 @@ import java.util.Map;
 import static com.example.application.data.DataService.TABLE_PROP_BETS;
 import static com.example.application.data.DataService.TABLE_PROP_BETS_SUMMARY;
 import static com.example.application.data.DataService.TABLE_RESULTS;
-import static com.example.application.data.DataService.TABLE_SCORE_BETS_SUMMARY;
+import static com.example.application.data.DataService.TABLE_SCORE;
 import static com.example.application.data.DataService.TABLE_SCOREBOARD_EVENTS_TRACKER;
+import static com.example.application.data.DataService.TABLE_SCORE_BETS_SUMMARY;
 import static com.example.application.data.DataService.TABLE_USER_BETS;
 import static com.example.application.data.DataService.TABLE_USER_BETS_SUMMARY;
 import static org.approvaltests.Approvals.verify;
@@ -618,7 +619,7 @@ class DataServiceTest {
         ArgumentCaptor<String> userBetsUpdateCaptor = ArgumentCaptor.forClass(String.class);
 
         Mockito.verify(mockSupabaseService, Mockito.times(1))
-                .post(Mockito.eq(DataService.TABLE_SCORE), scoreCaptor.capture());
+                .post(Mockito.eq(TABLE_SCORE), scoreCaptor.capture());
         Mockito.verify(mockSupabaseService, Mockito.times(1))
                 .patch(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("id=eq.1"), trackerUpdateCaptor.capture());
         Mockito.verify(mockSupabaseService, Mockito.times(1))
@@ -650,7 +651,7 @@ class DataServiceTest {
         ArgumentCaptor<String> scoreCaptor = ArgumentCaptor.forClass(String.class);
 
         Mockito.verify(mockSupabaseService, Mockito.times(1))
-                .post(Mockito.eq(DataService.TABLE_SCORE), scoreCaptor.capture());
+                .post(Mockito.eq(TABLE_SCORE), scoreCaptor.capture());
         Mockito.verify(mockSupabaseService, Mockito.never())
                 .patch(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.anyString(), Mockito.anyString());
         Mockito.verify(mockSupabaseService, Mockito.never())
@@ -696,7 +697,7 @@ class DataServiceTest {
         ArgumentCaptor<String> userBetsUpdateCaptor = ArgumentCaptor.forClass(String.class);
 
         Mockito.verify(mockSupabaseService, Mockito.times(1))
-                .post(Mockito.eq(DataService.TABLE_SCORE), scoreCaptor.capture());
+                .post(Mockito.eq(TABLE_SCORE), scoreCaptor.capture());
         Mockito.verify(mockSupabaseService, Mockito.times(1))
                 .patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq("bet_type=eq.Score&bet_value=eq.7%2C0"), propBetsUpdateCaptor.capture());
         Mockito.verify(mockSupabaseService, Mockito.times(2))
@@ -752,7 +753,7 @@ class DataServiceTest {
 
         ArgumentCaptor<String> scoreCaptor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(mockSupabaseService, Mockito.times(1))
-                .post(Mockito.eq(DataService.TABLE_SCORE), scoreCaptor.capture());
+                .post(Mockito.eq(TABLE_SCORE), scoreCaptor.capture());
 
         verify("Score document: " + scoreCaptor.getValue());
     }
@@ -764,7 +765,7 @@ class DataServiceTest {
         String team2Name = "Eagles";
         String team2Score = "14";
 
-        Mockito.when(mockSupabaseService.post(Mockito.eq(DataService.TABLE_SCORE), Mockito.anyString()))
+        Mockito.when(mockSupabaseService.post(Mockito.eq(TABLE_SCORE), Mockito.anyString()))
                 .thenThrow(new RuntimeException("Database connection failed"));
 
         try {
@@ -872,5 +873,48 @@ class DataServiceTest {
                "PropBet query: " + queries.get(0) + "\n" +
                "PropBetsSummary query: " + queries.get(1) + "\n" +
                "UserBet query: " + queries.get(2));
+    }
+
+    @Test
+    void deleteAllData_deletesFromAllTables() throws Exception {
+        Mockito.when(mockSupabaseService.delete(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+
+        dataService.deleteAllData();
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .delete(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("id=gte.0"));
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .delete(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq("id=gte.0"));
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .delete(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.eq("id=gte.0"));
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .delete(Mockito.eq(TABLE_USER_BETS), Mockito.eq("id=gte.0"));
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .delete(Mockito.eq(TABLE_PROP_BETS), Mockito.eq("id=gte.0"));
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .delete(Mockito.eq(TABLE_RESULTS), Mockito.eq("id=gte.0"));
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .delete(Mockito.eq(TABLE_SCORE), Mockito.eq("id=gte.0"));
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .delete(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("id=gte.0"));
+
+        Mockito.verify(mockSupabaseService, Mockito.times(8))
+               .delete(Mockito.anyString(), Mockito.eq("id=gte.0"));
+    }
+
+    @Test
+    void deleteAllData_whenSupabaseServiceThrowsException_propagatesRuntimeException() throws Exception {
+        String expectedExceptionMessage = "Database connection failed";
+
+        Mockito.when(mockSupabaseService.delete(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString()))
+               .thenThrow(new Exception(expectedExceptionMessage));
+
+        try {
+            dataService.deleteAllData();
+            verify("Expected RuntimeException was not thrown");
+        } catch (RuntimeException e) {
+            verify("Exception caught - Message: " + e.getMessage() +
+                   "\nExpected to contain: Failed to delete all data from Supabase");
+        }
     }
 }
