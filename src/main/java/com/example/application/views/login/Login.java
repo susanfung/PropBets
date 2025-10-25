@@ -52,7 +52,7 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private void login() {
-        String username = usernameField.getValue();
+        String username = usernameField.getValue().trim();
         if (username.isEmpty()) {
             usernameField.setHelperText("Please enter a username");
         } else {
@@ -75,7 +75,7 @@ public class Login extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private void saveUser() {
-        String username = usernameField.getValue();
+        String username = usernameField.getValue().trim();
         if (username.isEmpty()) {
             usernameField.setHelperText("Please enter a username");
         } else {
