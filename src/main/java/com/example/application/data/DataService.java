@@ -283,32 +283,6 @@ public class DataService {
         }
     }
 
-    private void processPropBetsSummaries(JSONArray propBetsSummaries, String username, boolean checkIsLocked) throws Exception {
-        for (int i = 0; i < propBetsSummaries.length(); i++) {
-            JSONObject propBetSummary = propBetsSummaries.getJSONObject(i);
-            String betType = propBetSummary.optString(BET_TYPE);
-            String betValue = propBetSummary.optString(BET_VALUE);
-
-            Set<String> betters = toStringSet(propBetSummary.optJSONArray(BETTERS));
-            betters.remove(username);
-
-            String updateQuery = "bet_type=eq." + URLEncoder.encode(betType, StandardCharsets.UTF_8) +
-                               "&bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
-
-            if (checkIsLocked) {
-                updateQuery += "&or=(is_locked.is.null,is_locked.eq.false)";
-            }
-
-            if (betters.isEmpty()) {
-                supabaseService.delete(TABLE_PROP_BETS_SUMMARY, updateQuery);
-            } else {
-                JSONObject updateObj = new JSONObject();
-                updateObj.put(BETTERS, new JSONArray(betters.stream().sorted().collect(Collectors.toList())));
-                supabaseService.patch(TABLE_PROP_BETS_SUMMARY, updateQuery, updateObj.toString());
-            }
-        }
-    }
-
     public void addUserBet(UserBet userBet) {
         try {
             JSONObject obj = new JSONObject();
@@ -757,24 +731,6 @@ public class DataService {
             });
         } catch (Exception e) {
             throw new RuntimeException("Failed to update scoreboard bets in user bets summary in Supabase", e);
-        }
-    }
-
-    public void createScoreBoardEventsTracker() {
-        try {
-            List<String> allBetters = new ArrayList<>();
-            List<ScoreBetsSummary> scoreBetsSummary = getScoreBetsSummary();
-
-            scoreBetsSummary.forEach(summary -> allBetters.addAll(summary.betters()));
-
-            JSONObject document = new JSONObject();
-            document.put(TOTAL_AMOUNT_OF_BETS, Double.valueOf(allBetters.size() * AMOUNT_PER_BET));
-            document.put(NUMBER_OF_WINNING_EVENTS, 0);
-            document.put(TOTAL_AMOUNT_WON_PER_EVENT, 0.0);
-
-            supabaseService.post(TABLE_SCOREBOARD_EVENTS_TRACKER, document.toString());
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create scoreboard events tracker in Supabase", e);
         }
     }
 
