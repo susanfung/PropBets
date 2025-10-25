@@ -192,7 +192,8 @@ public class DataService {
         List<UserBet> userBets = new ArrayList<>();
 
         try {
-            JSONArray arr = new JSONArray(supabaseService.get(TABLE_USER_BETS, "username=eq." + username));
+            String encodedUsername = URLEncoder.encode(username, StandardCharsets.UTF_8);
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_USER_BETS, "username=eq." + encodedUsername));
 
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
