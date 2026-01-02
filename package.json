@@ -2,15 +2,16 @@
   "name": "no-name",
   "license": "UNLICENSED",
   "dependencies": {
-    "@vaadin-component-factory/vcf-nav": "^1.1.3",
     "@vaadin/aura": "25.0.1",
     "@vaadin/common-frontend": "0.0.19",
+    "@vaadin/horizontal-layout": "^25.0.1",
     "@vaadin/react-components": "25.0.1",
     "@vaadin/react-components-pro": "25.0.1",
     "@vaadin/vaadin-development-mode-detector": "2.0.7",
     "@vaadin/vaadin-lumo-styles": "25.0.1",
     "@vaadin/vaadin-themable-mixin": "25.0.1",
     "@vaadin/vaadin-usage-statistics": "2.1.3",
+    "@vaadin/vertical-layout": "^25.0.1",
     "date-fns": "4.1.0",
     "line-awesome": "1.3.0",
     "lit": "3.3.1",
@@ -48,7 +49,6 @@
     "lit": "$lit",
     "date-fns": "$date-fns",
     "proj4": "$proj4",
-    "@vaadin-component-factory/vcf-nav": "$@vaadin-component-factory/vcf-nav",
     "line-awesome": "$line-awesome",
     "@vaadin/react-components": "$@vaadin/react-components",
     "@vaadin/react-components-pro": "$@vaadin/react-components-pro",
@@ -81,7 +81,6 @@
     "@vaadin/field-highlighter": "25.0.1",
     "@vaadin/form-layout": "25.0.1",
     "@vaadin/grid": "25.0.1",
-    "@vaadin/horizontal-layout": "25.0.1",
     "@vaadin/icon": "25.0.1",
     "@vaadin/icons": "25.0.1",
     "@vaadin/input-container": "25.0.1",
@@ -115,7 +114,6 @@
     "@vaadin/tooltip": "25.0.1",
     "@vaadin/upload": "25.0.1",
     "@vaadin/router": "2.0.1",
-    "@vaadin/vertical-layout": "25.0.1",
     "@vaadin/virtual-list": "25.0.1",
     "@vaadin/board": "25.0.1",
     "@vaadin/charts": "25.0.1",
@@ -123,11 +121,12 @@
     "@vaadin/dashboard": "25.0.1",
     "@vaadin/grid-pro": "25.0.1",
     "@vaadin/map": "25.0.1",
-    "@vaadin/rich-text-editor": "25.0.1"
+    "@vaadin/rich-text-editor": "25.0.1",
+    "@vaadin/horizontal-layout": "$@vaadin/horizontal-layout",
+    "@vaadin/vertical-layout": "$@vaadin/vertical-layout"
   },
   "vaadin": {
     "dependencies": {
-      "@vaadin-component-factory/vcf-nav": "1.0.6",
       "@vaadin/aura": "25.0.1",
       "@vaadin/common-frontend": "0.0.19",
       "@vaadin/react-components": "25.0.1",
@@ -164,7 +163,7 @@
       "vite-plugin-checker": "0.12.0",
       "workbox-build": "7.4.0"
     },
-    "hash": "76704c92b278ec57cae4185f3c2ae8ede44219c12eaa9c74b806cc18325a80d9"
+    "hash": "ff24a83c051ce4662b05215f46f9e8d72ea9673029b6e541ac8fc5590aaece89"
   },
   "type": "module"
 }
