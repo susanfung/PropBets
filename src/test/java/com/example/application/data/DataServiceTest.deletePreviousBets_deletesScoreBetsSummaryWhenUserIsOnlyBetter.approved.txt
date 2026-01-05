@@ -1,0 +1,1 @@
+Delete query: bet_value=eq.1%2C2&or=(is_locked.eq.false,is_locked.is.null)

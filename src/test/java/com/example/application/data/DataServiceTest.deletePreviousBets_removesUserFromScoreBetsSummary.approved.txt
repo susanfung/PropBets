@@ -1,0 +1,2 @@
+Query: bet_value=eq.0%2C1&or=(is_locked.eq.false,is_locked.is.null)
+Body: {"betters":["jane_doe"]}

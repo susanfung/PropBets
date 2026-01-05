@@ -166,11 +166,60 @@ class DataServiceTest {
 
         Mockito.when(mockSupabaseService.delete(Mockito.eq(TABLE_USER_BETS), Mockito.eq(expectedDeleteQuery))).thenReturn(null);
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq(expectedGetQuery))).thenReturn("[]");
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.eq(expectedGetQuery))).thenReturn("[]");
 
         dataService.deletePreviousBets(username);
 
         Mockito.verify(mockSupabaseService, Mockito.times(1)).delete(Mockito.eq(TABLE_USER_BETS), Mockito.eq(expectedDeleteQuery));
         Mockito.verify(mockSupabaseService, Mockito.times(1)).get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq(expectedGetQuery));
+        Mockito.verify(mockSupabaseService, Mockito.times(1)).get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.eq(expectedGetQuery));
+    }
+
+    @Test
+    void deletePreviousBets_removesUserFromScoreBetsSummary() throws Exception {
+        String username = "john_doe";
+        String expectedDeleteQuery = "username=eq." + username + "&or=(is_locked.eq.false,is_locked.is.null)";
+        String expectedGetQuery = "betters.cs.%5B%22" + username + "%22%5D&or=(is_locked.eq.false,is_locked.is.null)";
+
+        String scoreBetsResponse = "[{\"bet_value\":\"0,1\",\"betters\":[\"john_doe\",\"jane_doe\"],\"is_locked\":false}]";
+
+        Mockito.when(mockSupabaseService.delete(Mockito.eq(TABLE_USER_BETS), Mockito.eq(expectedDeleteQuery))).thenReturn(null);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq(expectedGetQuery))).thenReturn("[]");
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.eq(expectedGetQuery))).thenReturn(scoreBetsResponse);
+        Mockito.when(mockSupabaseService.patch(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+
+        dataService.deletePreviousBets(username);
+
+        ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .patch(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), queryCaptor.capture(), bodyCaptor.capture());
+
+        verify("Query: " + queryCaptor.getValue() + "\nBody: " + bodyCaptor.getValue());
+    }
+
+    @Test
+    void deletePreviousBets_deletesScoreBetsSummaryWhenUserIsOnlyBetter() throws Exception {
+        String username = "john_doe";
+        String expectedDeleteQuery = "username=eq." + username + "&or=(is_locked.eq.false,is_locked.is.null)";
+        String expectedGetQuery = "betters.cs.%5B%22" + username + "%22%5D&or=(is_locked.eq.false,is_locked.is.null)";
+
+        String scoreBetsResponse = "[{\"bet_value\":\"1,2\",\"betters\":[\"john_doe\"],\"is_locked\":false}]";
+
+        Mockito.when(mockSupabaseService.delete(Mockito.eq(TABLE_USER_BETS), Mockito.eq(expectedDeleteQuery))).thenReturn(null);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq(expectedGetQuery))).thenReturn("[]");
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.eq(expectedGetQuery))).thenReturn(scoreBetsResponse);
+        Mockito.when(mockSupabaseService.delete(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString())).thenReturn(null);
+
+        dataService.deletePreviousBets(username);
+
+        ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+               .delete(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), queryCaptor.capture());
+
+        verify("Delete query: " + queryCaptor.getValue());
     }
 
     @Test

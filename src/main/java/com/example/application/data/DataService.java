@@ -54,6 +54,7 @@ public class DataService {
     private static final String NUMBER_OF_SCOREBOARD_BETS_WON = "numberOfScoreBoardBetsWon";
     private static final String AMOUNT_OF_SCOREBOARD_BETS_WON = "amountOfScoreBoardBetsWon";
     private static final Double AMOUNT_PER_BET = 5.0;
+    private static final String UNLOCKED_FILTER = "&or=(is_locked.eq.false,is_locked.is.null)";
 
     private final SupabaseService supabaseService;
 
@@ -250,38 +251,65 @@ public class DataService {
 
     public void deletePreviousBets(String username) {
         try {
-            String deleteUserBetsQuery = "username=eq." + URLEncoder.encode(username, StandardCharsets.UTF_8) +
-                                       "&or=(is_locked.eq.false,is_locked.is.null)";
-
+            String deleteUserBetsQuery = buildUnlockedUsernameQuery(username);
             supabaseService.delete(TABLE_USER_BETS, deleteUserBetsQuery);
 
-            String bettersJsonFilter = "[\"" + username + "\"]";
-            String getPropBetsQuery = "betters.cs." + URLEncoder.encode(bettersJsonFilter, StandardCharsets.UTF_8) +
-                                    "&or=(is_locked.eq.false,is_locked.is.null)";
-            JSONArray propBetsSummaries = new JSONArray(supabaseService.get(TABLE_PROP_BETS_SUMMARY, getPropBetsQuery));
-
-            for (int i = 0; i < propBetsSummaries.length(); i++) {
-                JSONObject propBetSummary = propBetsSummaries.getJSONObject(i);
-                String betType = propBetSummary.optString(BET_TYPE);
-                String betValue = propBetSummary.optString(BET_VALUE);
-
-                Set<String> betters = toStringSet(propBetSummary.optJSONArray(BETTERS));
-                betters.remove(username);
-
-                String updateQuery = "bet_type=eq." + URLEncoder.encode(betType, StandardCharsets.UTF_8) +
-                                   "&bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8) +
-                                   "&or=(is_locked.eq.false,is_locked.is.null)";
-
-                if (betters.isEmpty()) {
-                    supabaseService.delete(TABLE_PROP_BETS_SUMMARY, updateQuery);
-                } else {
-                    JSONObject updateObj = new JSONObject();
-                    updateObj.put(BETTERS, new JSONArray(betters.stream().sorted().collect(Collectors.toList())));
-                    supabaseService.patch(TABLE_PROP_BETS_SUMMARY, updateQuery, updateObj.toString());
-                }
-            }
+            String bettersQuery = buildUnlockedBettersQuery(username);
+            processPropBetsSummaryDeletion(username, bettersQuery);
+            processScoreBetsSummaryDeletion(username, bettersQuery);
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete previous bets in Supabase", e);
+        }
+    }
+
+    private String buildUnlockedUsernameQuery(String username) {
+        return "username=eq." + URLEncoder.encode(username, StandardCharsets.UTF_8) + UNLOCKED_FILTER;
+    }
+
+    private String buildUnlockedBettersQuery(String username) {
+        String bettersJsonFilter = "[\"" + username + "\"]";
+        return "betters.cs." + URLEncoder.encode(bettersJsonFilter, StandardCharsets.UTF_8) + UNLOCKED_FILTER;
+    }
+
+    private void removeUsernameFromBetters(String tableName, String updateQuery, JSONObject betSummary, String username) throws Exception {
+        Set<String> betters = toStringSet(betSummary.optJSONArray(BETTERS));
+        betters.remove(username);
+
+        if (betters.isEmpty()) {
+            supabaseService.delete(tableName, updateQuery);
+        } else {
+            JSONObject updateObj = new JSONObject();
+            updateObj.put(BETTERS, new JSONArray(betters.stream().sorted().collect(Collectors.toList())));
+            supabaseService.patch(tableName, updateQuery, updateObj.toString());
+        }
+    }
+
+    private void processPropBetsSummaryDeletion(String username, String bettersQuery) throws Exception {
+        JSONArray propBetsSummaries = new JSONArray(supabaseService.get(TABLE_PROP_BETS_SUMMARY, bettersQuery));
+
+        for (int i = 0; i < propBetsSummaries.length(); i++) {
+            JSONObject propBetSummary = propBetsSummaries.getJSONObject(i);
+            String betType = propBetSummary.optString(BET_TYPE);
+            String betValue = propBetSummary.optString(BET_VALUE);
+
+            String updateQuery = "bet_type=eq." + URLEncoder.encode(betType, StandardCharsets.UTF_8) +
+                               "&bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8) +
+                               UNLOCKED_FILTER;
+
+            removeUsernameFromBetters(TABLE_PROP_BETS_SUMMARY, updateQuery, propBetSummary, username);
+        }
+    }
+
+    private void processScoreBetsSummaryDeletion(String username, String bettersQuery) throws Exception {
+        JSONArray scoreBetsSummaries = new JSONArray(supabaseService.get(TABLE_SCORE_BETS_SUMMARY, bettersQuery));
+
+        for (int i = 0; i < scoreBetsSummaries.length(); i++) {
+            JSONObject scoreBetSummary = scoreBetsSummaries.getJSONObject(i);
+            String betValue = scoreBetSummary.optString(BET_VALUE);
+
+            String updateQuery = "bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8) + UNLOCKED_FILTER;
+
+            removeUsernameFromBetters(TABLE_SCORE_BETS_SUMMARY, updateQuery, scoreBetSummary, username);
         }
     }
 
