@@ -49,7 +49,6 @@
     "lit": "$lit",
     "date-fns": "$date-fns",
     "proj4": "$proj4",
-    "line-awesome": "$line-awesome",
     "@vaadin/react-components": "$@vaadin/react-components",
     "@vaadin/react-components-pro": "$@vaadin/react-components-pro",
     "react-dom": "$react-dom",
@@ -123,7 +122,8 @@
     "@vaadin/map": "25.0.1",
     "@vaadin/rich-text-editor": "25.0.1",
     "@vaadin/horizontal-layout": "$@vaadin/horizontal-layout",
-    "@vaadin/vertical-layout": "$@vaadin/vertical-layout"
+    "@vaadin/vertical-layout": "$@vaadin/vertical-layout",
+    "line-awesome": "$line-awesome"
   },
   "vaadin": {
     "dependencies": {
