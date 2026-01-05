@@ -53,7 +53,7 @@ public class DataService {
     private static final String AMOUNT_OF_PROPBETS_WON = "amountOfPropBetsWon";
     private static final String NUMBER_OF_SCOREBOARD_BETS_WON = "numberOfScoreBoardBetsWon";
     private static final String AMOUNT_OF_SCOREBOARD_BETS_WON = "amountOfScoreBoardBetsWon";
-    private static final Double AMOUNT_PER_BET = 5.0;
+    private static final Double AMOUNT_PER_BET = 2.0;
     private static final String UNLOCKED_FILTER = "&or=(is_locked.eq.false,is_locked.is.null)";
 
     private final SupabaseService supabaseService;
