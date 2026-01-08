@@ -937,4 +937,28 @@ class DataServiceTest {
                "PropBetsSummary query: " + queries.get(1) + "\n" +
                "UserBet query: " + queries.get(2));
     }
+
+    @Test
+    void getScoreBoardLockStatus_whenRecordExistsWithLockTrue_returnsTrue() throws Exception {
+        String response = "[{\"id\":1,\"total_amount_of_bets\":10.0,\"number_of_winning_events\":1,\"is_locked\":true,\"total_amount_won_per_event\":5.0}]";
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.anyString())).thenReturn(response);
+
+        verify(dataService.getScoreBoardLockStatus());
+    }
+
+    @Test
+    void getScoreBoardLockStatus_whenRecordExistsWithLockFalse_returnsFalse() throws Exception {
+        String response = "[{\"id\":1,\"total_amount_of_bets\":10.0,\"number_of_winning_events\":1,\"is_locked\":false,\"total_amount_won_per_event\":5.0}]";
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.anyString())).thenReturn(response);
+
+        verify(dataService.getScoreBoardLockStatus());
+    }
+
+    @Test
+    void getScoreBoardLockStatus_whenNoRecordExists_returnsFalse() throws Exception {
+        String response = "[]";
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.anyString())).thenReturn(response);
+
+        verify(dataService.getScoreBoardLockStatus());
+    }
 }

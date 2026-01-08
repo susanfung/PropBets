@@ -37,7 +37,7 @@ import static com.example.application.utils.Utils.createPropBet;
 @PageTitle("Place Bets")
 @Route(value = "placeBets", layout = MainLayout.class)
 public class PlaceBets extends VerticalLayout {
-    private Boolean isScoreBoardBetsLocked = false;
+    private final boolean isScoreBoardBetsLocked;
 
     private final List<String> scoreBets = new ArrayList<>();
     private final Map<String, String> propBets = new HashMap<>();
@@ -47,6 +47,8 @@ public class PlaceBets extends VerticalLayout {
     private Paragraph totalAmount;
 
     public PlaceBets(DataService dataService) {
+        isScoreBoardBetsLocked = dataService.getScoreBoardLockStatus();
+
         H2 scoreBoardTitle = new H2("Score Board");
 
         HorizontalLayout teams = new HorizontalLayout();

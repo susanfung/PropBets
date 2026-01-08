@@ -651,6 +651,16 @@ public class DataService {
         }
     }
 
+    public boolean getScoreBoardLockStatus() {
+        JSONObject tracker = getScoreBoardEventsTracker();
+
+        if (tracker == null) {
+            return false;
+        }
+
+        return tracker.optBoolean(IS_LOCKED, false);
+    }
+
     private void updateScoreBoardEventsTracker(JSONObject scoreBoardEventsTracker, Double[] totalAmountWonPerEvent) {
         try {
             int id = scoreBoardEventsTracker.getInt("id");
