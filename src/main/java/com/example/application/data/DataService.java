@@ -129,7 +129,8 @@ public class DataService {
                 String betValue = obj.optString(BET_VALUE);
                 Set<String> betters = toStringSet(obj.optJSONArray(BETTERS));
                 Optional<Integer> count = obj.has(COUNT) ? Optional.of(obj.optInt(COUNT)) : Optional.empty();
-                ScoreBetsSummary summary = new ScoreBetsSummary(betValue, betters, count);
+                Boolean isLocked = obj.optBoolean(IS_LOCKED, false);
+                ScoreBetsSummary summary = new ScoreBetsSummary(betValue, betters, count, isLocked);
 
                 scoreBoardBetsSummaries.add(summary);
             }
@@ -152,7 +153,8 @@ public class DataService {
                 UserBet userBet = new UserBet(
                     obj.optString(USERNAME),
                     obj.optString(BET_TYPE),
-                    obj.optString(BET_VALUE)
+                    obj.optString(BET_VALUE),
+                    obj.optBoolean(IS_LOCKED, false)
                 );
 
                 userBets.add(userBet);
@@ -202,7 +204,8 @@ public class DataService {
                 UserBet userBet = new UserBet(
                     obj.optString(USERNAME),
                     obj.optString(BET_TYPE),
-                    obj.optString(BET_VALUE)
+                    obj.optString(BET_VALUE),
+                    obj.optBoolean(IS_LOCKED, false)
                 );
 
                 userBets.add(userBet);
@@ -450,7 +453,7 @@ public class DataService {
 
     public void saveScoreBets(String username, List<String> bets) {
         bets.forEach(betValue -> {
-            UserBet bet = new UserBet(username, SCORE_BET_TYPE, betValue);
+            UserBet bet = new UserBet(username, SCORE_BET_TYPE, betValue, false);
 
             addUserBet(bet);
             updateScoreBetsSummary(betValue, username);
@@ -459,7 +462,7 @@ public class DataService {
 
     public void savePropBets(String username, java.util.Map<String, String> bets) {
         bets.forEach((betType, betValue) -> {
-            UserBet bet = new UserBet(username, betType, betValue);
+            UserBet bet = new UserBet(username, betType, betValue, false);
 
             addUserBet(bet);
             updatePropBetsSummary(betType, betValue, username);
@@ -628,7 +631,8 @@ public class DataService {
                 JSONObject obj = arr.getJSONObject(0);
                 Set<String> betters = toStringSet(obj.optJSONArray(BETTERS));
                 Optional<Integer> count = obj.has(COUNT) ? Optional.of(obj.optInt(COUNT)) : Optional.empty();
-                return new ScoreBetsSummary(betValue, betters, count);
+                Boolean isLocked = obj.optBoolean(IS_LOCKED, false);
+                return new ScoreBetsSummary(betValue, betters, count, isLocked);
             }
             return null;
         } catch (Exception e) {
@@ -786,6 +790,10 @@ public class DataService {
 
             propBets.forEach(propBet -> {
                 try {
+                    if (propBet.isLocked().orElse(false)) {
+                        return;
+                    }
+
                     String query = "bet_type=eq." + URLEncoder.encode(propBet.name(), StandardCharsets.UTF_8);
                     supabaseService.patch(TABLE_PROP_BETS, query, updateObj.toString());
                 } catch (Exception e) {
@@ -795,6 +803,10 @@ public class DataService {
 
             propBetsSummary.forEach(summary -> {
                 try {
+                    if (summary.isLocked() != null && summary.isLocked()) {
+                        return;
+                    }
+
                     String query = "bet_type=eq." + URLEncoder.encode(summary.betType(), StandardCharsets.UTF_8) +
                             "&bet_value=eq." + URLEncoder.encode(summary.betValue(), StandardCharsets.UTF_8);
                     supabaseService.patch(TABLE_PROP_BETS_SUMMARY, query, updateObj.toString());
@@ -805,6 +817,10 @@ public class DataService {
 
             scoreBetsSummary.forEach(summary -> {
                 try {
+                    if (summary.isLocked() != null && summary.isLocked()) {
+                        return;
+                    }
+
                     String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
                             "&bet_value=eq." + URLEncoder.encode(summary.betValue(), StandardCharsets.UTF_8);
                     supabaseService.patch(TABLE_SCORE_BETS_SUMMARY, query, updateObj.toString());
@@ -815,6 +831,10 @@ public class DataService {
 
             userBets.forEach(userBet -> {
                 try {
+                    if (userBet.isLocked() != null && userBet.isLocked()) {
+                        return;
+                    }
+
                     String query = "username=eq." + URLEncoder.encode(userBet.username(), StandardCharsets.UTF_8) +
                             "&bet_type=eq." + URLEncoder.encode(userBet.betType(), StandardCharsets.UTF_8) +
                             "&bet_value=eq." + URLEncoder.encode(userBet.betValue(), StandardCharsets.UTF_8);

@@ -1,2 +1,2 @@
-com.example.application.data.UserBet[username=john_doe,betType=Team 1 Score,betValue=100]
-com.example.application.data.UserBet[username=john_doe,betType=Team 2 Score,betValue=50]
+com.example.application.data.UserBet[username=john_doe,betType=Team 1 Score,betValue=100,isLocked=true]
+com.example.application.data.UserBet[username=john_doe,betType=Team 2 Score,betValue=50,isLocked=true]
