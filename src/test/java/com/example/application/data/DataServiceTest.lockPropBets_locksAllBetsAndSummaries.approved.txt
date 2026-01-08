@@ -11,3 +11,6 @@ UserBets patches:
 Table: user_bets, Query: username=eq.user1&bet_type=eq.Coin+Toss&bet_value=eq.Chiefs, Body: {"is_locked":true}
 Table: user_bets, Query: username=eq.user2&bet_type=eq.MVP&bet_value=eq.Mahomes, Body: {"is_locked":true}
 Table: user_bets, Query: username=eq.user3&bet_type=eq.Score&bet_value=eq.1%2C2, Body: {"is_locked":true}
+Scoreboard tracker created:
+Table: scoreboard_events_tracker
+Body: {"total_amount_of_bets":2,"number_of_winning_events":0,"is_locked":true,"total_amount_won_per_event":0}

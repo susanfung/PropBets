@@ -46,9 +46,9 @@ public class DataService {
     private static final String COUNT = "count";
     private static final String SCORE_BET_TYPE = "Score";
 
-    private static final String TOTAL_AMOUNT_OF_BETS = "totalAmountOfBets";
-    private static final String NUMBER_OF_WINNING_EVENTS = "numberOfWinningEvents";
-    private static final String TOTAL_AMOUNT_WON_PER_EVENT = "totalAmountWonPerEvent";
+    private static final String TOTAL_AMOUNT_OF_BETS = "total_amount_of_bets";
+    private static final String NUMBER_OF_WINNING_EVENTS = "number_of_winning_events";
+    private static final String TOTAL_AMOUNT_WON_PER_EVENT = "total_amount_won_per_event";
     private static final String NUMBER_OF_PROPBETS_WON = "numberOfPropBetsWon";
     private static final String AMOUNT_OF_PROPBETS_WON = "amountOfPropBetsWon";
     private static final String NUMBER_OF_SCOREBOARD_BETS_WON = "numberOfScoreBoardBetsWon";
@@ -814,8 +814,60 @@ public class DataService {
                 }
             });
 
+            try {
+                handleScoreboardEventsTracker(userBets);
+            } catch (Exception e) {
+                System.err.println("Failed to handle scoreboard events tracker: " + e.getMessage());
+            }
+
         } catch (Exception e) {
             throw new RuntimeException("Failed to lock prop bets in Supabase", e);
+        }
+    }
+
+    private void handleScoreboardEventsTracker(List<UserBet> userBets) {
+        try {
+            long scoreBetCount = userBets.stream()
+                    .filter(bet -> SCORE_BET_TYPE.equals(bet.betType()))
+                    .count();
+
+            Double totalAmountOfBets = scoreBetCount * AMOUNT_PER_BET;
+
+            JSONObject existingTracker = getScoreBoardEventsTracker();
+
+            if (existingTracker == null) {
+                JSONObject newTracker = new JSONObject();
+                newTracker.put(TOTAL_AMOUNT_OF_BETS, totalAmountOfBets);
+                newTracker.put(NUMBER_OF_WINNING_EVENTS, 0);
+                newTracker.put(TOTAL_AMOUNT_WON_PER_EVENT, 0.0);
+                newTracker.put(IS_LOCKED, true);
+
+                supabaseService.post(TABLE_SCOREBOARD_EVENTS_TRACKER, newTracker.toString());
+            } else {
+                boolean isLocked = existingTracker.optBoolean(IS_LOCKED, false);
+
+                if (!isLocked) {
+                    int id = existingTracker.getInt("id");
+                    Integer numberOfWinningEvents = existingTracker.optInt(NUMBER_OF_WINNING_EVENTS, 0);
+
+                    Double totalAmountWonPerEvent = 0.0;
+                    if (numberOfWinningEvents > 0) {
+                        totalAmountWonPerEvent = BigDecimal.valueOf(totalAmountOfBets / numberOfWinningEvents)
+                                .setScale(2, RoundingMode.HALF_UP)
+                                .doubleValue();
+                    }
+
+                    JSONObject updateTrackerObj = new JSONObject();
+                    updateTrackerObj.put(TOTAL_AMOUNT_OF_BETS, totalAmountOfBets);
+                    updateTrackerObj.put(TOTAL_AMOUNT_WON_PER_EVENT, totalAmountWonPerEvent);
+                    updateTrackerObj.put(IS_LOCKED, true);
+
+                    String query = "id=eq." + id;
+                    supabaseService.patch(TABLE_SCOREBOARD_EVENTS_TRACKER, query, updateTrackerObj.toString());
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to handle scoreboard events tracker in Supabase", e);
         }
     }
 

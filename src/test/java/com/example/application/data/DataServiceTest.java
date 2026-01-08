@@ -638,7 +638,7 @@ class DataServiceTest {
         String team2Name = "Eagles";
         String team2Score = "14";
         String scoreBetsSummaryResponse = "[{\"bet_value\":\"1,4\",\"betters\":[\"john_doe\",\"jane_doe\"],\"count\":2}]";
-        String scoreboardEventsTrackerResponse = "[{\"id\":1,\"totalAmountOfBets\":100.0,\"numberOfWinningEvents\":2,\"totalAmountWonPerEvent\":25.0}]";
+        String scoreboardEventsTrackerResponse = "[{\"id\":1,\"total_amount_of_bets\":100.0,\"number_of_winning_events\":2,\"total_amount_won_per_event\":25.0}]";
         String winningScoreEventsResponse = "[{\"betters\":[\"john_doe\",\"jane_doe\"],\"count\":2}]";
         String johnUserBetsSummaryResponse = "[{\"username\":\"john_doe\",\"amount_owing\":50.0,\"numberOfPropBetsWon\":1,\"amountOfPropBetsWon\":10.0}]";
         String janeUserBetsSummaryResponse = "[{\"username\":\"jane_doe\",\"amount_owing\":40.0,\"numberOfPropBetsWon\":2,\"amountOfPropBetsWon\":15.0}]";
@@ -853,7 +853,11 @@ class DataServiceTest {
                 .thenReturn(scoreBetsSummaryResponse);
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS), Mockito.anyString()))
                 .thenReturn(userBetsResponse);
+        Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.anyString()))
+                .thenReturn("[]");
         Mockito.when(mockSupabaseService.patch(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(null);
+        Mockito.when(mockSupabaseService.post(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(null);
 
         dataService.lockPropBets();
@@ -866,6 +870,8 @@ class DataServiceTest {
                 .get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString());
         Mockito.verify(mockSupabaseService, Mockito.times(1))
                 .get(Mockito.eq(TABLE_USER_BETS), Mockito.anyString());
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.anyString());
 
         ArgumentCaptor<String> tableCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
@@ -877,6 +883,11 @@ class DataServiceTest {
         List<String> tables = tableCaptor.getAllValues();
         List<String> queries = queryCaptor.getAllValues();
         List<String> bodies = bodyCaptor.getAllValues();
+
+                ArgumentCaptor<String> trackerTableCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> trackerBodyCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .post(trackerTableCaptor.capture(), trackerBodyCaptor.capture());
 
         verify("PropBets patches:\n" +
                "Table: " + tables.get(0) + ", Query: " + queries.get(0) + ", Body: " + bodies.get(0) + "\n" +
@@ -890,7 +901,10 @@ class DataServiceTest {
                "UserBets patches:\n" +
                "Table: " + tables.get(6) + ", Query: " + queries.get(6) + ", Body: " + bodies.get(6) + "\n" +
                "Table: " + tables.get(7) + ", Query: " + queries.get(7) + ", Body: " + bodies.get(7) + "\n" +
-               "Table: " + tables.get(8) + ", Query: " + queries.get(8) + ", Body: " + bodies.get(8));
+               "Table: " + tables.get(8) + ", Query: " + queries.get(8) + ", Body: " + bodies.get(8) + "\n" +
+               "Scoreboard tracker created:\n" +
+               "Table: " + trackerTableCaptor.getValue() + "\n" +
+               "Body: " + trackerBodyCaptor.getValue());
     }
 
     @Test
