@@ -66,7 +66,7 @@ public class SaveResults extends VerticalLayout implements BeforeEnterObserver {
         H2 propBetsTitle = new H2("PropBets");
         add(propBetsTitle);
 
-        List<PropBet> propBetList = this.dataService.getPropBets();
+        List<PropBet> propBetList = this.dataService.getPropBets("");
         propBetList.forEach(propBet -> {
             RadioButtonGroup<String> bet = createPropBet(propBet.name(), propBet.question(), propBet.choices());
             bet.addValueChangeListener(e -> handlePropBetSelection(bet.getClassName(), e.getValue()));

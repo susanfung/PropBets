@@ -107,14 +107,14 @@ public class ViewBets extends VerticalLayout {
         HorizontalLayout columnNamesForScoreBoard = createColumnNamesForScoreBoard();
         add(navigationLayout, scoreBoardTitle, teams, columnNamesForScoreBoard);
 
-        scoreBetsSummary = this.dataService.getScoreBetsSummary();
+        scoreBetsSummary = this.dataService.getScoreBetsSummary("");
 
         IntStream.rangeClosed(0, 9).forEach(row -> {
             HorizontalLayout rowsForScoreBoard = createRowsForScoreBoard(row);
             add(rowsForScoreBoard);
         });
 
-        List<PropBetsSummary> propBetsSummaries = this.dataService.getPropBetsSummary();
+        List<PropBetsSummary> propBetsSummaries = this.dataService.getPropBetsSummary("");
         Map<String, List<PropBetsSummary>> groupedSummaries = propBetsSummaries.stream()
                                                                                .collect(Collectors.groupingBy(PropBetsSummary::question));
 

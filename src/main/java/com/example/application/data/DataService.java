@@ -90,11 +90,11 @@ public class DataService {
         return userBetsSummaries;
     }
 
-    public List<PropBetsSummary> getPropBetsSummary() {
+    public List<PropBetsSummary> getPropBetsSummary(String query) {
         List<PropBetsSummary> propBetsSummaries = new ArrayList<>();
 
         try {
-            JSONArray arr = new JSONArray(supabaseService.get(TABLE_PROP_BETS_SUMMARY, ""));
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_PROP_BETS_SUMMARY, query));
 
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
@@ -117,11 +117,11 @@ public class DataService {
         return propBetsSummaries;
     }
 
-    public List<ScoreBetsSummary> getScoreBetsSummary() {
+    public List<ScoreBetsSummary> getScoreBetsSummary(String query) {
         List<ScoreBetsSummary> scoreBoardBetsSummaries = new ArrayList<>();
 
         try {
-            JSONArray arr = new JSONArray(supabaseService.get(TABLE_SCORE_BETS_SUMMARY, ""));
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_SCORE_BETS_SUMMARY, query));
 
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
@@ -141,11 +141,11 @@ public class DataService {
         return scoreBoardBetsSummaries;
     }
 
-    public List<UserBet> getUserBets() {
+    public List<UserBet> getUserBets(String query) {
         List<UserBet> userBets = new ArrayList<>();
 
         try {
-            JSONArray arr = new JSONArray(supabaseService.get(TABLE_USER_BETS, ""));
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_USER_BETS, query));
 
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
@@ -166,11 +166,11 @@ public class DataService {
         return userBets;
     }
 
-    public List<PropBet> getPropBets() {
+    public List<PropBet> getPropBets(String query) {
         List<PropBet> propBets = new ArrayList<>();
 
         try {
-            JSONArray arr = new JSONArray(supabaseService.get(TABLE_PROP_BETS, ""));
+            JSONArray arr = new JSONArray(supabaseService.get(TABLE_PROP_BETS, query));
 
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
@@ -780,20 +780,16 @@ public class DataService {
 
     public void lockPropBets() {
         try {
-            List<PropBet> propBets = getPropBets();
-            List<PropBetsSummary> propBetsSummary = getPropBetsSummary();
-            List<ScoreBetsSummary> scoreBetsSummary = getScoreBetsSummary();
-            List<UserBet> userBets = getUserBets();
+            List<PropBet> propBets = getPropBets(UNLOCKED_FILTER);
+            List<PropBetsSummary> propBetsSummary = getPropBetsSummary(UNLOCKED_FILTER);
+            List<ScoreBetsSummary> scoreBetsSummary = getScoreBetsSummary(UNLOCKED_FILTER);
+            List<UserBet> userBets = getUserBets(UNLOCKED_FILTER);
 
             JSONObject updateObj = new JSONObject();
             updateObj.put(IS_LOCKED, true);
 
             propBets.forEach(propBet -> {
                 try {
-                    if (propBet.isLocked().orElse(false)) {
-                        return;
-                    }
-
                     String query = "bet_type=eq." + URLEncoder.encode(propBet.name(), StandardCharsets.UTF_8);
                     supabaseService.patch(TABLE_PROP_BETS, query, updateObj.toString());
                 } catch (Exception e) {
@@ -803,10 +799,6 @@ public class DataService {
 
             propBetsSummary.forEach(summary -> {
                 try {
-                    if (summary.isLocked() != null && summary.isLocked()) {
-                        return;
-                    }
-
                     String query = "bet_type=eq." + URLEncoder.encode(summary.betType(), StandardCharsets.UTF_8) +
                             "&bet_value=eq." + URLEncoder.encode(summary.betValue(), StandardCharsets.UTF_8);
                     supabaseService.patch(TABLE_PROP_BETS_SUMMARY, query, updateObj.toString());
@@ -817,10 +809,6 @@ public class DataService {
 
             scoreBetsSummary.forEach(summary -> {
                 try {
-                    if (summary.isLocked() != null && summary.isLocked()) {
-                        return;
-                    }
-
                     String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
                             "&bet_value=eq." + URLEncoder.encode(summary.betValue(), StandardCharsets.UTF_8);
                     supabaseService.patch(TABLE_SCORE_BETS_SUMMARY, query, updateObj.toString());
@@ -831,10 +819,6 @@ public class DataService {
 
             userBets.forEach(userBet -> {
                 try {
-                    if (userBet.isLocked() != null && userBet.isLocked()) {
-                        return;
-                    }
-
                     String query = "username=eq." + URLEncoder.encode(userBet.username(), StandardCharsets.UTF_8) +
                             "&bet_type=eq." + URLEncoder.encode(userBet.betType(), StandardCharsets.UTF_8) +
                             "&bet_value=eq." + URLEncoder.encode(userBet.betValue(), StandardCharsets.UTF_8);

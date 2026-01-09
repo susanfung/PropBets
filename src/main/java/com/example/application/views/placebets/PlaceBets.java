@@ -84,7 +84,7 @@ public class PlaceBets extends VerticalLayout {
         H2 propBetsTitle = new H2("PropBets");
         add(propBetsTitle);
 
-        List<PropBet> propBetList = dataService.getPropBets();
+        List<PropBet> propBetList = dataService.getPropBets("");
         propBetList.forEach(propBet -> {
             RadioButtonGroup<String> bet = createPropBet(propBet.name(), propBet.question(), propBet.choices());
             bet.setEnabled(!propBet.isLocked().orElse(false));

@@ -60,7 +60,7 @@ class DataServiceTest {
 
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.anyString())).thenReturn(response);
 
-        String result = dataService.getPropBetsSummary()
+        String result = dataService.getPropBetsSummary("")
                                    .stream()
                                    .map(PropBetsSummary::toString)
                                    .reduce("", (s1, s2) -> s1 + s2 + "\n");
@@ -77,7 +77,7 @@ class DataServiceTest {
 
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.anyString())).thenReturn(response);
 
-        List<ScoreBetsSummary> resultList = dataService.getScoreBetsSummary();
+        List<ScoreBetsSummary> resultList = dataService.getScoreBetsSummary("");
 
         String result = resultList.stream()
                                   .map(entry -> entry.betValue() + ":\n" + entry.betters() + ":\n" + entry.count())
@@ -92,7 +92,7 @@ class DataServiceTest {
 
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS), Mockito.anyString())).thenReturn(response);
 
-        String result = dataService.getUserBets()
+        String result = dataService.getUserBets("")
                                    .stream()
                                    .map(UserBet::toString)
                                    .reduce("", (s1, s2) -> s1 + s2 + "\n");
@@ -106,7 +106,7 @@ class DataServiceTest {
 
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_PROP_BETS), Mockito.anyString())).thenReturn(response);
 
-        String result = dataService.getPropBets()
+        String result = dataService.getPropBets("")
                                    .stream()
                                    .map(PropBet::toString)
                                    .reduce("", (s1, s2) -> s1 + s2 + "\n");
