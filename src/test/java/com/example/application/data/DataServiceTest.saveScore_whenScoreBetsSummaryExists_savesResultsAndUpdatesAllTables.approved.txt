@@ -1,4 +1,4 @@
 Score saved: {"Chiefs":"21","Eagles":"14"}
 Tracker update: {"number_of_winning_events":3,"total_amount_won_per_event":33.33}
 PropBets update: {"count":3}
-UserBets updates: {"amountOfScoreBoardBetsWon":33.33,"number_of_bets_won":4,"amount_won":48.33,"net_amount":8.33,"numberOfScoreBoardBetsWon":2}, {"amountOfScoreBoardBetsWon":33.33,"number_of_bets_won":3,"amount_won":43.33,"net_amount":-6.67,"numberOfScoreBoardBetsWon":2}
+UserBets updates: {"number_of_bets_won":2,"number_of_scoreboard_bets_won":2,"amount_won":33.33,"amount_of_scoreboard_bets_won":33.33,"net_amount":-6.67}, {"number_of_bets_won":2,"number_of_scoreboard_bets_won":2,"amount_won":33.33,"amount_of_scoreboard_bets_won":33.33,"net_amount":-16.67}

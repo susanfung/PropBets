@@ -49,10 +49,10 @@ public class DataService {
     private static final String TOTAL_AMOUNT_OF_BETS = "total_amount_of_bets";
     private static final String NUMBER_OF_WINNING_EVENTS = "number_of_winning_events";
     private static final String TOTAL_AMOUNT_WON_PER_EVENT = "total_amount_won_per_event";
-    private static final String NUMBER_OF_PROPBETS_WON = "numberOfPropBetsWon";
-    private static final String AMOUNT_OF_PROPBETS_WON = "amountOfPropBetsWon";
-    private static final String NUMBER_OF_SCOREBOARD_BETS_WON = "numberOfScoreBoardBetsWon";
-    private static final String AMOUNT_OF_SCOREBOARD_BETS_WON = "amountOfScoreBoardBetsWon";
+    private static final String NUMBER_OF_PROPBETS_WON = "number_of_propbets_won";
+    private static final String AMOUNT_OF_PROPBETS_WON = "amount_of_propbets_won";
+    private static final String NUMBER_OF_SCOREBOARD_BETS_WON = "number_of_scoreboard_bets_won";
+    private static final String AMOUNT_OF_SCOREBOARD_BETS_WON = "amount_of_scoreboard_bets_won";
     private static final Double AMOUNT_PER_BET = 2.0;
     private static final String UNLOCKED_FILTER = "&or=(is_locked.eq.false,is_locked.is.null)";
 
