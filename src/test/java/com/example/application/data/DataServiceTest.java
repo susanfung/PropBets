@@ -644,11 +644,15 @@ class DataServiceTest {
         String janeUserBetsSummaryResponse = "[{\"username\":\"jane_doe\",\"amount_owing\":40.0,\"numberOfPropBetsWon\":2,\"amountOfPropBetsWon\":15.0}]";
 
         Mockito.when(mockSupabaseService.get(
-                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
-                Mockito.eq("bet_type=eq.Score&bet_value=eq.1%2C4")
+                Mockito.eq(TABLE_SCORE_BETS_SUMMARY),
+                Mockito.eq("bet_value=eq.1%2C4")
         )).thenReturn(scoreBetsSummaryResponse);
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("")))
                 .thenReturn(scoreboardEventsTrackerResponse);
+        Mockito.when(mockSupabaseService.get(
+                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
+                Mockito.eq("bet_type=eq.Score&bet_value=eq.1%2C4")
+        )).thenReturn(scoreBetsSummaryResponse);
         Mockito.when(mockSupabaseService.get(
                 Mockito.eq(TABLE_PROP_BETS_SUMMARY),
                 Mockito.eq("bet_type=eq.Score&count=not.is.null")
@@ -690,8 +694,8 @@ class DataServiceTest {
         String team2Score = "21";
 
         Mockito.when(mockSupabaseService.get(
-                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
-                Mockito.eq("bet_type=eq.Score&bet_value=eq.8%2C1")
+                Mockito.eq(TABLE_SCORE_BETS_SUMMARY),
+                Mockito.eq("bet_value=eq.8%2C1")
         )).thenReturn("[]");
         Mockito.when(mockSupabaseService.post(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
 
@@ -723,11 +727,15 @@ class DataServiceTest {
         String user2BetsSummaryResponse = "[{\"username\":\"user2\",\"amount_owing\":30.0,\"numberOfPropBetsWon\":1,\"amountOfPropBetsWon\":5.0}]";
 
         Mockito.when(mockSupabaseService.get(
-                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
-                Mockito.eq("bet_type=eq.Score&bet_value=eq.7%2C0")
+                Mockito.eq(TABLE_SCORE_BETS_SUMMARY),
+                Mockito.eq("bet_value=eq.7%2C0")
         )).thenReturn(scoreBetsSummaryResponse);
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("")))
                 .thenReturn("[]");
+        Mockito.when(mockSupabaseService.get(
+                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
+                Mockito.eq("bet_type=eq.Score&bet_value=eq.7%2C0")
+        )).thenReturn(scoreBetsSummaryResponse);
         Mockito.when(mockSupabaseService.get(
                 Mockito.eq(TABLE_PROP_BETS_SUMMARY),
                 Mockito.eq("bet_type=eq.Score&count=not.is.null")
@@ -768,11 +776,15 @@ class DataServiceTest {
         String scoreBetsSummaryResponse = "[{\"bet_value\":\"3,7\",\"betters\":[\"test_user\"],\"count\":1}]";
 
         Mockito.when(mockSupabaseService.get(
-                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
-                Mockito.eq("bet_type=eq.Score&bet_value=eq.3%2C7")
+                Mockito.eq(TABLE_SCORE_BETS_SUMMARY),
+                Mockito.eq("bet_value=eq.3%2C7")
         )).thenReturn(scoreBetsSummaryResponse);
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("")))
                 .thenReturn("[]");
+        Mockito.when(mockSupabaseService.get(
+                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
+                Mockito.eq("bet_type=eq.Score&bet_value=eq.3%2C7")
+        )).thenReturn(scoreBetsSummaryResponse);
         Mockito.when(mockSupabaseService.get(
                 Mockito.eq(TABLE_PROP_BETS_SUMMARY),
                 Mockito.eq("bet_type=eq.Score&count=not.is.null")
@@ -784,8 +796,8 @@ class DataServiceTest {
 
         dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
 
-        Mockito.verify(mockSupabaseService, Mockito.times(2))
-                .get(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq("bet_type=eq.Score&bet_value=eq.3%2C7"));
+        Mockito.verify(mockSupabaseService, Mockito.times(1))
+                .get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.eq("bet_value=eq.3%2C7"));
     }
 
     @Test

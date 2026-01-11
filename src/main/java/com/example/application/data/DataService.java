@@ -622,9 +622,8 @@ public class DataService {
 
     private ScoreBetsSummary getScoreBoardBetsSummaryByBetValue(String betValue) {
         try {
-            String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
-                    "&bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
-            String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, query);
+            String query = "bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
+            String response = supabaseService.get(TABLE_SCORE_BETS_SUMMARY, query);
             JSONArray arr = new JSONArray(response);
 
             if (arr.length() > 0) {
