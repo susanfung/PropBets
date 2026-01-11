@@ -104,7 +104,7 @@ public class DataService {
                         obj.optString(BET_VALUE),
                         toStringSet(obj.optJSONArray(BETTERS)),
                         obj.optString(QUESTION),
-                        obj.optBoolean(IS_WINNER),
+                        obj.has(IS_WINNER) && !obj.isNull(IS_WINNER) ? Optional.of(obj.getBoolean(IS_WINNER)) : Optional.empty(),
                         obj.optBoolean(IS_LOCKED)
                 );
 

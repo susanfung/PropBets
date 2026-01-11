@@ -283,7 +283,7 @@ public class ViewBets extends VerticalLayout {
             loserIcon.setWidth(ICON_SIZE);
             loserIcon.setHeight(ICON_SIZE);
 
-            betValueButton.setIcon(summary.isLocked() ? (summary.isWinner() ? winnerIcon : loserIcon) : null);
+            betValueButton.setIcon(summary.isLocked() ? summary.isWinner().map(win -> win ? winnerIcon : loserIcon).orElse(null) : null);
 
             betSummary.add(betValueButton);
         });

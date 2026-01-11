@@ -1,12 +1,13 @@
 package com.example.application.data;
 
+import java.util.Optional;
 import java.util.Set;
 
 public record PropBetsSummary(String betType,
                               String betValue,
                               Set<String> betters,
                               String question,
-                              Boolean isWinner,
+                              Optional<Boolean> isWinner,
                               Boolean isLocked) {
     @Override
     public String toString() {
