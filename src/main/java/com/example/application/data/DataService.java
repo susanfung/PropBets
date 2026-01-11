@@ -591,10 +591,10 @@ public class DataService {
 
         if (foundPropBetsSummary != null) {
             JSONObject scoreBoardEventsTracker = getScoreBoardEventsTracker();
-            final Double[] totalAmountWonPerEvent = {0.0};
+            Double totalAmountWonPerEvent = 0.0;
 
             if (scoreBoardEventsTracker != null) {
-                updateScoreBoardEventsTracker(scoreBoardEventsTracker, totalAmountWonPerEvent);
+                totalAmountWonPerEvent = updateScoreBoardEventsTracker(scoreBoardEventsTracker);
             }
 
             updateScoreInPropBetsSummary(betValue);
@@ -664,7 +664,7 @@ public class DataService {
         return tracker.optBoolean(IS_LOCKED, false);
     }
 
-    private void updateScoreBoardEventsTracker(JSONObject scoreBoardEventsTracker, Double[] totalAmountWonPerEvent) {
+    private Double updateScoreBoardEventsTracker(JSONObject scoreBoardEventsTracker) {
         try {
             int id = scoreBoardEventsTracker.getInt("id");
             Double totalAmountOfBets = scoreBoardEventsTracker.getDouble(TOTAL_AMOUNT_OF_BETS);
@@ -672,16 +672,18 @@ public class DataService {
 
             numberOfWinningEvents += 1;
 
-            totalAmountWonPerEvent[0] = BigDecimal.valueOf(totalAmountOfBets / numberOfWinningEvents)
+            Double totalAmountWonPerEvent = BigDecimal.valueOf(totalAmountOfBets / numberOfWinningEvents)
                                                   .setScale(2, RoundingMode.HALF_UP)
                                                   .doubleValue();
 
             JSONObject updateObj = new JSONObject();
             updateObj.put(NUMBER_OF_WINNING_EVENTS, numberOfWinningEvents);
-            updateObj.put(TOTAL_AMOUNT_WON_PER_EVENT, totalAmountWonPerEvent[0]);
+            updateObj.put(TOTAL_AMOUNT_WON_PER_EVENT, totalAmountWonPerEvent);
 
             String query = "id=eq." + id;
             supabaseService.patch(TABLE_SCOREBOARD_EVENTS_TRACKER, query, updateObj.toString());
+
+            return totalAmountWonPerEvent;
         } catch (Exception e) {
             throw new RuntimeException("Failed to update scoreboard events tracker in Supabase", e);
         }
@@ -689,7 +691,7 @@ public class DataService {
 
     private void findAllWinningScoreEvents(java.util.Map<String, Integer> winningBettersCountMap,
                                            java.util.Map<String, Double> winningBettersTotalMap,
-                                           Double[] totalAmountWonPerEvent) {
+                                           Double totalAmountWonPerEvent) {
         try {
             String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
                     "&count=not.is.null";
@@ -702,7 +704,7 @@ public class DataService {
                 Set<String> winningBetters = toStringSet(document.optJSONArray(BETTERS));
                 Integer count = document.getInt(COUNT);
 
-                Double amountWonPerBetter = BigDecimal.valueOf((count * totalAmountWonPerEvent[0]) / winningBetters.size())
+                Double amountWonPerBetter = BigDecimal.valueOf((count * totalAmountWonPerEvent) / winningBetters.size())
                                                       .setScale(2, RoundingMode.HALF_UP)
                                                       .doubleValue();
 
