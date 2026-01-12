@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -602,7 +603,7 @@ public class DataService {
             java.util.Map<String, Integer> winningBettersCountMap = new java.util.HashMap<>();
             java.util.Map<String, Double> winningBettersTotalMap = new java.util.HashMap<>();
 
-            findAllWinningScoreEvents(winningBettersCountMap, winningBettersTotalMap, totalAmountWonPerEvent);
+            findAllWinningScoreEvents(betValue, winningBettersCountMap, winningBettersTotalMap, totalAmountWonPerEvent);
 
             updateScoreBoardBetsInUserBetsSummary(winningBettersCountMap, winningBettersTotalMap);
         }
@@ -689,20 +690,20 @@ public class DataService {
         }
     }
 
-    private void findAllWinningScoreEvents(java.util.Map<String, Integer> winningBettersCountMap,
-                                           java.util.Map<String, Double> winningBettersTotalMap,
+    private void findAllWinningScoreEvents(String betValue,
+                                           Map<String, Integer> winningBettersCountMap,
+                                           Map<String, Double> winningBettersTotalMap,
                                            Double totalAmountWonPerEvent) {
         try {
-            String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
-                    "&count=not.is.null";
-            String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, query);
+            String query = "bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
+            String response = supabaseService.get(TABLE_SCORE_BETS_SUMMARY, query);
             JSONArray arr = new JSONArray(response);
 
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject document = arr.getJSONObject(i);
 
                 Set<String> winningBetters = toStringSet(document.optJSONArray(BETTERS));
-                Integer count = document.getInt(COUNT);
+                Integer count = document.optInt(COUNT, 0);
 
                 Double amountWonPerBetter = BigDecimal.valueOf((count * totalAmountWonPerEvent) / winningBetters.size())
                                                       .setScale(2, RoundingMode.HALF_UP)

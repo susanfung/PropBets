@@ -796,7 +796,7 @@ class DataServiceTest {
 
         dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
 
-        Mockito.verify(mockSupabaseService, Mockito.times(1))
+        Mockito.verify(mockSupabaseService, Mockito.times(2))
                 .get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.eq("bet_value=eq.3%2C7"));
     }
 
