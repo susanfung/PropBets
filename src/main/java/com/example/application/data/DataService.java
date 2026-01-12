@@ -666,7 +666,7 @@ public class DataService {
 
     private Double updateScoreBoardEventsTracker(JSONObject scoreBoardEventsTracker) {
         try {
-            int id = scoreBoardEventsTracker.getInt("id");
+            String id = scoreBoardEventsTracker.getString("id");
             Double totalAmountOfBets = scoreBoardEventsTracker.getDouble(TOTAL_AMOUNT_OF_BETS);
             Integer numberOfWinningEvents = scoreBoardEventsTracker.getInt(NUMBER_OF_WINNING_EVENTS);
 
