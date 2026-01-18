@@ -676,7 +676,7 @@ class DataServiceTest {
         Mockito.verify(mockSupabaseService, Mockito.times(1))
                 .patch(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("id=eq.1"), trackerUpdateCaptor.capture());
         Mockito.verify(mockSupabaseService, Mockito.times(1))
-                .patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq("bet_type=eq.Score&bet_value=eq.1%2C4"), propBetsUpdateCaptor.capture());
+                .patch(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.eq("bet_value=eq.1%2C4"), propBetsUpdateCaptor.capture());
         Mockito.verify(mockSupabaseService, Mockito.times(2))
                 .patch(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString(), userBetsUpdateCaptor.capture());
 
@@ -756,7 +756,7 @@ class DataServiceTest {
         Mockito.verify(mockSupabaseService, Mockito.times(1))
                 .post(Mockito.eq(TABLE_SCORE), scoreCaptor.capture());
         Mockito.verify(mockSupabaseService, Mockito.times(1))
-                .patch(Mockito.eq(TABLE_PROP_BETS_SUMMARY), Mockito.eq("bet_type=eq.Score&bet_value=eq.7%2C0"), propBetsUpdateCaptor.capture());
+                .patch(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.eq("bet_value=eq.7%2C0"), propBetsUpdateCaptor.capture());
         Mockito.verify(mockSupabaseService, Mockito.times(2))
                 .patch(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString(), userBetsUpdateCaptor.capture());
         Mockito.verify(mockSupabaseService, Mockito.never())
@@ -796,7 +796,7 @@ class DataServiceTest {
 
         dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
 
-        Mockito.verify(mockSupabaseService, Mockito.times(2))
+        Mockito.verify(mockSupabaseService, Mockito.times(3))
                 .get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.eq("bet_value=eq.3%2C7"));
     }
 

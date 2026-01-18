@@ -598,7 +598,7 @@ public class DataService {
                 totalAmountWonPerEvent = updateScoreBoardEventsTracker(scoreBoardEventsTracker);
             }
 
-            updateScoreInPropBetsSummary(betValue);
+            updateScoreInScoreBetsSummary(betValue);
 
             java.util.Map<String, Integer> winningBettersCountMap = new java.util.HashMap<>();
             java.util.Map<String, Double> winningBettersTotalMap = new java.util.HashMap<>();
@@ -719,11 +719,10 @@ public class DataService {
         }
     }
 
-    private void updateScoreInPropBetsSummary(String betValue) {
+    private void updateScoreInScoreBetsSummary(String betValue) {
         try {
-            String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
-                          "&bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
-            String response = supabaseService.get(TABLE_PROP_BETS_SUMMARY, query);
+            String query = "bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
+            String response = supabaseService.get(TABLE_SCORE_BETS_SUMMARY, query);
             JSONArray arr = new JSONArray(response);
 
             if (arr.length() > 0) {
@@ -733,7 +732,7 @@ public class DataService {
                 JSONObject updateObj = new JSONObject();
                 updateObj.put(COUNT, count + 1);
 
-                supabaseService.patch(TABLE_PROP_BETS_SUMMARY, query, updateObj.toString());
+                supabaseService.patch(TABLE_SCORE_BETS_SUMMARY, query, updateObj.toString());
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to update score in prop bets summary in Supabase", e);
