@@ -810,8 +810,7 @@ public class DataService {
 
             scoreBetsSummary.forEach(summary -> {
                 try {
-                    String query = "bet_type=eq." + URLEncoder.encode(SCORE_BET_TYPE, StandardCharsets.UTF_8) +
-                            "&bet_value=eq." + URLEncoder.encode(summary.betValue(), StandardCharsets.UTF_8);
+                    String query = "bet_value=eq." + URLEncoder.encode(summary.betValue(), StandardCharsets.UTF_8);
                     supabaseService.patch(TABLE_SCORE_BETS_SUMMARY, query, updateObj.toString());
                 } catch (Exception e) {
                     throw new RuntimeException("Failed to lock score bet summary: " + summary.betValue(), e);
