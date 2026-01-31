@@ -603,7 +603,7 @@ public class DataService {
             java.util.Map<String, Integer> winningBettersCountMap = new java.util.HashMap<>();
             java.util.Map<String, Double> winningBettersTotalMap = new java.util.HashMap<>();
 
-            findAllWinningScoreEvents(betValue, winningBettersCountMap, winningBettersTotalMap, totalAmountWonPerEvent);
+            findAllWinningScoreEvents(winningBettersCountMap, winningBettersTotalMap, totalAmountWonPerEvent);
 
             updateScoreBoardBetsInUserBetsSummary(winningBettersCountMap, winningBettersTotalMap);
         }
@@ -690,12 +690,11 @@ public class DataService {
         }
     }
 
-    private void findAllWinningScoreEvents(String betValue,
-                                           Map<String, Integer> winningBettersCountMap,
+    private void findAllWinningScoreEvents(Map<String, Integer> winningBettersCountMap,
                                            Map<String, Double> winningBettersTotalMap,
                                            Double totalAmountWonPerEvent) {
         try {
-            String query = "bet_value=eq." + URLEncoder.encode(betValue, StandardCharsets.UTF_8);
+            String query = "count=not.is.null&count=neq.0";
             String response = supabaseService.get(TABLE_SCORE_BETS_SUMMARY, query);
             JSONArray arr = new JSONArray(response);
 
@@ -754,8 +753,9 @@ public class DataService {
                         Double amountOwing = foundUserBetSummary.getDouble(AMOUNT_OWING);
                         Integer numberOfPropBetsWon = foundUserBetSummary.optInt(NUMBER_OF_PROPBETS_WON, 0);
                         Double amountOfPropBetsWon = foundUserBetSummary.optDouble(AMOUNT_OF_PROPBETS_WON, 0.0);
-                        Integer numberOfBetsWon = numberOfPropBetsWon + numberOfScoreBoardBetsWon;
+
                         Double amountOfScoreBoardBetsWon = winningBettersTotalMap.get(username);
+                        Integer numberOfBetsWon = numberOfPropBetsWon + numberOfScoreBoardBetsWon;
                         Double amountWon = BigDecimal.valueOf(amountOfPropBetsWon + amountOfScoreBoardBetsWon)
                                                      .setScale(2, RoundingMode.HALF_UP)
                                                      .doubleValue();

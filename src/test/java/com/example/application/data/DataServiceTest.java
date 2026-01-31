@@ -650,12 +650,8 @@ class DataServiceTest {
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("")))
                 .thenReturn(scoreboardEventsTrackerResponse);
         Mockito.when(mockSupabaseService.get(
-                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
-                Mockito.eq("bet_type=eq.Score&bet_value=eq.1%2C4")
-        )).thenReturn(scoreBetsSummaryResponse);
-        Mockito.when(mockSupabaseService.get(
-                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
-                Mockito.eq("bet_type=eq.Score&count=not.is.null")
+                Mockito.eq(TABLE_SCORE_BETS_SUMMARY),
+                Mockito.eq("count=not.is.null&count=neq.0")
         )).thenReturn(winningScoreEventsResponse);
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("username=eq.john_doe")))
                 .thenReturn(johnUserBetsSummaryResponse);
@@ -733,12 +729,8 @@ class DataServiceTest {
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("")))
                 .thenReturn("[]");
         Mockito.when(mockSupabaseService.get(
-                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
-                Mockito.eq("bet_type=eq.Score&bet_value=eq.7%2C0")
-        )).thenReturn(scoreBetsSummaryResponse);
-        Mockito.when(mockSupabaseService.get(
-                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
-                Mockito.eq("bet_type=eq.Score&count=not.is.null")
+                Mockito.eq(TABLE_SCORE_BETS_SUMMARY),
+                Mockito.eq("count=not.is.null&count=neq.0")
         )).thenReturn(winningScoreEventsResponse);
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.eq("username=eq.user1")))
                 .thenReturn(user1BetsSummaryResponse);
@@ -782,12 +774,8 @@ class DataServiceTest {
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_SCOREBOARD_EVENTS_TRACKER), Mockito.eq("")))
                 .thenReturn("[]");
         Mockito.when(mockSupabaseService.get(
-                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
-                Mockito.eq("bet_type=eq.Score&bet_value=eq.3%2C7")
-        )).thenReturn(scoreBetsSummaryResponse);
-        Mockito.when(mockSupabaseService.get(
-                Mockito.eq(TABLE_PROP_BETS_SUMMARY),
-                Mockito.eq("bet_type=eq.Score&count=not.is.null")
+                Mockito.eq(TABLE_SCORE_BETS_SUMMARY),
+                Mockito.eq("count=not.is.null&count=neq.0")
         )).thenReturn(scoreBetsSummaryResponse);
         Mockito.when(mockSupabaseService.get(Mockito.eq(TABLE_USER_BETS_SUMMARY), Mockito.anyString()))
                 .thenReturn("[{\"username\":\"test_user\",\"amount_owing\":5.0,\"numberOfPropBetsWon\":0,\"amountOfPropBetsWon\":0.0}]");
@@ -796,7 +784,7 @@ class DataServiceTest {
 
         dataService.saveScore(team1Name, team1Score, team2Name, team2Score);
 
-        Mockito.verify(mockSupabaseService, Mockito.times(3))
+        Mockito.verify(mockSupabaseService, Mockito.times(2))
                 .get(Mockito.eq(TABLE_SCORE_BETS_SUMMARY), Mockito.eq("bet_value=eq.3%2C7"));
     }
 
