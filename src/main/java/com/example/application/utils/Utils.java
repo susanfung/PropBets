@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Optional;
 
 public class Utils {
-    public static final String TEAM_1_NAME = "Kansas City Chiefs";
-    public static final String TEAM_1_TABLE_NAME = "chiefs";
-    public static final String TEAM_1_LOGO_SOURCE = "icons/KC.svg";
-    public static final String TEAM_2_NAME = "Philadelphia Eagles";
-    public static final String TEAM_2_TABLE_NAME = "eagles";
-    public static final String TEAM_2_LOGO_SOURCE = "icons/PHI.svg";
+    public static final String TEAM_1_NAME = "New England Patriots";
+    public static final String TEAM_1_TABLE_NAME = "patriots";
+    public static final String TEAM_1_LOGO_SOURCE = "icons/new-england-patriots.png";
+    public static final String TEAM_2_NAME = "Seattle Seahawks";
+    public static final String TEAM_2_TABLE_NAME = "seahawks";
+    public static final String TEAM_2_LOGO_SOURCE = "icons/seattle-seahawks.png";
 
     public static final int AMOUNT_PER_BET = 2;
 
