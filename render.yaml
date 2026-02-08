@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: propbets
+    runtime: java
+    buildCommand: ./mvnw clean package -Pproduction -DskipTests
+    startCommand: java -Dserver.port=$PORT -jar target/propbets-1.0-SNAPSHOT.jar
+    envVars:
+      - key: JAVA_VERSION
+        value: 17
+
