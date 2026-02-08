@@ -105,10 +105,10 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     private VerticalLayout createFooter() {
         VerticalLayout layout = new VerticalLayout();
 
-        Text partnerText = new Text("Partnered with:");
-
-        Image partnerImage = new Image("images/murfys-bbq.png", "Murfy's BBQ");
-        partnerImage.setWidth("100%");
+//        Text partnerText = new Text("Partnered with:");
+//
+//        Image partnerImage = new Image("images/murfys-bbq.png", "Murfy's BBQ");
+//        partnerImage.setWidth("100%");
 
         Button logoutButton = new Button("Logout", event -> logout());
 
@@ -117,7 +117,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         anchorIcons.setTitle("Bet Icons");
         anchorIcons.getElement().getStyle().set("font-size", "10px");
 
-        layout.add(partnerText, partnerImage, logoutButton, anchorIcons);
+        layout.add(logoutButton, anchorIcons);
 
         return layout;
     }
