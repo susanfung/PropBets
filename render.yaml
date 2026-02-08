@@ -7,7 +7,8 @@ services:
     healthCheckPath: /
     envVars:
       - key: JAVA_VERSION
-        value: 17
+        value: 21
       - key: SPRING_PROFILES_ACTIVE
         value: production
-
+      # Note: Add SUPABASE_URL and SUPABASE_API_KEY in Render Dashboard
+      # under Environment Variables for security (not in this file)
