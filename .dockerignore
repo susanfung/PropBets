@@ -1,0 +1,35 @@
+# Ignore target directory (build artifacts)
+target/
+
+# Ignore node_modules
+node_modules/
+
+# Ignore git files
+.git/
+.gitignore
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore environment files
+.env
+.env.local
+
+# Ignore test and documentation files
+*.md
+LICENSE.md
+
+# Ignore render config (not needed in container)
+render.yaml
+
+# Ignore log files
+*.log
+

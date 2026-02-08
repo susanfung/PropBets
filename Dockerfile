@@ -2,15 +2,21 @@
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml
+# Copy Maven wrapper and pom.xml first for dependency caching
 COPY .mvn .mvn
 COPY mvnw pom.xml ./
-COPY src ./src
-COPY frontend ./frontend
-COPY package.json package-lock.json* tsconfig.json vite.config.ts types.d.ts ./
+COPY package.json package-lock.json* ./
 
 # Make mvnw executable
 RUN chmod +x mvnw
+
+# Download dependencies (this layer will be cached if pom.xml doesn't change)
+RUN ./mvnw dependency:go-offline -B || true
+
+# Copy the rest of the project files
+COPY src ./src
+COPY frontend ./frontend
+COPY tsconfig.json vite.config.ts types.d.ts ./
 
 # Build the application
 RUN ./mvnw clean package -Pproduction -DskipTests
