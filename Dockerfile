@@ -1,5 +1,5 @@
 # Build stage
-FROM maven:3.9-eclipse-temurin-17 AS build
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 
 # Copy pom.xml and package files for dependency resolution
@@ -15,7 +15,7 @@ COPY tsconfig.json vite.config.ts types.d.ts ./
 RUN mvn clean package -Pproduction -DskipTests
 
 # Runtime stage
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
 # Copy the built JAR from build stage
