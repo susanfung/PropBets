@@ -38,7 +38,7 @@
     "typescript": "5.9.3",
     "vite": "7.3.3",
     "vite-plugin-checker": "0.12.0",
-    "workbox-build": "7.4.0"
+    "workbox-build": "7.4.1"
   },
   "overrides": {
     "@vaadin/vaadin-development-mode-detector": "$@vaadin/vaadin-development-mode-detector",
@@ -161,7 +161,7 @@
       "typescript": "5.9.3",
       "vite": "7.3.3",
       "vite-plugin-checker": "0.12.0",
-      "workbox-build": "7.4.0"
+      "workbox-build": "7.4.1"
     },
     "hash": "ff24a83c051ce4662b05215f46f9e8d72ea9673029b6e541ac8fc5590aaece89"
   },
