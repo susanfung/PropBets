@@ -3,7 +3,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@vaadin/aura": "25.2.4",
-    "@vaadin/common-frontend": "0.0.24",
+    "@vaadin/common-frontend": "0.0.23",
     "@vaadin/horizontal-layout": "^25.0.1",
     "@vaadin/react-components": "25.2.4",
     "@vaadin/react-components-pro": "25.2.4",
@@ -134,7 +134,7 @@
   "vaadin": {
     "dependencies": {
       "@vaadin/aura": "25.2.4",
-      "@vaadin/common-frontend": "0.0.24",
+      "@vaadin/common-frontend": "0.0.23",
       "@vaadin/react-components": "25.2.4",
       "@vaadin/react-components-pro": "25.2.4",
       "@vaadin/vaadin-development-mode-detector": "2.0.7",
