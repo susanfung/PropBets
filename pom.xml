@@ -148,7 +148,7 @@
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
-                <version>9.22.3</version>
+                <version>13.1.0</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
