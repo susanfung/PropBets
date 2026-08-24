@@ -14,7 +14,7 @@
         <vaadin.version>25.2.3</vaadin.version>
         <!-- this parameter is needed as spring-boot bom overwrites it -->
         <selenium.version>4.11.0</selenium.version>
-        <org.jooq.version>3.21.6</org.jooq.version>
+        <org.jooq.version>3.21.7</org.jooq.version>
         <db.url>jdbc:h2:~/flyway-test</db.url>
         <db.username>sa</db.username>
     </properties>
