@@ -15,8 +15,9 @@
         <!-- this parameter is needed as spring-boot bom overwrites it -->
         <selenium.version>4.11.0</selenium.version>
         <org.jooq.version>3.21.7</org.jooq.version>
-        <db.url>jdbc:h2:~/flyway-test</db.url>
-        <db.username>sa</db.username>
+        <supabase.jdbc.url>${env.SUPABASE_JDBC_URL}</supabase.jdbc.url>
+        <supabase.db.user>${env.SUPABASE_DB_USER}</supabase.db.user>
+        <supabase.db.password>${env.SUPABASE_DB_PASSWORD}</supabase.db.password>
     </properties>
 
     <parent>
@@ -114,9 +115,9 @@
             <version>${org.jooq.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>2.4.240</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.3</version>
         </dependency>
     </dependencies>
 
@@ -132,7 +133,6 @@
                     <maxAttempts>240</maxAttempts>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
@@ -144,26 +144,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <version>13.3.0</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>migrate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <url>${db.url}</url>
-                    <user>${db.username}</user>
-                    <locations>
-                        <location>filesystem:src/main/resources/db/migration</location>
-                    </locations>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jooq</groupId>
@@ -179,17 +159,21 @@
                 </executions>
                 <configuration>
                     <jdbc>
-                        <url>${db.url}</url>
-                        <user>${db.username}</user>
+                        <driver>org.postgresql.Driver</driver>
+                        <url>${supabase.jdbc.url}</url>
+                        <user>${supabase.db.user}</user>
+                        <password>${supabase.db.password}</password>
                     </jdbc>
+
                     <generator>
                         <database>
-                            <includes>.*</includes>
-                            <inputSchema>FLYWAY_TEST</inputSchema>
+                            <name>org.jooq.meta.postgres.PostgresDatabase</name>
+                            <inputSchema>public</inputSchema>
                         </database>
+
                         <target>
-                            <packageName>org.jooq.example.flyway.db.h2</packageName>
-                            <directory>target/generated-sources/jooq-h2</directory>
+                            <packageName>com.example.application.jooq</packageName>
+                            <directory>target/generated-sources/jooq</directory>
                         </target>
                     </generator>
                 </configuration>
