@@ -14,7 +14,7 @@
         <vaadin.version>25.2.6</vaadin.version>
         <!-- this parameter is needed as spring-boot bom overwrites it -->
         <selenium.version>4.11.0</selenium.version>
-        <org.jooq.version>3.21.7</org.jooq.version>
+        <org.jooq.version>3.21.9</org.jooq.version>
         <supabase.jdbc.url>${env.SUPABASE_JDBC_URL}</supabase.jdbc.url>
         <supabase.db.user>${env.SUPABASE_DB_USER}</supabase.db.user>
         <supabase.db.password>${env.SUPABASE_DB_PASSWORD}</supabase.db.password>
