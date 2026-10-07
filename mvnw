@@ -29,12 +29,6 @@
 #   MVNW_VERBOSE - true: enable verbose log; debug: trace the mvnw script; others: silence the output
 # ----------------------------------------------------------------------------
 
-if [ -f ".env" ]; then
-set -a
-. ./.env
-set +a
-fi
-
 set -euf
 [ "${MVNW_VERBOSE-}" != debug ] || set -x
 
